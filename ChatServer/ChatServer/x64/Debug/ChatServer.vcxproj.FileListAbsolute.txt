@@ -1,0 +1,15 @@
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\abseil_dll.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\boost_filesystem-vc145-mt-gd-x64-1_90.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\hiredisd.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\jsoncpp.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\libcrypto-3-x64.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\libprotobuf-lited.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\libprotobufd.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\libssl-3-x64.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\mysqlcppconnx-2-vs14.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\zlibd1.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\lz4d.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\zstd.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\re2.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\x64\Debug\cares.dll
+D:\Users\Baidou\Documents\CppProject\myChat\ChatServer\ChatServer\x64\Debug\ChatServ.5C262225.Up2Date
