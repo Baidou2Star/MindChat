@@ -122,14 +122,10 @@ compile_commands.json
 
 *_qmlcache.qrc
 
+.vs/
+x64/
 /redis/redis-5.0.14.1
-/VarifyServer/node_modules
-/ChatServer/.vs
-/ChatServer/x64
 /ChatServer/ChatServer
-/GateServerWin/.vs
 /GateServerWin/GateServerWin
-/GateServerWin/x64
-/StatusServer/.vs
 /StatusServer/StatusServer
-/StatusServer/x64
+/VarifyServer/node_modules
