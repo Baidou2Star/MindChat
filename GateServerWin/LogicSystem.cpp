@@ -232,11 +232,11 @@ LogicSystem::LogicSystem()
 			return true;
 		}
 
-		auto name = src_root["user"].asString();
+		auto email = src_root["email"].asString();
 		auto pwd = src_root["passwd"].asString();
 		UserInfo userInfo;
 		//查询数据库判断用户名和密码是否匹配
-		bool pwd_valid = MysqlMgr::GetInstance()->CheckPwd(name, pwd, userInfo);
+		bool pwd_valid = MysqlMgr::GetInstance()->CheckPwd(email, pwd, userInfo);
 		if (!pwd_valid) {
 			std::cout << " user pwd not match" << std::endl;
 			root["error"] = ErrorCodes::PasswdInvalid;
@@ -257,7 +257,7 @@ LogicSystem::LogicSystem()
 
 		std::cout << "succeed to load userinfo uid is " << userInfo.uid << std::endl;
 		root["error"] = 0;
-		root["user"] = name;
+		root["email"] = email;
 		root["uid"] = userInfo.uid;
 		root["token"] = reply.token();
 		root["host"] = reply.host();

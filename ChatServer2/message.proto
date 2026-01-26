@@ -43,7 +43,6 @@ message LoginRsp {
 	string token = 3;
 }
 
-
 service ChatService {
 	rpc NotifyAddFriend(AddFriendReq) returns (AddFriendRsp) {}
 	rpc RplyAddFriend(RplyFriendReq) returns (RplyFriendRsp) {}

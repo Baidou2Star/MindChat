@@ -181,15 +181,6 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short &msg_id
 	}
 
 	auto server_name = ConfigMgr::Inst().GetValue("SelfServer", "Name");
-	//缺乏增加连接数的操作
-	//auto rd_res = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server_name);
-	//int count = 0;
-	//if (!rd_res.empty())
-	//	count = std::stoi(rd_res);
-	//count++;
-	//auto count_str = std::to_string(count);
-	//RedisMgr::GetInstance()->HSet(LOGIN_COUNT, server_name, count_str);//session绑定用户uid
-
 	{
 		//此处添加分布式锁，让该线程独占登录
 		//拼接用户ip对应的key
@@ -333,7 +324,7 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 		return ;
 	}
 
-	//rpc请求查询
+	
 	AddFriendReq add_req;
 	add_req.set_applyuid(uid);
 	add_req.set_touid(touid);

@@ -58,45 +58,76 @@ StatusServiceImpl::StatusServiceImpl()
 }
 
 ChatServer StatusServiceImpl::getChatServer() {
+	//std::lock_guard<std::mutex> guard(_server_mtx);
+	//auto minServer = _servers.begin()->second;
+	////for (auto& server : _servers) {
+
+	////	if (server.second.con_count < minServer.con_count) {
+	////		minServer = server.second;
+	////	}
+	////}
+	////auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, minServer.name);
+	////if (count_str.empty()) {
+	////	//不存在则默认设置为最大
+	////	minServer.con_count = INT_MAX;
+	////}
+	////else {
+	////	minServer.con_count = std::stoi(count_str);
+	////}
+
+
+	////// 使用范围基于for循环
+	////for ( auto& server : _servers) {
+	////	
+	////	if (server.second.name == minServer.name) {
+	////		continue;
+	////	}
+
+	////	auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server.second.name);
+	////	if (count_str.empty()) {
+	////		server.second.con_count = INT_MAX;
+	////	}
+	////	else {
+	////		server.second.con_count = std::stoi(count_str);
+	////	}
+
+	////	if (server.second.con_count < minServer.con_count) {
+	////		minServer = server.second;
+	////	}
+	////}
 	std::lock_guard<std::mutex> guard(_server_mtx);
 	auto minServer = _servers.begin()->second;
-	//for (auto& server : _servers) {
-
-	//	if (server.second.con_count < minServer.con_count) {
-	//		minServer = server.second;
-	//	}
-	//}
-	//auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, minServer.name);
-	//if (count_str.empty()) {
-	//	//不存在则默认设置为最大
-	//	minServer.con_count = INT_MAX;
-	//}
-	//else {
-	//	minServer.con_count = std::stoi(count_str);
-	//}
+	auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, minServer.name);
+	if (count_str.empty()) {
+		//不存在则默认设置为最大
+		minServer.con_count = INT_MAX;
+	}
+	else {
+		minServer.con_count = std::stoi(count_str);
+	}
 
 
-	//// 使用范围基于for循环
-	//for ( auto& server : _servers) {
-	//	
-	//	if (server.second.name == minServer.name) {
-	//		continue;
-	//	}
+	// 使用范围基于for循环
+	for (auto& server : _servers) {
 
-	//	auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server.second.name);
-	//	if (count_str.empty()) {
-	//		server.second.con_count = INT_MAX;
-	//	}
-	//	else {
-	//		server.second.con_count = std::stoi(count_str);
-	//	}
+		if (server.second.name == minServer.name) {
+			continue;
+		}
 
-	//	if (server.second.con_count < minServer.con_count) {
-	//		minServer = server.second;
-	//	}
-	//}
+		auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server.second.name);
+		if (count_str.empty()) {
+			server.second.con_count = INT_MAX;
+		}
+		else {
+			server.second.con_count = std::stoi(count_str);
+		}
 
-	return minServer;
+		if (server.second.con_count < minServer.con_count) {
+			minServer = server.second;
+		}
+	}
+
+	return minServer;return minServer;
 }
 
 Status StatusServiceImpl::Login(ServerContext* context, const LoginReq* request, LoginRsp* reply)

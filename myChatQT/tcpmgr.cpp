@@ -10,7 +10,7 @@ TcpMgr::TcpMgr():_host(""),_port(0),_b_recv_pending(false),_message_id(0),_messa
             emit sig_con_success(true);
        });
 
-       QObject::connect(&_socket, &QTcpSocket::readyRead, [&]() {
+    QObject::connect(&_socket, &QTcpSocket::readyRead, [&]() {
            // 当有数据可读时，读取所有数据
            // 读取所有数据并追加到缓冲区
            _buffer.append(_socket.readAll());
@@ -61,44 +61,44 @@ TcpMgr::TcpMgr():_host(""),_port(0),_b_recv_pending(false),_message_id(0),_messa
 //       });
 
        // 处理错误（适用于Qt 5.15之前的版本）
-        QObject::connect(&_socket, static_cast<void (QTcpSocket::*)(QTcpSocket::SocketError)>(&QTcpSocket::error),
-                            [&](QTcpSocket::SocketError socketError) {
-               qDebug() << "Error:" << _socket.errorString() ;
-               switch (socketError) {
-                   case QTcpSocket::ConnectionRefusedError:
-                       qDebug() << "Connection Refused!";
-                       emit sig_con_success(false);
-                       break;
-                   case QTcpSocket::RemoteHostClosedError:
-                       qDebug() << "Remote Host Closed Connection!";
-                       break;
-                   case QTcpSocket::HostNotFoundError:
-                       qDebug() << "Host Not Found!";
-                       emit sig_con_success(false);
-                       break;
-                   case QTcpSocket::SocketTimeoutError:
-                       qDebug() << "Connection Timeout!";
-                       emit sig_con_success(false);
-                       break;
-                   case QTcpSocket::NetworkError:
-                       qDebug() << "Network Error!";
-                       break;
-                   default:
-                       qDebug() << "Other Error!";
-                       break;
-               }
-         });
+    QObject::connect(&_socket, static_cast<void (QTcpSocket::*)(QTcpSocket::SocketError)>(&QTcpSocket::error),
+                        [&](QTcpSocket::SocketError socketError) {
+           qDebug() << "Error:" << _socket.errorString() ;
+           switch (socketError) {
+               case QTcpSocket::ConnectionRefusedError:
+                   qDebug() << "Connection Refused!";
+                   emit sig_con_success(false);
+                   break;
+               case QTcpSocket::RemoteHostClosedError:
+                   qDebug() << "Remote Host Closed Connection!";
+                   break;
+               case QTcpSocket::HostNotFoundError:
+                   qDebug() << "Host Not Found!";
+                   emit sig_con_success(false);
+                   break;
+               case QTcpSocket::SocketTimeoutError:
+                   qDebug() << "Connection Timeout!";
+                   emit sig_con_success(false);
+                   break;
+               case QTcpSocket::NetworkError:
+                   qDebug() << "Network Error!";
+                   break;
+               default:
+                   qDebug() << "Other Error!";
+                   break;
+           }
+     });
 
-        // 处理连接断开
-        QObject::connect(&_socket, &QTcpSocket::disconnected, [&]() {
-            qDebug() << "Disconnected from server.";
-            //并且发送通知到界面
-            emit sig_connection_closed();
-        });
-        //连接发送信号用来发送数据
-        QObject::connect(this, &TcpMgr::sig_send_data, this, &TcpMgr::slot_send_data);
-        //注册消息
-        initHandlers();
+    // 处理连接断开
+    QObject::connect(&_socket, &QTcpSocket::disconnected, [&]() {
+        qDebug() << "Disconnected from server.";
+        //并且发送通知到界面
+        emit sig_connection_closed();
+    });
+    //连接发送信号用来发送数据
+    QObject::connect(this, &TcpMgr::sig_send_data, this, &TcpMgr::slot_send_data);
+    //注册消息
+    initHandlers();
 }
 
 void TcpMgr::CloseConnection(){

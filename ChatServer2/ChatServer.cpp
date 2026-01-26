@@ -24,7 +24,7 @@ int main()
 	auto& cfg = ConfigMgr::Inst();
 	auto server_name = cfg["SelfServer"]["Name"];
 	try {
-		cout << "启动chatserver" << std::endl;
+		cout << "启动chatserver2" << std:: endl;
 		auto pool = AsioIOServicePool::GetInstance();
 		//将登录数设置为0
 		RedisMgr::GetInstance()->HSet(LOGIN_COUNT, server_name, "0");
