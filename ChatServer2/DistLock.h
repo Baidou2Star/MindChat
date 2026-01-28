@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 #include <hiredis/hiredis.h>
 #include <string>
 

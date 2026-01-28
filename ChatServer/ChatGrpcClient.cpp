@@ -1,4 +1,4 @@
-#include "ChatGrpcClient.h"
+ï»¿#include "ChatGrpcClient.h"
 #include "RedisMgr.h"
 #include "ConfigMgr.h"
 #include "UserMgr.h"
@@ -42,8 +42,8 @@ AddFriendRsp ChatGrpcClient::NotifyAddFriend(std::string server_ip, const AddFri
 	if (find_iter == _pools.end()) {
 		return rsp;
 	}
-	
-	auto &pool = find_iter->second;
+
+	auto& pool = find_iter->second;
 	ClientContext context;
 	auto stub = pool->getConnection();
 	Status status = stub->NotifyAddFriend(&context, req, &rsp);
@@ -62,7 +62,7 @@ AddFriendRsp ChatGrpcClient::NotifyAddFriend(std::string server_ip, const AddFri
 
 bool ChatGrpcClient::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo)
 {
-	//ÓÅÏÈ²éredisÖÐ²éÑ¯ÓÃ»§ÐÅÏ¢
+	//ä¼˜å…ˆæŸ¥redisä¸­æŸ¥è¯¢ç”¨æˆ·ä¿¡æ¯
 	std::string info_str = "";
 	bool b_base = RedisMgr::GetInstance()->Get(base_key, info_str);
 	if (b_base) {
@@ -81,8 +81,8 @@ bool ChatGrpcClient::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<
 			<< userinfo->name << " pwd is " << userinfo->pwd << " email is " << userinfo->email << endl;
 	}
 	else {
-		//redisÖÐÃ»ÓÐÔò²éÑ¯mysql
-		//²éÑ¯Êý¾Ý¿â
+		//redisä¸­æ²¡æœ‰åˆ™æŸ¥è¯¢mysql
+		//æŸ¥è¯¢æ•°æ®åº“
 		std::shared_ptr<UserInfo> user_info = nullptr;
 		user_info = MysqlMgr::GetInstance()->GetUser(uid);
 		if (user_info == nullptr) {
@@ -91,7 +91,7 @@ bool ChatGrpcClient::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<
 
 		userinfo = user_info;
 
-		//½«Êý¾Ý¿âÄÚÈÝÐ´Èëredis»º´æ
+		//å°†æ•°æ®åº“å†…å®¹å†™å…¥redisç¼“å­˜
 		Json::Value redis_root;
 		redis_root["uid"] = uid;
 		redis_root["pwd"] = userinfo->pwd;
@@ -136,9 +136,9 @@ AuthFriendRsp ChatGrpcClient::NotifyAuthFriend(std::string server_ip, const Auth
 	return rsp;
 }
 
-TextChatMsgRsp ChatGrpcClient::NotifyTextChatMsg(std::string server_ip, 
+TextChatMsgRsp ChatGrpcClient::NotifyTextChatMsg(std::string server_ip,
 	const TextChatMsgReq& req, const Json::Value& rtvalue) {
-	
+
 	TextChatMsgRsp rsp;
 	rsp.set_error(ErrorCodes::Success);
 
@@ -147,10 +147,10 @@ TextChatMsgRsp ChatGrpcClient::NotifyTextChatMsg(std::string server_ip,
 		rsp.set_touid(req.touid());
 		for (const auto& text_data : req.textmsgs()) {
 			TextChatData* new_msg = rsp.add_textmsgs();
-			new_msg->set_msgid(text_data.msgid());
+			new_msg->set_unique_id(text_data.unique_id());
 			new_msg->set_msgcontent(text_data.msgcontent());
 		}
-		
+
 		});
 
 	auto find_iter = _pools.find(server_ip);

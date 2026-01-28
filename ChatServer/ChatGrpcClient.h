@@ -112,8 +112,6 @@ public:
 	KickUserRsp NotifyKickUser(std::string server_ip, const KickUserReq& req);
 private:
 	ChatGrpcClient();
-	unordered_map<std::string, std::unique_ptr<ChatConPool>> _pools;	
+	unordered_map<std::string, std::unique_ptr<ChatConPool>> _pools;
 };
-
-
 

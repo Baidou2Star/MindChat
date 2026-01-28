@@ -25,22 +25,22 @@ using message::KickUserReq;
 using message::KickUserRsp;
 
 
-class ChatServiceImpl final: public ChatService::Service
+class ChatServiceImpl final : public ChatService::Service
 {
 public:
 	ChatServiceImpl();
 	Status NotifyAddFriend(ServerContext* context, const AddFriendReq* request,
 		AddFriendRsp* reply) override;
 
-	Status NotifyAuthFriend(ServerContext* context, 
+	Status NotifyAuthFriend(ServerContext* context,
 		const AuthFriendReq* request, AuthFriendRsp* response) override;
 
-	Status NotifyTextChatMsg(::grpc::ServerContext* context, 
+	Status NotifyTextChatMsg(::grpc::ServerContext* context,
 		const TextChatMsgReq* request, TextChatMsgRsp* response) override;
 
 	bool GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo);
 
-	//接受rpc踢人请求
+	//rpc
 	Status NotifyKickUser(::grpc::ServerContext* context,
 		const KickUserReq* request, KickUserRsp* response) override;
 
@@ -48,4 +48,3 @@ public:
 private:
 	std::shared_ptr<CServer> _p_server;
 };
-

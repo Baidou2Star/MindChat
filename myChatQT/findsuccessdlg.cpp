@@ -16,7 +16,7 @@ FindSuccessDlg::FindSuccessDlg(QWidget *parent) :
     // 获取当前应用程序的路径
     QString app_path = QCoreApplication::applicationDirPath();
     QString pix_path = QDir::toNativeSeparators(app_path +
-                             QDir::separator() + "static"+QDir::separator()+"head_1.jpg");
+                             QDir::separator() + "static"+QDir::separator()+"myhead.jpg");
     QPixmap head_pix(pix_path);
     head_pix = head_pix.scaled(ui->head_lb->size(),
             Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -33,6 +33,12 @@ FindSuccessDlg::~FindSuccessDlg()
 void FindSuccessDlg::SetSearchInfo(std::shared_ptr<SearchInfo> si)
 {
     ui->name_lb->setText(si->_name);
+    // 加载图片
+    QPixmap pixmap(si->_icon);
+
+    // 设置图片自动缩放
+    ui->head_lb->setPixmap(pixmap.scaled(ui->head_lb->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    ui->head_lb->setScaledContents(true);
     _si = si;
 }
 

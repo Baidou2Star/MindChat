@@ -29,6 +29,7 @@ SOURCES += \
         BubbleFrame.cpp \
         ChatItemBase.cpp \
         ChatView.cpp \
+        ClickableLabel.cpp \
         MessageTextEdit.cpp \
         PictureBubble.cpp \
         TextBubble.cpp \
@@ -49,6 +50,7 @@ SOURCES += \
         conuseritem.cpp \
         customizeedit.cpp \
         customizetextedit.cpp \
+        filetcpmgr.cpp \
         findfaildlg.cpp \
         findsuccessdlg.cpp \
         friendinfopage.cpp \
@@ -79,6 +81,7 @@ HEADERS += \
         BubbleFrame.h \
         ChatItemBase.h \
         ChatView.h \
+        ClickableLabel.h \
         MessageTextEdit.h \
         PictureBubble.h \
         TextBubble.h \
@@ -99,6 +102,7 @@ HEADERS += \
         conuseritem.h \
         customizeedit.h \
         customizetextedit.h \
+        filetcpmgr.h \
         findfaildlg.h \
         findsuccessdlg.h \
         friendinfopage.h \
@@ -155,10 +159,12 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
+    rc.qrc \
     rc.qrc
 
 DISTFILES += \
     config.ini \
+    icon.ico \
     res/add_friend.png \
     res/add_friend_hover.png \
     res/add_friend_normal.png \

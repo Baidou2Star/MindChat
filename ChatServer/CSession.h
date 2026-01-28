@@ -22,7 +22,7 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 class CServer;
 class LogicSystem;
 
-class CSession: public std::enable_shared_from_this<CSession>
+class CSession : public std::enable_shared_from_this<CSession>
 {
 public:
 	CSession(boost::asio::io_context& io_context, CServer* server);
@@ -32,7 +32,7 @@ public:
 	void SetUserId(int uid);
 	int GetUserId();
 	void Start();
-	void Send(char* msg,  short max_length, short msgid);
+	void Send(char* msg, short max_length, short msgid);
 	void Send(std::string msg, short msgid);
 	void Close();
 	std::shared_ptr<CSession> SharedSelf();
@@ -46,11 +46,11 @@ public:
 	//处理异常连接
 	void DealExceptionSession();
 private:
-	void asyncReadFull(std::size_t maxLength, std::function<void(const boost::system::error_code& , std::size_t)> handler);
+	void asyncReadFull(std::size_t maxLength, std::function<void(const boost::system::error_code&, std::size_t)> handler);
 	void asyncReadLen(std::size_t  read_len, std::size_t total_len,
 		std::function<void(const boost::system::error_code&, std::size_t)> handler);
-	
-	
+
+
 	void HandleWrite(const boost::system::error_code& error, std::shared_ptr<CSession> shared_self);
 	tcp::socket _socket;
 	std::string _session_id;
