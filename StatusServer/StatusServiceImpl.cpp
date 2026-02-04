@@ -57,46 +57,127 @@ StatusServiceImpl::StatusServiceImpl()
 
 }
 
+//ChatServer StatusServiceImpl::getChatServer() {
+//	//std::lock_guard<std::mutex> guard(_server_mtx);
+//	//auto minServer = _servers.begin()->second;
+//	////for (auto& server : _servers) {
+//
+//	////	if (server.second.con_count < minServer.con_count) {
+//	////		minServer = server.second;
+//	////	}
+//	////}
+//	////auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, minServer.name);
+//	////if (count_str.empty()) {
+//	////	//不存在则默认设置为最大
+//	////	minServer.con_count = INT_MAX;
+//	////}
+//	////else {
+//	////	minServer.con_count = std::stoi(count_str);
+//	////}
+//
+//
+//	////// 使用范围基于for循环
+//	////for ( auto& server : _servers) {
+//	////	
+//	////	if (server.second.name == minServer.name) {
+//	////		continue;
+//	////	}
+//
+//	////	auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server.second.name);
+//	////	if (count_str.empty()) {
+//	////		server.second.con_count = INT_MAX;
+//	////	}
+//	////	else {
+//	////		server.second.con_count = std::stoi(count_str);
+//	////	}
+//
+//	////	if (server.second.con_count < minServer.con_count) {
+//	////		minServer = server.second;
+//	////	}
+//	////}
+//	std::lock_guard<std::mutex> guard(_server_mtx);
+//	auto minServer = _servers.begin()->second;
+//	auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, minServer.name);
+//	if (count_str.empty()) {
+//		//不存在则默认设置为最大
+//		minServer.con_count = INT_MAX;
+//	}
+//	else {
+//		minServer.con_count = std::stoi(count_str);
+//	}
+//
+//
+//	// 使用范围基于for循环
+//	for (auto& server : _servers) {
+//
+//		if (server.second.name == minServer.name) {
+//			continue;
+//		}
+//
+//		auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server.second.name);
+//		if (count_str.empty()) {
+//			server.second.con_count = INT_MAX;
+//		}
+//		else {
+//			server.second.con_count = std::stoi(count_str);
+//		}
+//
+//		if (server.second.con_count < minServer.con_count) {
+//			minServer = server.second;
+//		}
+//	}
+//
+//	return minServer;return minServer;
+//}
+//分布式锁版本
+//ChatServer StatusServiceImpl::getChatServer() {
+//	std::lock_guard<std::mutex> guard(_server_mtx);
+//	auto minServer = _servers.begin()->second;
+//	auto lock_key = LOCK_COUNT;
+//	auto identifier = RedisMgr::GetInstance()->acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+//	//利用defer解锁
+//	Defer defer2([this, identifier, lock_key]() {
+//		RedisMgr::GetInstance()->releaseLock(lock_key, identifier);
+//		});
+//
+//	auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, minServer.name);
+//	if (count_str.empty()) {
+//		//不存在则默认设置为最大
+//		minServer.con_count = INT_MAX;
+//	}
+//	else {
+//		minServer.con_count = std::stoi(count_str);
+//	}
+//
+//
+//	// 使用范围基于for循环
+//	for (auto& server : _servers) {
+//
+//		if (server.second.name == minServer.name) {
+//			continue;
+//		}
+//
+//		auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server.second.name);
+//		if (count_str.empty()) {
+//			server.second.con_count = INT_MAX;
+//		}
+//		else {
+//			server.second.con_count = std::stoi(count_str);
+//		}
+//
+//		if (server.second.con_count < minServer.con_count) {
+//			minServer = server.second;
+//		}
+//	}
+//
+//	return minServer;
+//}
+
+//定时设置连接数量后的版本，不是很精确的负载均衡
 ChatServer StatusServiceImpl::getChatServer() {
-	//std::lock_guard<std::mutex> guard(_server_mtx);
-	//auto minServer = _servers.begin()->second;
-	////for (auto& server : _servers) {
-
-	////	if (server.second.con_count < minServer.con_count) {
-	////		minServer = server.second;
-	////	}
-	////}
-	////auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, minServer.name);
-	////if (count_str.empty()) {
-	////	//不存在则默认设置为最大
-	////	minServer.con_count = INT_MAX;
-	////}
-	////else {
-	////	minServer.con_count = std::stoi(count_str);
-	////}
-
-
-	////// 使用范围基于for循环
-	////for ( auto& server : _servers) {
-	////	
-	////	if (server.second.name == minServer.name) {
-	////		continue;
-	////	}
-
-	////	auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server.second.name);
-	////	if (count_str.empty()) {
-	////		server.second.con_count = INT_MAX;
-	////	}
-	////	else {
-	////		server.second.con_count = std::stoi(count_str);
-	////	}
-
-	////	if (server.second.con_count < minServer.con_count) {
-	////		minServer = server.second;
-	////	}
-	////}
 	std::lock_guard<std::mutex> guard(_server_mtx);
 	auto minServer = _servers.begin()->second;
+
 	auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, minServer.name);
 	if (count_str.empty()) {
 		//不存在则默认设置为最大
@@ -127,9 +208,8 @@ ChatServer StatusServiceImpl::getChatServer() {
 		}
 	}
 
-	return minServer;return minServer;
+	return minServer;
 }
-
 Status StatusServiceImpl::Login(ServerContext* context, const LoginReq* request, LoginRsp* reply)
 {
 	auto uid = request->uid();
