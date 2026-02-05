@@ -299,10 +299,18 @@ bool MysqlDao::AddFriend(const int& from, const int& to, std::string back_name,
             .bind(to, from).execute();
 
         // 3) 建立好友关系
-        cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
-            .bind(from, to, back_name).execute();
-        cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
-            .bind(to, from, reverse_back).execute();
+        if (from < to) {
+            cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
+                .bind(from, to, back_name).execute();
+            cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
+                .bind(to, from, reverse_back).execute();
+        }
+        else {
+            cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
+                .bind(to, from, reverse_back).execute();
+            cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
+                .bind(from, to, back_name).execute();
+        }
 
         // 4) 创建会话
         cg->session.sql("INSERT INTO chat_thread (type, created_at) VALUES ('private', NOW())").execute();

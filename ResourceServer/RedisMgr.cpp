@@ -80,6 +80,34 @@ bool RedisMgr::Set(const std::string& key, const std::string& value) {
 	return true;
 }
 
+bool RedisMgr::SetExp(const std::string& key, const std::string& value, int expire_seconds) {
+	auto connect = _con_pool->getConnection();
+	if (!connect) return false;
+
+	// 确保连接一定会被归还
+	Defer deferConn([&]() { _con_pool->returnConnection(connect); });
+
+	// 使用 %b 保证二进制安全，避免空格导致的解析问题
+	auto reply = (redisReply*)redisCommand(connect, "SETEX %s %d %b",
+		key.c_str(), expire_seconds,
+		value.c_str(), value.length());
+
+	if (!reply) {
+		std::cerr << "Execute SETEX failure: Network or Redis error." << std::endl;
+		return false;
+	}
+
+	// 确保 reply 一定会被释放
+	Defer deferReply([&]() { freeReplyObject(reply); });
+
+	if (!(reply->type == REDIS_REPLY_STATUS &&
+		(strcmp(reply->str, "OK") == 0 || strcmp(reply->str, "ok") == 0))) {
+		std::cerr << "Execute SETEX failure: " << (reply->str ? reply->str : "unknown error") << std::endl;
+		return false;
+	}
+
+	return true;
+}
 bool RedisMgr::LPush(const std::string& key, const std::string& value)
 {
 	auto connect = _con_pool->getConnection();
@@ -437,7 +465,7 @@ bool RedisMgr::SetFileInfo(const std::string& name, std::shared_ptr<FileInfo> fi
 	}
 
 	auto redis_key = "file_upload_" + name;
-	return Set(redis_key, file_info_str); // FIXED
+	return SetExp(redis_key, file_info_str, 3600); // FIXED
 }
 
 bool RedisMgr::SetDownLoadInfo(const std::string& name, std::shared_ptr<FileInfo> file_info)
@@ -461,7 +489,7 @@ bool RedisMgr::SetDownLoadInfo(const std::string& name, std::shared_ptr<FileInfo
 	}
 
 	auto redis_key = "file_download_" + name;
-	return Set(redis_key, file_info_str); // FIXED
+	return SetExp(redis_key, file_info_str, 3600); // FIXED
 }
 
 

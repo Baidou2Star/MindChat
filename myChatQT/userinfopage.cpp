@@ -48,7 +48,7 @@ UserInfoPage::UserInfoPage(QWidget *parent) :
                 if (is_loading) {
                     qWarning() << "正在下载: " << file_name;
                     //先加载默认的
-                    QPixmap pixmap(":/res/head_1.jpg");
+                    QPixmap pixmap(":/res/myhead.jpg");
                     QPixmap scaledPixmap = pixmap.scaled(ui->head_lb->size(),
                         Qt::KeepAspectRatio, Qt::SmoothTransformation); // 将图片缩放到label的大小
                     ui->head_lb->setPixmap(scaledPixmap); // 将缩放后的图片设置到QLabel上
@@ -66,7 +66,7 @@ UserInfoPage::UserInfoPage(QWidget *parent) :
                 qWarning() << "无法加载上传的头像：" << avatarPath;
                 UserMgr::GetInstance()->AddLabelToReset(avatarPath, ui->head_lb);
                 //先加载默认的
-                QPixmap pixmap(":/res/head_1.jpg");
+                QPixmap pixmap(":/res/myhead.jpg");
                 QPixmap scaledPixmap = pixmap.scaled(ui->head_lb->size(),
                     Qt::KeepAspectRatio, Qt::SmoothTransformation); // 将图片缩放到label的大小
                 ui->head_lb->setPixmap(scaledPixmap); // 将缩放后的图片设置到QLabel上
