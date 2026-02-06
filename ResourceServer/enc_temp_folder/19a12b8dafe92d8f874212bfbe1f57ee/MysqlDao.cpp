@@ -299,23 +299,11 @@ bool MysqlDao::AddFriend(const int& from, const int& to, std::string back_name,
             .bind(to, from).execute();
 
         // 3) 建立好友关系
-		//TODO 先插小的在插大的，避免死锁
-       /* cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
+        cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
             .bind(from, to, back_name).execute();
         cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
-            .bind(to, from, reverse_back).execute();*/
-        if (from < to) {
-            cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
-                .bind(from, to, back_name).execute();
-            cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
-                .bind(to, from, reverse_back).execute();
-        }
-        else {
-            cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
-                .bind(to, from, reverse_back).execute();
-            cg->session.sql("INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)")
-                .bind(from, to, back_name).execute();
-        }
+            .bind(to, from, reverse_back).execute();
+
         // 4) 创建会话
         cg->session.sql("INSERT INTO chat_thread (type, created_at) VALUES ('private', NOW())").execute();
         auto res_id = cg->session.sql("SELECT LAST_INSERT_ID()").execute().fetchOne();
@@ -478,21 +466,18 @@ bool MysqlDao::GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo>>
 
 bool MysqlDao::GetUserThreads(int64_t userId, int64_t lastId, int pageSize,
     std::vector<std::shared_ptr<ChatThreadInfo>>& threads, bool& loadMore, int& nextLastId) {
-
     ConnGuard cg(pool_.get(), pool_->getConnection());
     if (!cg) return false;
 
     try {
-        // 1. SQL 修正：使用 CAST(0 AS UNSIGNED) 确保 UNION ALL 两端列类型元数据完全一致
-        // 这样可以防止 mysqlx 驱动在处理第二部分数据时因“有符号/无符号”切换而崩溃
         std::string sql =
             "WITH all_threads AS ( "
             "  SELECT thread_id, 'private' AS type, user1_id, user2_id FROM private_chat "
             "  WHERE (user1_id = ? OR user2_id = ?) AND thread_id > ? "
             "  UNION ALL "
-            "  SELECT thread_id, 'group' AS type, CAST(0 AS UNSIGNED), CAST(0 AS UNSIGNED) FROM group_chat_member "
+            "  SELECT thread_id, 'group' AS type, 0, 0 FROM group_chat_member "
             "  WHERE user_id = ? AND thread_id > ? "
-            ") SELECT thread_id, type, user1_id, user2_id FROM all_threads ORDER BY thread_id LIMIT ?";
+            ") SELECT * FROM all_threads ORDER BY thread_id LIMIT ?";
 
         auto res = cg->session.sql(sql)
             .bind(userId, userId, lastId, userId, lastId, pageSize + 1)
@@ -505,31 +490,15 @@ bool MysqlDao::GetUserThreads(int64_t userId, int64_t lastId, int pageSize,
 
         for (auto& row : rows) {
             auto info = std::make_shared<ChatThreadInfo>();
-
-            // 2. C++ 修正：显式使用 uint64_t 匹配数据库的 bigint UNSIGNED
-            // row.get<T>() 对类型校验非常严格，必须先用 uint64_t 拿到原始数据
-            // 然后再赋值给结构体成员（即使成员是 int64_t 或 int，编译器会自动安全转换）
-
-            info->_thread_id = row[0].get<uint64_t>();
+            info->_thread_id = row[0].get<int64_t>();
             info->_type = row[1].get<std::string>();
-
-            // 解决之前崩溃的关键行：先取无符号，再存入原有成员
-            info->_user1_id = row[2].get<uint64_t>();
-            info->_user2_id = row[3].get<uint64_t>();
-
+            info->_user1_id = row[2].get<int64_t>();
+            info->_user2_id = row[3].get<int64_t>();
             threads.push_back(info);
         }
 
-        if (!threads.empty()) {
-            nextLastId = (int)threads.back()->_thread_id;
-        }
-
+        if (!threads.empty()) nextLastId = (int)threads.back()->_thread_id;
         return true;
-    }
-    catch (const std::exception& e) {
-        // 这里的 catch 可以保留用于调试，如果上线后不需要可保持原样
-        std::cerr << "Exception in GetUserThreads: " << e.what() << std::endl;
-        return false;
     }
     catch (...) {
         return false;
@@ -660,6 +629,33 @@ bool MysqlDao::AddChatMsg(std::shared_ptr<ChatMessage> chat_data) {
     }
     catch (const mysqlx::Error& e) {
         std::cerr << "[AddChatMsg Single] Error: " << e.what() << std::endl;
+        return false;
+    }
+    catch (...) {
+        return false;
+    }
+}
+
+bool MysqlDao::UpdateHeadInfo(int uid, const std::string& icon)
+{
+    ConnGuard cg(pool_.get(), pool_->getConnection());
+    if (!cg) return false;
+
+    try {
+        auto res = cg->session.sql(
+            "UPDATE user SET icon = ? WHERE uid = ?"
+        ).bind(icon, uid).execute();
+
+        // 检查是否更新成功（是否存在该 uid）
+        if (res.getAffectedItemsCount() == 0) {
+            std::cerr << "No user found with uid: " << uid << std::endl;
+            return false;
+        }
+
+        return true;
+    }
+    catch (const mysqlx::Error& e) {
+        std::cerr << "MySQL Error in UpdateHeadInfo: " << e.what() << std::endl;
         return false;
     }
     catch (...) {

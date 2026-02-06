@@ -71,16 +71,16 @@ ChatDialog::ChatDialog(QWidget* parent) :
 	connect(ui->chat_user_list, &ChatUserList::sig_loading_chat_user, this, &ChatDialog::slot_loading_chat_user);
 	//模拟加载自己头像
 	QString head_icon = UserMgr::GetInstance()->GetIcon();
-	//使用正则表达式检查是否使用默认头像
-	QRegularExpression regex("^:/res/head_(\\d+)\\.jpg$");
-	QRegularExpressionMatch match = regex.match(head_icon);
-	if (match.hasMatch()) {
-		// 如果是默认头像（:/res/head_X.jpg 格式）
-		QPixmap pixmap(head_icon); // 加载默认头像图片
-		QPixmap scaledPixmap = pixmap.scaled(ui->side_head_lb->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-		ui->side_head_lb->setPixmap(scaledPixmap); // 将缩放后的图片设置到QLabel上
-		ui->side_head_lb->setScaledContents(true); // 设置QLabel自动缩放图片内容以适应大小
-	}
+    //使用正则表达式检查是否使用默认头像
+    QRegularExpression regex("^:/res/head_(\\d+)\\.jpg$");
+    QRegularExpressionMatch match = regex.match(head_icon);
+    if (match.hasMatch()) {
+        // 如果是默认头像（:/res/head_X.jpg 格式）
+        QPixmap pixmap(head_icon); // 加载默认头像图片
+        QPixmap scaledPixmap = pixmap.scaled(ui->side_head_lb->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        ui->side_head_lb->setPixmap(scaledPixmap); // 将缩放后的图片设置到QLabel上
+        ui->side_head_lb->setScaledContents(true); // 设置QLabel自动缩放图片内容以适应大小
+    }
 	else {
 		// 如果是用户上传的头像，获取存储目录
 		QString storageDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
