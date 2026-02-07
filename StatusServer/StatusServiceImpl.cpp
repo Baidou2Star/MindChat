@@ -5,6 +5,7 @@
 #include <climits>
 #include <boost/uuid/uuid.hpp>            // UUID 基本类型
 #include <boost/uuid/uuid_generators.hpp> // 包含 random_generator
+#include <sstream>
 #include <boost/uuid/uuid_io.hpp>         // 用于将 UUID 输出为字符串
 
 std::string generate_unique_string() {

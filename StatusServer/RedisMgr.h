@@ -13,7 +13,7 @@
 // 连接池类：完全同步新版本的健康检查与自动重连逻辑
 class RedisConPool {
 public:
-    RedisConPool(size_t poolSize, const char* host, int port, const char* pwd);
+    RedisConPool(size_t poolSize, std::string host, int port, std::string pwd);
     ~RedisConPool();
 
     void ClearConnections();
@@ -28,8 +28,8 @@ private:
 
     std::atomic<bool> b_stop_;
     size_t poolSize_;
-    const char* host_;
-    const char* pwd_;
+    std::string host_;
+    std::string pwd_;
     int port_;
     std::queue<redisContext*> connections_;
     std::mutex mutex_;

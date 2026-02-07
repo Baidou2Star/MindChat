@@ -9,6 +9,11 @@
 #include "const.h"
 #include "data.h"
 #include <json/json.h>
+#include <atomic>
+#include <unordered_map>
+#include <mutex>
+#include <condition_variable>
+#include <string>
 #include <json/value.h>
 #include <json/reader.h>
 

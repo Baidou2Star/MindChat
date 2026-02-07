@@ -1,4 +1,6 @@
 #pragma once
+#include <chrono>
+#include <unordered_map>
 #include "const.h"
 
 class HttpConnection :public std::enable_shared_from_this<HttpConnection>

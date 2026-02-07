@@ -131,3 +131,4 @@ x64/
 /VarifyServer/node_modules
 /ChatServer2/ChatServer2
 /ResourceServer/ResourceServer
+.run

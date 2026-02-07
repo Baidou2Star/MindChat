@@ -7,29 +7,55 @@
 #include <iostream>
 #include <cstring>
 
+namespace {
+bool tryAuth(redisContext* context, const std::string& pwd) {
+    if (!context) return false;
+    if (pwd.empty()) return true;
+
+    auto* reply = (redisReply*)redisCommand(context, "AUTH %s", pwd.c_str());
+    if (!reply) {
+        std::cout << "Redis AUTH failed: empty reply" << std::endl;
+        return false;
+    }
+
+    bool ok = (reply->type != REDIS_REPLY_ERROR);
+    if (!ok && reply->str) {
+        const std::string err(reply->str);
+        if (err.find("without any password configured") != std::string::npos ||
+            err.find("no password is set") != std::string::npos) {
+            ok = true;
+        }
+    }
+
+    if (!ok) {
+        std::cout << "Redis AUTH failed: " << (reply->str ? reply->str : "unknown error") << std::endl;
+    }
+
+    freeReplyObject(reply);
+    return ok;
+}
+}  // namespace
+
+
 // =================================================================
 // 1. RedisConPool 实现部分
 // =================================================================
 
-RedisConPool::RedisConPool(size_t poolSize, const char* host, int port, const char* pwd)
+RedisConPool::RedisConPool(size_t poolSize, std::string host, int port, std::string pwd)
     : poolSize_(poolSize), host_(host), port_(port), b_stop_(false), pwd_(pwd), counter_(0), fail_count_(0) {
 
     for (size_t i = 0; i < poolSize_; ++i) {
-        auto* context = redisConnect(host, port);
+        auto* context = redisConnect(host_.c_str(), port_);
         if (context == nullptr || context->err != 0) {
             if (context != nullptr) redisFree(context);
             continue;
         }
 
-        auto reply = (redisReply*)redisCommand(context, "AUTH %s", pwd);
-        if (reply->type == REDIS_REPLY_ERROR) {
-            std::cout << "Redis认证失败" << std::endl;
-            freeReplyObject(reply);
+        if (!tryAuth(context, pwd_)) {
+            redisFree(context);
             continue;
         }
 
-        freeReplyObject(reply);
-        std::cout << "Redis认证成功" << std::endl;
         connections_.push(context);
     }
 
@@ -62,10 +88,12 @@ void RedisConPool::ClearConnections() {
 
 redisContext* RedisConPool::getConnection() {
     std::unique_lock<std::mutex> lock(mutex_);
-    cond_.wait(lock, [this] {
+    if (!cond_.wait_for(lock, std::chrono::seconds(2), [this] {
         if (b_stop_) return true;
         return !connections_.empty();
-        });
+        })) {
+        return nullptr;
+    }
 
     if (b_stop_) return nullptr;
 
@@ -129,20 +157,16 @@ void RedisConPool::checkThreadPro() {
 }
 
 bool RedisConPool::reconnect() {
-    auto* context = redisConnect(host_, port_);
+    auto* context = redisConnect(host_.c_str(), port_);
     if (context == nullptr || context->err != 0) {
         if (context != nullptr) redisFree(context);
         return false;
     }
 
-    auto reply = (redisReply*)redisCommand(context, "AUTH %s", pwd_);
-    if (reply->type == REDIS_REPLY_ERROR) {
-        freeReplyObject(reply);
+    if (!tryAuth(context, pwd_)) {
         redisFree(context);
         return false;
     }
-
-    freeReplyObject(reply);
     returnConnection(context);
     return true;
 }
@@ -157,7 +181,7 @@ RedisMgr::RedisMgr() {
     auto port = gCfgMgr["Redis"]["Port"];
     auto pwd = gCfgMgr["Redis"]["Passwd"];
     // 按照新版逻辑初始化连接池，默认池大小设为10
-    _con_pool.reset(new RedisConPool(10, host.c_str(), atoi(port.c_str()), pwd.c_str()));
+    _con_pool.reset(new RedisConPool(10, host, atoi(port.c_str()), pwd));
 }
 
 RedisMgr::~RedisMgr() {

@@ -4,31 +4,26 @@
 #include <queue>
 #include <atomic>
 #include <mutex>
+#include <thread>
+#include <condition_variable>
+#include <chrono>
+#include <utility>
 #include "Singleton.h"
 class RedisConPool {
 public:
-	RedisConPool(size_t poolSize, const char* host, int port, const char* pwd)
-		: poolSize_(poolSize), host_(host), port_(port), b_stop_(false), pwd_(pwd), counter_(0), fail_count_(0) {
+	RedisConPool(size_t poolSize, std::string host, int port, std::string pwd)
+		: b_stop_(false), poolSize_(poolSize), host_(host), pwd_(pwd), port_(port), counter_(0), fail_count_(0) {
 		for (size_t i = 0; i < poolSize_; ++i) {
-			auto* context = redisConnect(host, port);
-			if (context == nullptr || context->err != 0) {
-				if (context != nullptr) {
-					redisFree(context);
-				}
+			auto* context = redisConnect(host_.c_str(), port_);
+			if (!context || context->err != 0) {
+				if (context) redisFree(context);
 				continue;
 			}
 
-			auto reply = (redisReply*)redisCommand(context, "AUTH %s", pwd);
-			if (reply->type == REDIS_REPLY_ERROR) {
-				std::cout << "认证失败" << std::endl;
-				//执行成功 释放redisCommand执行后返回的redisReply所占用的内存
-				freeReplyObject(reply);
+			if (!authConnection(context)) {
+				redisFree(context);
 				continue;
 			}
-
-			//执行成功 释放redisCommand执行后返回的redisReply所占用的内存
-			freeReplyObject(reply);
-			std::cout << "认证成功" << std::endl;
 			connections_.push(context);
 		}
 
@@ -39,15 +34,14 @@ public:
 					checkThreadPro();
 					counter_ = 0;
 				}
-
-				std::this_thread::sleep_for(std::chrono::seconds(1)); // 每隔 30 秒发送一次 PING 命令
+				std::this_thread::sleep_for(std::chrono::seconds(1));
 			}
-			});
-
+		});
 	}
 
 	~RedisConPool() {
-
+		Close();
+		ClearConnections();
 	}
 
 	void ClearConnections() {
@@ -61,16 +55,16 @@ public:
 
 	redisContext* getConnection() {
 		std::unique_lock<std::mutex> lock(mutex_);
-		cond_.wait(lock, [this] {
-			if (b_stop_) {
-				return true;
-			}
-			return !connections_.empty();
-			});
-		//如果停止则直接返回空指针
-		if (b_stop_) {
-			return  nullptr;
+		if (!cond_.wait_for(lock, std::chrono::seconds(2), [this] {
+			return b_stop_ || !connections_.empty();
+		})) {
+			return nullptr;
 		}
+
+		if (b_stop_ || connections_.empty()) {
+			return nullptr;
+		}
+
 		auto* context = connections_.front();
 		connections_.pop();
 		return context;
@@ -78,13 +72,7 @@ public:
 
 	redisContext* getConNonBlock() {
 		std::lock_guard<std::mutex> lock(mutex_);
-		if (b_stop_) {
-			return nullptr;
-		}
-
-		if (connections_.empty()) {
-			return nullptr;
-		}
+		if (b_stop_ || connections_.empty()) return nullptr;
 
 		auto* context = connections_.front();
 		connections_.pop();
@@ -92,10 +80,14 @@ public:
 	}
 
 	void returnConnection(redisContext* context) {
+		if (!context) return;
+
 		std::lock_guard<std::mutex> lock(mutex_);
 		if (b_stop_) {
+			redisFree(context);
 			return;
 		}
+
 		connections_.push(context);
 		cond_.notify_one();
 	}
@@ -103,161 +95,97 @@ public:
 	void Close() {
 		b_stop_ = true;
 		cond_.notify_all();
-		check_thread_.join();
+		if (check_thread_.joinable()) {
+			check_thread_.join();
+		}
 	}
 
 private:
-
 	void checkThreadPro() {
-		size_t pool_size;
+		size_t pool_size = 0;
 		{
-			//先拿到当前的连接数
 			std::lock_guard<std::mutex> lock(mutex_);
 			pool_size = connections_.size();
 		}
 
-		for (int i = 0; i < pool_size && !b_stop_; i++) {
-			redisContext* context = nullptr;
-			//1 取出一个连接(持有锁)
-			context = getConNonBlock();
-			if (context == nullptr) {
-				break;
-			}
+		for (size_t i = 0; i < pool_size && !b_stop_; ++i) {
+			redisContext* context = getConNonBlock();
+			if (!context) break;
 
-			redisReply* reply = nullptr;
-			try {
-				reply = (redisReply*)redisCommand(context, "PING");
-				//2. 先看底层 I/O 协议层有没有错
-				if (context->err) {
-					std::cout << "Connection error:" << context->err << std::endl;
-					if (reply) {
-						freeReplyObject(reply);
-					}
-
-					redisFree(context);
-					fail_count_++;
-					continue;
-				}
-
-				//3. 再看Redis自身返回的是不是ERROR
-				if (!reply || reply->type == REDIS_REPLY_ERROR) {
-					std::cout << "reply is null,  redis ping failed: " << std::endl;
-					if (reply) {
-						freeReplyObject(reply);
-					}
-
-					redisFree(context);
-					fail_count_++;
-					continue;
-				}
-
-				//4.如果都没有问题，则把连接返回连接池
-				//std::cout << "connection alive" << std::endl;
-				freeReplyObject(reply);
-				returnConnection(context);
-			}
-			catch (std::exception& exp) {
-				if (reply) {
-					freeReplyObject(reply);
-				}
-
+			redisReply* reply = (redisReply*)redisCommand(context, "PING");
+			if (!reply || context->err || reply->type == REDIS_REPLY_ERROR) {
+				if (reply) freeReplyObject(reply);
 				redisFree(context);
 				fail_count_++;
+				continue;
 			}
+
+			freeReplyObject(reply);
+			returnConnection(context);
 		}
 
-		//执行重连操作
-		while (fail_count_ > 0) {
-			auto res = reconnect();
-			if (res) {
+		while (fail_count_ > 0 && !b_stop_) {
+			if (reconnect()) {
 				fail_count_--;
-			}
-			else {
-				//留给一次再尝试
+			} else {
 				break;
 			}
 		}
 	}
 
 	bool reconnect() {
-		auto* context = redisConnect(host_, port_);
-		if (context == nullptr || context->err != 0) {
-			if (context != nullptr) {
-				redisFree(context);
-			}
+		auto* context = redisConnect(host_.c_str(), port_);
+		if (!context || context->err != 0) {
+			if (context) redisFree(context);
 			return false;
 		}
 
-		auto reply = (redisReply*)redisCommand(context, "AUTH %s", pwd_);
-		if (reply->type == REDIS_REPLY_ERROR) {
-			std::cout << "认证失败" << std::endl;
-			//执行释放操作
-			freeReplyObject(reply);
+		if (!authConnection(context)) {
 			redisFree(context);
 			return false;
 		}
 
-		//执行成功，释放redisCommand执行后返回的redisReply所占用的内存
-		freeReplyObject(reply);
-		std::cout << "认证成功" << std::endl;
 		returnConnection(context);
 		return true;
 	}
 
-	void checkThread() {
-		std::lock_guard<std::mutex> lock(mutex_);
-		if (b_stop_) {
-			return;
+	bool authConnection(redisContext* context) {
+		if (!context) return false;
+		if (pwd_.empty()) return true;
+
+		auto* reply = (redisReply*)redisCommand(context, "AUTH %s", pwd_.c_str());
+		if (!reply) {
+			std::cout << "Redis AUTH failed: empty reply" << std::endl;
+			return false;
 		}
-		auto pool_size = connections_.size();
-		for (int i = 0; i < pool_size && !b_stop_; i++) {
-			auto* context = connections_.front();
-			connections_.pop();
-			try {
-				auto reply = (redisReply*)redisCommand(context, "PING");
-				if (!reply) {
-					std::cout << "reply is null, redis ping failed: " << std::endl;
-					connections_.push(context);
-					continue;
-				}
-				freeReplyObject(reply);
-				connections_.push(context);
-			}
-			catch (std::exception& exp) {
-				std::cout << "Error keeping connection alive: " << exp.what() << std::endl;
-				redisFree(context);
-				context = redisConnect(host_, port_);
-				if (context == nullptr || context->err != 0) {
-					if (context != nullptr) {
-						redisFree(context);
-					}
-					continue;
-				}
 
-				auto reply = (redisReply*)redisCommand(context, "AUTH %s", pwd_);
-				if (reply->type == REDIS_REPLY_ERROR) {
-					std::cout << "认证失败" << std::endl;
-					//执行成功 释放redisCommand执行后返回的redisReply所占用的内存
-					freeReplyObject(reply);
-					continue;
-				}
-
-				//执行成功 释放redisCommand执行后返回的redisReply所占用的内存
-				freeReplyObject(reply);
-				std::cout << "认证成功" << std::endl;
-				connections_.push(context);
+		bool ok = (reply->type != REDIS_REPLY_ERROR);
+		if (!ok && reply->str) {
+			const std::string err(reply->str);
+			if (err.find("without any password configured") != std::string::npos ||
+				err.find("no password is set") != std::string::npos) {
+				ok = true;
 			}
 		}
+
+		if (!ok) {
+			std::cout << "Redis AUTH failed: " << (reply->str ? reply->str : "unknown error") << std::endl;
+		}
+
+		freeReplyObject(reply);
+		return ok;
 	}
+
+private:
 	std::atomic<bool> b_stop_;
 	size_t poolSize_;
-	const char* host_;
-	const char* pwd_;
+	std::string host_;
+	std::string pwd_;
 	int port_;
 	std::queue<redisContext*> connections_;
 	std::mutex mutex_;
 	std::condition_variable cond_;
-	std::thread  check_thread_;
+	std::thread check_thread_;
 	int counter_;
 	std::atomic<int> fail_count_;
 };

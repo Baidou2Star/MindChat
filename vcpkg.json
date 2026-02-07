@@ -1,0 +1,17 @@
+{
+  "name": "mychat-server-linux",
+  "version-string": "0.1.0",
+  "builtin-baseline": "af752f21c9d79ba3df9cb0250ce2233933f58486",
+  "dependencies": [
+    "boost-asio",
+    "boost-beast",
+    "boost-filesystem",
+    "boost-property-tree",
+    "boost-uuid",
+    "grpc",
+    "protobuf",
+    "hiredis",
+    "jsoncpp",
+    "mysql-connector-cpp"
+  ]
+}

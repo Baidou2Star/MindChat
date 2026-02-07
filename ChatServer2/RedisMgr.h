@@ -6,14 +6,14 @@
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+#include <chrono>
 #include <iostream>
 #include "Singleton.h"
 
 class RedisConPool {
 public:
-	RedisConPool(size_t poolSize, const char* host, int port, const char* pwd)
-		: poolSize_(poolSize), host_(host), port_(port), b_stop_(false), pwd_(pwd), counter_(0), fail_count_(0) {
-
+	RedisConPool(size_t poolSize, std::string host, int port, std::string pwd)
+		: b_stop_(false), poolSize_(poolSize), host_(host), pwd_(pwd), port_(port), counter_(0), fail_count_(0) {
 		for (size_t i = 0; i < poolSize_; ++i) {
 			auto* context = redisConnect(host_.c_str(), port_);
 			if (!context || context->err != 0) {
@@ -21,16 +21,10 @@ public:
 				continue;
 			}
 
-			auto reply = (redisReply*)redisCommand(context, "AUTH %s", pwd_.c_str());
-			if (!reply || reply->type == REDIS_REPLY_ERROR) {
-				std::cout << "认证失败" << std::endl;
-				if (reply) freeReplyObject(reply);
+			if (!authConnection(context)) {
 				redisFree(context);
 				continue;
 			}
-
-			freeReplyObject(reply);
-			std::cout << "认证成功" << std::endl;
 			connections_.push(context);
 		}
 
@@ -43,7 +37,7 @@ public:
 				}
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 			}
-			});
+		});
 	}
 
 	~RedisConPool() {
@@ -62,11 +56,15 @@ public:
 
 	redisContext* getConnection() {
 		std::unique_lock<std::mutex> lock(mutex_);
-		cond_.wait(lock, [this] {
+		if (!cond_.wait_for(lock, std::chrono::seconds(2), [this] {
 			return b_stop_ || !connections_.empty();
-			});
+		})) {
+			return nullptr;
+		}
 
-		if (b_stop_) return nullptr;
+		if (b_stop_ || connections_.empty()) {
+			return nullptr;
+		}
 
 		auto* context = connections_.front();
 		connections_.pop();
@@ -104,7 +102,6 @@ public:
 	}
 
 private:
-
 	void checkThreadPro() {
 		size_t pool_size = 0;
 		{
@@ -112,25 +109,13 @@ private:
 			pool_size = connections_.size();
 		}
 
-		for (int i = 0; i < pool_size && !b_stop_; i++) {
+		for (size_t i = 0; i < pool_size && !b_stop_; ++i) {
 			redisContext* context = getConNonBlock();
 			if (!context) break;
 
-			redisReply* reply = nullptr;
-
-			reply = (redisReply*)redisCommand(context, "PING");
-
-			if (!reply || context->err) {
-				std::cout << "Connection error" << std::endl;
+			redisReply* reply = (redisReply*)redisCommand(context, "PING");
+			if (!reply || context->err || reply->type == REDIS_REPLY_ERROR) {
 				if (reply) freeReplyObject(reply);
-				redisFree(context);
-				fail_count_++;
-				continue;
-			}
-
-			if (reply->type == REDIS_REPLY_ERROR) {
-				std::cout << "Redis ping failed" << std::endl;
-				freeReplyObject(reply);
 				redisFree(context);
 				fail_count_++;
 				continue;
@@ -140,11 +125,12 @@ private:
 			returnConnection(context);
 		}
 
-		while (fail_count_ > 0) {
+		while (fail_count_ > 0 && !b_stop_) {
 			if (reconnect()) {
 				fail_count_--;
+			} else {
+				break;
 			}
-			else break;
 		}
 	}
 
@@ -155,27 +141,47 @@ private:
 			return false;
 		}
 
-		auto reply = (redisReply*)redisCommand(context, "AUTH %s", pwd_.c_str());
-		if (!reply || reply->type == REDIS_REPLY_ERROR) {
-			std::cout << "认证失败" << std::endl;
-			if (reply) freeReplyObject(reply);
+		if (!authConnection(context)) {
 			redisFree(context);
 			return false;
 		}
 
-		freeReplyObject(reply);
-		std::cout << "认证成功" << std::endl;
 		returnConnection(context);
 		return true;
+	}
+
+	bool authConnection(redisContext* context) {
+		if (!context) return false;
+		if (pwd_.empty()) return true;
+
+		auto* reply = (redisReply*)redisCommand(context, "AUTH %s", pwd_.c_str());
+		if (!reply) {
+			std::cout << "Redis AUTH failed: empty reply" << std::endl;
+			return false;
+		}
+
+		bool ok = (reply->type != REDIS_REPLY_ERROR);
+		if (!ok && reply->str) {
+			const std::string err(reply->str);
+			if (err.find("without any password configured") != std::string::npos ||
+				err.find("no password is set") != std::string::npos) {
+				ok = true;
+			}
+		}
+
+		if (!ok) {
+			std::cout << "Redis AUTH failed: " << (reply->str ? reply->str : "unknown error") << std::endl;
+		}
+
+		freeReplyObject(reply);
+		return ok;
 	}
 
 private:
 	std::atomic<bool> b_stop_;
 	size_t poolSize_;
-
-	std::string host_; // FIXED
-	std::string pwd_;  // FIXED
-
+	std::string host_;
+	std::string pwd_;
 	int port_;
 	std::queue<redisContext*> connections_;
 	std::mutex mutex_;
@@ -184,8 +190,6 @@ private:
 	int counter_;
 	std::atomic<int> fail_count_;
 };
-
-
 
 class RedisMgr : public Singleton<RedisMgr>,
 	public std::enable_shared_from_this<RedisMgr>

@@ -1,5 +1,7 @@
 #include "HttpConnection.h"
 #include "LogicSystem.h"
+#include <cassert>
+#include <cctype>
 
 unsigned char ToHex(unsigned char x)
 {
