@@ -14,7 +14,7 @@
 - `ChatServer/`
 - `ChatServer2/`
 - `ResourceServer/`
-- `GateServerWin/`（名称保留）
+- `GateServerWin/`（名称保留从windows过来的）
 - `VarifyServer/`（Node.js gRPC）
 
 构建与运维文件：
@@ -27,7 +27,7 @@
 
 ## 2.1 系统依赖
 
-Ubuntu 示例：
+Ubuntu 和 Cmake环境
 
 ```bash
 sudo apt update
@@ -40,7 +40,7 @@ sudo apt install -y build-essential cmake ninja-build pkg-config curl zip unzip 
 - MySQL（项目当前配置为 `127.0.0.1:33060`）
 - Node.js + npm（Linux 版）
 
-安装示例：
+安装Redis和MySQL示例：
 
 ```bash
 sudo apt install -y redis-server mysql-server

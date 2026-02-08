@@ -29,6 +29,15 @@ trim() {
   printf '%s' "$s"
 }
 
+match_regex() {
+  local pattern="$1"
+  if command -v rg >/dev/null 2>&1; then
+    rg -q "$pattern"
+  else
+    grep -E -q "$pattern"
+  fi
+}
+
 ini_get() {
   local file="$1"
   local section="$2"
@@ -142,6 +151,36 @@ sync_runtime_configs() {
 is_port_open() {
   local host="$1"
   local port="$2"
+  if [[ "$host" == "0.0.0.0" ]] || [[ -z "$host" ]]; then
+    host="127.0.0.1"
+  fi
+
+  # 1) Prefer ss-based local listen check (stable in WSL mirrored mode)
+  if command -v ss >/dev/null 2>&1; then
+    local ss_out
+    ss_out="$(ss -ltn 2>/dev/null || true)"
+    if [[ -n "$ss_out" ]]; then
+      # For localhost checks, any local bind on :port means reachable.
+      if [[ "$host" == "127.0.0.1" ]] || [[ "$host" == "localhost" ]]; then
+        if echo "$ss_out" | awk 'NR>1 {print $4}' | match_regex "[:\\.]${port}$"; then
+          return 0
+        fi
+      else
+        if echo "$ss_out" | awk 'NR>1 {print $4}' | match_regex "(${host}:${port}|[:\\.]${port}$)"; then
+          return 0
+        fi
+      fi
+    fi
+  fi
+
+  # 2) Fallback to netcat active probe
+  if command -v nc >/dev/null 2>&1; then
+    if timeout 1 nc -z "$host" "$port" >/dev/null 2>&1; then
+      return 0
+    fi
+  fi
+
+  # 3) Last fallback: bash /dev/tcp
   timeout 1 bash -c "</dev/tcp/${host}/${port}" >/dev/null 2>&1
 }
 
@@ -270,6 +309,136 @@ varify_host_port() {
     port="${port:-50051}"
   fi
   echo "$host $port"
+}
+
+service_cfg_file() {
+  local svc="$1"
+  echo "${BUILD_DIR}/${svc}/config.ini"
+}
+
+service_listen_endpoints() {
+  local svc="$1"
+  local cfg
+  cfg="$(service_cfg_file "$svc")"
+  [[ -f "$cfg" ]] || return 0
+
+  local host="" port="" rpc_port=""
+  case "$svc" in
+    ChatServer|ChatServer2|ResourceServer)
+      host="$(trim "$(ini_get "$cfg" "SelfServer" "Host")")"
+      port="$(trim "$(ini_get "$cfg" "SelfServer" "Port")")"
+      rpc_port="$(trim "$(ini_get "$cfg" "SelfServer" "RPCPort")")"
+      ;;
+    GateServerWin)
+      host="$(trim "$(ini_get "$cfg" "GateServer" "Host")")"
+      port="$(trim "$(ini_get "$cfg" "GateServer" "Port")")"
+      ;;
+    StatusServer)
+      host="$(trim "$(ini_get "$cfg" "StatusServer" "Host")")"
+      port="$(trim "$(ini_get "$cfg" "StatusServer" "Port")")"
+      ;;
+    *)
+      ;;
+  esac
+
+  host="${host:-0.0.0.0}"
+  if [[ -n "$port" ]]; then
+    echo "${host}:${port}"
+  fi
+  if [[ -n "$rpc_port" ]]; then
+    echo "${host}:${rpc_port}"
+  fi
+}
+
+print_port_owner_hint() {
+  local port="$1"
+  if command -v ss >/dev/null 2>&1; then
+    local out
+    out="$(ss -ltnp "( sport = :${port} )" 2>&1 || true)"
+    local non_header
+    non_header="$(echo "$out" | awk 'NR>1 && NF>0')"
+    if [[ -n "$non_header" ]] && [[ "$out" != *"No such file or directory"* ]]; then
+      echo "$out" | sed 's/^/[HINT] /'
+      return 0
+    fi
+  fi
+
+  if command -v lsof >/dev/null 2>&1; then
+    local out
+    out="$(lsof -nP -iTCP:"${port}" -sTCP:LISTEN 2>&1 || true)"
+    if [[ -n "$out" ]]; then
+      echo "$out" | sed 's/^/[HINT] /'
+      return 0
+    fi
+  fi
+
+  echo "[HINT] cannot query port owner for :${port} in current environment"
+  echo "[HINT] try manually: sudo ss -ltnp | grep ':${port}\\b'"
+}
+
+diagnose_cpp_start_failure() {
+  local svc="$1"
+  local lf="$2"
+  local bind_conflict=0
+
+  if [[ -f "$lf" ]] && match_regex "Address already in use|bind: Address already in use" < "$lf"; then
+    bind_conflict=1
+  fi
+
+  local endpoints=()
+  while IFS= read -r line; do
+    [[ -n "$line" ]] && endpoints+=("$line")
+  done < <(service_listen_endpoints "$svc")
+
+  if [[ ${#endpoints[@]} -gt 0 ]]; then
+    echo "[INFO] ${svc} expected listen endpoints:"
+    local ep
+    for ep in "${endpoints[@]}"; do
+      echo "       - ${ep}"
+    done
+  fi
+
+  if [[ "$bind_conflict" -eq 1 ]]; then
+    echo "[ERROR] ${svc} failed due to port bind conflict"
+  fi
+
+  local ep host port
+  for ep in "${endpoints[@]}"; do
+    host="${ep%%:*}"
+    port="${ep##*:}"
+    if [[ -z "$port" ]]; then
+      continue
+    fi
+
+    if is_port_open "${host}" "${port}"; then
+      echo "[WARN] endpoint already in use/reachable: ${host}:${port}"
+      print_port_owner_hint "$port"
+    fi
+  done
+}
+
+diagnose_down_cpp_ports() {
+  local svc="$1"
+  local endpoints=()
+  while IFS= read -r line; do
+    [[ -n "$line" ]] && endpoints+=("$line")
+  done < <(service_listen_endpoints "$svc")
+
+  local ep host port
+  local any_conflict=0
+  for ep in "${endpoints[@]}"; do
+    host="${ep%%:*}"
+    port="${ep##*:}"
+    [[ -z "$port" ]] && continue
+    if is_port_open "${host}" "${port}"; then
+      if [[ "$any_conflict" -eq 0 ]]; then
+        echo "       [WARN] expected endpoint already in use:"
+      fi
+      any_conflict=1
+      echo "       [WARN] ${host}:${port}"
+      print_port_owner_hint "$port"
+    fi
+  done
 }
 
 start_varify() {
@@ -426,6 +595,7 @@ start_one_cpp() {
     echo "[OK]   started ${svc} (pid $(cat "$pf"))"
   else
     echo "[FAIL] ${svc} exited quickly, check log: $lf"
+    diagnose_cpp_start_failure "$svc" "$lf"
     return 1
   fi
 }
@@ -507,6 +677,7 @@ status_all() {
       echo "[UP]   ${svc} (pid $(cat "$pf"))"
     else
       echo "[DOWN] ${svc}"
+      diagnose_down_cpp_ports "$svc"
     fi
   done
 }
