@@ -23,6 +23,15 @@ ID_HEART_BEAT_REQ = 1023
 ID_HEARTBEAT_RSP = 1024
 
 
+def normalize_peer_host(peer_host: str, fallback_host: str) -> str:
+    host = (peer_host or "").strip()
+    if not host:
+        return fallback_host
+    if host in {"127.0.0.1", "localhost", "0.0.0.0", "::1", "::"}:
+        return fallback_host
+    return host
+
+
 def now_iso() -> str:
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
@@ -257,88 +266,115 @@ class StressHarness:
     async def connect_one(self, account_index: int) -> Optional[ChatClient]:
         email = self._email_of(account_index)
         password = self.args.password
-        try:
-            status_code, body = await self._http_post_json(
-                self.args.gate_host,
-                self.args.gate_port,
-                "/user_login",
-                {"email": email, "passwd": password},
+        gate_retry = max(0, int(self.args.gate_login_retries))
+        retry_backoff_sec = max(0.0, float(self.args.retry_backoff_ms) / 1000.0)
+
+        uid = 0
+        token = ""
+        chat_host = self.args.default_chat_host
+        chat_port = 0
+        for gate_attempt in range(gate_retry + 1):
+            try:
+                status_code, body = await self._http_post_json(
+                    self.args.gate_host,
+                    self.args.gate_port,
+                    "/user_login",
+                    {"email": email, "passwd": password},
+                )
+            except Exception as exc:
+                reason = self._exc_reason("gate_login", exc)
+                if gate_attempt < gate_retry:
+                    await asyncio.sleep(retry_backoff_sec)
+                    continue
+                self._record_failure(reason)
+                return None
+
+            if status_code != 200:
+                self._record_failure(f"gate_http_{status_code}")
+                return None
+
+            login_obj = safe_json_loads(body)
+            login_error = int(login_obj.get("error", -1))
+            if login_error != 0:
+                if login_error == 1002 and gate_attempt < gate_retry:
+                    await asyncio.sleep(retry_backoff_sec)
+                    continue
+                self._record_failure(f"gate_login_error_{login_error}")
+                return None
+
+            uid = int(login_obj.get("uid", 0))
+            token = str(login_obj.get("token", ""))
+            chat_host = normalize_peer_host(
+                str(login_obj.get("chathost", "")),
+                self.args.default_chat_host,
             )
-        except Exception as exc:
-            self._record_failure(self._exc_reason("gate_login", exc))
-            return None
+            chat_port_raw = str(login_obj.get("chatport", "")).strip()
 
-        if status_code != 200:
-            self._record_failure(f"gate_http_{status_code}")
-            return None
+            if uid <= 0 or not token:
+                self._record_failure("gate_login_missing_uid_or_token")
+                return None
 
-        login_obj = safe_json_loads(body)
-        login_error = int(login_obj.get("error", -1))
-        if login_error != 0:
-            self._record_failure(f"gate_login_error_{login_error}")
-            return None
+            if not chat_port_raw.isdigit():
+                self._record_failure("gate_login_invalid_chat_port")
+                return None
 
-        uid = int(login_obj.get("uid", 0))
-        token = str(login_obj.get("token", ""))
-        chat_host = str(login_obj.get("chathost", "")).strip() or self.args.default_chat_host
-        chat_port_raw = str(login_obj.get("chatport", "")).strip()
-
-        if uid <= 0 or not token:
-            self._record_failure("gate_login_missing_uid_or_token")
-            return None
-
-        if not chat_port_raw.isdigit():
-            self._record_failure("gate_login_invalid_chat_port")
-            return None
-
-        chat_port = int(chat_port_raw)
+            chat_port = int(chat_port_raw)
+            break
 
         writer: Optional[asyncio.StreamWriter] = None
-        try:
-            reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(chat_host, chat_port),
-                timeout=self.args.connect_timeout,
-            )
+        chat_retry = max(0, int(self.args.chat_connect_retries))
+        for chat_attempt in range(chat_retry + 1):
+            try:
+                reader, writer = await asyncio.wait_for(
+                    asyncio.open_connection(chat_host, chat_port),
+                    timeout=self.args.connect_timeout,
+                )
 
-            login_payload = json.dumps({"uid": uid, "token": token}, separators=(",", ":"), ensure_ascii=False)
-            writer.write(pack_frame(MSG_CHAT_LOGIN, login_payload))
-            await asyncio.wait_for(writer.drain(), timeout=self.args.request_timeout)
+                login_payload = json.dumps({"uid": uid, "token": token}, separators=(",", ":"), ensure_ascii=False)
+                writer.write(pack_frame(MSG_CHAT_LOGIN, login_payload))
+                await asyncio.wait_for(writer.drain(), timeout=self.args.request_timeout)
 
-            rsp_msg_id, rsp_payload = await read_frame(reader, timeout_sec=self.args.request_timeout)
-            if rsp_msg_id != MSG_CHAT_LOGIN_RSP:
-                self._record_failure(f"chat_login_rsp_msgid_{rsp_msg_id}")
-                writer.close()
-                await writer.wait_closed()
-                return None
-
-            rsp_obj = safe_json_loads(rsp_payload)
-            rsp_err = int(rsp_obj.get("error", -1))
-            if rsp_err != 0:
-                self._record_failure(f"chat_login_error_{rsp_err}")
-                writer.close()
-                await writer.wait_closed()
-                return None
-
-            return ChatClient(
-                account_index=account_index,
-                email=email,
-                password=password,
-                uid=uid,
-                token=token,
-                chat_host=chat_host,
-                chat_port=chat_port,
-                reader=reader,
-                writer=writer,
-            )
-        except Exception as exc:
-            self._record_failure(self._exc_reason("chat_connect", exc))
-            if writer is not None:
-                writer.close()
-                try:
+                rsp_msg_id, rsp_payload = await read_frame(reader, timeout_sec=self.args.request_timeout)
+                if rsp_msg_id != MSG_CHAT_LOGIN_RSP:
+                    self._record_failure(f"chat_login_rsp_msgid_{rsp_msg_id}")
+                    writer.close()
                     await writer.wait_closed()
-                except Exception:
-                    pass
-            return None
+                    return None
+
+                rsp_obj = safe_json_loads(rsp_payload)
+                rsp_err = int(rsp_obj.get("error", -1))
+                if rsp_err != 0:
+                    self._record_failure(f"chat_login_error_{rsp_err}")
+                    writer.close()
+                    await writer.wait_closed()
+                    return None
+
+                return ChatClient(
+                    account_index=account_index,
+                    email=email,
+                    password=password,
+                    uid=uid,
+                    token=token,
+                    chat_host=chat_host,
+                    chat_port=chat_port,
+                    reader=reader,
+                    writer=writer,
+                )
+            except Exception as exc:
+                reason = self._exc_reason("chat_connect", exc)
+                retryable = reason in {"chat_connect_oserror_99", "chat_connect_timeout", "chat_connect_reset"}
+                if writer is not None:
+                    writer.close()
+                    try:
+                        await writer.wait_closed()
+                    except Exception:
+                        pass
+                if retryable and chat_attempt < chat_retry:
+                    await asyncio.sleep(retry_backoff_sec)
+                    continue
+                self._record_failure(reason)
+                return None
+        return None
 
     async def add_connections_until(self, target_alive: int, extra_attempt_ratio: float) -> None:
         if len(self.alive_clients) >= target_alive:
@@ -388,8 +424,12 @@ class StressHarness:
                     no_progress_batches=no_progress_batches,
                     alive=alive_after,
                     target=target_alive,
+                    failures_top=dict(self.failure_reasons.most_common(5)),
                 )
                 break
+            interval_sec = max(0.0, float(self.args.connect_batch_interval_ms) / 1000.0)
+            if interval_sec > 0:
+                await asyncio.sleep(interval_sec)
 
     async def heartbeat_one(self, client: ChatClient) -> Tuple[bool, float, str]:
         if not client.alive:
@@ -1068,7 +1108,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--request-timeout", type=float, default=8.0, help="登录/请求超时（秒）")
     parser.add_argument("--heartbeat-timeout", type=float, default=3.0, help="心跳读超时（秒）")
     parser.add_argument("--connect-batch-size", type=int, default=200, help="批量建连并发数")
+    parser.add_argument("--connect-batch-interval-ms", type=float, default=0.0, help="每批建连后暂停毫秒，缓解瞬时洪峰")
     parser.add_argument("--heartbeat-batch-size", type=int, default=500, help="心跳并发批次大小")
+    parser.add_argument("--gate-login-retries", type=int, default=2, help="Gate 登录重试次数（仅错误码1002/网络抖动）")
+    parser.add_argument("--chat-connect-retries", type=int, default=2, help="Chat 建连重试次数（仅超时/reset/oserror_99）")
+    parser.add_argument("--retry-backoff-ms", type=float, default=150.0, help="重试退避毫秒")
     parser.add_argument("--extra-attempt-ratio", type=float, default=0.2, help="为目标连接数预留的额外账号尝试比例")
     parser.add_argument("--max-no-progress-batches", type=int, default=3, help="连续无进展批次数后停止继续建连")
 

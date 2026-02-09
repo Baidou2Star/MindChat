@@ -44,7 +44,13 @@ python3 stress_tests/run_stress.py \
 ### 2) 测试服务器稳定连接上限（分阶段）
 
 ```bash
-python3 stress_tests/run_stress.py conn-limit \
+python3 stress_tests/run_stress.py \
+  --connect-batch-size 100 \
+  --connect-batch-interval-ms 120 \
+  --gate-login-retries 3 \
+  --chat-connect-retries 3 \
+  --retry-backoff-ms 200 \
+  conn-limit \
   --start-connections 1000 \
   --step-connections 1000 \
   --max-connections 30000 \
@@ -75,9 +81,15 @@ python3 stress_tests/run_stress.py pingpong-limit \
 
 - `--gate-host/--gate-port`：Gate HTTP 地址。
 - `--connect-batch-size`：建连并发；机器扛得住可适当调大。
+- `--connect-batch-interval-ms`：建连批次间隔，压不住时建议设置 `80~300`。
 - `--heartbeat-batch-size`：单轮心跳并发批次。
+- `--gate-login-retries`：Gate 返回 `1002` 时重试次数。
+- `--chat-connect-retries`：`chat_connect_oserror_99/timeout/reset` 时重试次数。
+- `--retry-backoff-ms`：建连重试退避时间。
 - `--extra-attempt-ratio`：补偿失败登录的额外账号比例。
 - `--min-connect-ratio` / `--min-heartbeat-ratio`：判稳阈值。
+
+> 注意：全局参数（如 `--connect-batch-size`、`--request-timeout`）要写在子命令（如 `conn-limit`）前面。
 
 ## WSL 建议
 
