@@ -666,3 +666,50 @@ bool MysqlDao::AddChatMsg(std::shared_ptr<ChatMessage> chat_data) {
         return false;
     }
 }
+
+std::shared_ptr<ChatMessage> MysqlDao::GetChatMsg(int message_id) {
+    // 1. 使用文件中定义的 ConnGuard 自动获取和归还连接
+    ConnGuard cg(pool_.get(), pool_->getConnection());
+    if (!cg) {
+        return nullptr;
+    }
+
+    try {
+        // 2. 使用 X DevAPI 的链式调用进行查询
+        // 注意：根据你提供的 SQL，增加了 msg_type 等字段
+        auto row = cg->session.sql(
+            "SELECT message_id, thread_id, sender_id, recv_id, content, "
+            "created_at, status, msg_type "
+            "FROM chat_message WHERE message_id = ?"
+        ).bind(message_id).execute().fetchOne();
+
+        // 3. 如果没查到数据，返回 nullptr
+        if (!row) {
+            return nullptr;
+        }
+
+        // 4. 解析结果并填充结构体
+        // mysqlx::Row 的 get<T> 是基于索引的，需对应 SELECT 中的字段顺序
+        auto msg = std::make_shared<ChatMessage>();
+        msg->message_id = row[0].get<uint64_t>();
+        msg->thread_id = row[1].get<uint64_t>();
+        msg->sender_id = row[2].get<uint64_t>();
+        msg->recv_id = row[3].get<uint64_t>();
+        msg->content = row[4].get<std::string>();
+        msg->chat_time = row[5].get<std::string>();
+        msg->status = row[6].get<int>();
+
+        // 假设你的 ChatMessage 结构体中有 msg_type 成员
+        msg->msg_type = row[7].get<int>();
+
+        return msg;
+    }
+    catch (const mysqlx::Error& e) {
+        std::cerr << "[GetChatMsg] MySQL Error: " << e.what() << std::endl;
+        return nullptr;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[GetChatMsg] Exception: " << e.what() << std::endl;
+        return nullptr;
+    }
+}

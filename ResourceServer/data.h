@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 struct UserInfo {
-	UserInfo():name(""), pwd(""),uid(0),email(""),nick(""),desc(""),sex(0), icon(""), back("") {}
+	UserInfo() :name(""), pwd(""), uid(0), email(""), nick(""), desc(""), sex(0), icon(""), back("") {}
 	std::string name;
 	std::string pwd;
 	int uid;
@@ -17,8 +17,9 @@ struct UserInfo {
 struct ApplyInfo {
 	ApplyInfo(int uid, std::string name, std::string desc,
 		std::string icon, std::string nick, int sex, int status)
-		:_uid(uid),_name(name),_desc(desc),
-		_icon(icon),_nick(nick),_sex(sex),_status(status){}
+		:_uid(uid), _name(name), _desc(desc),
+		_icon(icon), _nick(nick), _sex(sex), _status(status) {
+	}
 
 	int _uid;
 	std::string _name;
@@ -47,6 +48,7 @@ struct ChatMessage {
 	std::string content;
 	std::string chat_time;
 	int status;
+	int msg_type;
 };
 
 // 查询结果结构，增加next_cursor字段
@@ -55,3 +57,4 @@ struct PageResult {
 	bool load_more;
 	int next_cursor;  // 本页最后一条message_id，用于下次查询
 };
+

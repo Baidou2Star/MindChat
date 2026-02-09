@@ -7,8 +7,7 @@
 #include <QRegularExpression>
 #include <QPainter>
 #include "filetcpmgr.h"
-#include <QPainterPath>
-
+#include "QPainterPath"
 LoginDialog::LoginDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LoginDialog)

@@ -2,6 +2,9 @@
 #include <boost/beast/http.hpp>
 #include <boost/beast.hpp>
 #include <boost/asio.hpp>
+#include <cassert>
+#include <csignal>
+#include <cctype>
 #include <iostream>
 #include <json/json.h>
 #include <json/value.h>

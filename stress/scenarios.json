@@ -1,0 +1,78 @@
+{
+  "baseUrl": "http://127.0.0.1:8080",
+  "defaultScenario": "login_mix",
+  "defaultHeaders": {
+    "Accept": "application/json"
+  },
+  "requestTimeoutSeconds": 10,
+  "stages": [
+    { "name": "warmup", "durationSeconds": 15, "targetConcurrency": 10 },
+    { "name": "steady", "durationSeconds": 30, "targetConcurrency": 50 }
+  ],
+  "scenarios": [
+    {
+      "name": "get_test",
+      "requests": [
+        { "name": "get_test", "weight": 1, "method": "GET", "path": "/get_test?ping=1" }
+      ]
+    },
+    {
+      "name": "test_procedure",
+      "requests": [
+        {
+          "name": "test_procedure",
+          "weight": 1,
+          "method": "POST",
+          "path": "/test_procedure",
+          "body": { "email": "secondtonone1@163.com" }
+        }
+      ]
+    },
+    {
+      "name": "user_login",
+      "requests": [
+        {
+          "name": "user_login",
+          "weight": 1,
+          "method": "POST",
+          "path": "/user_login",
+          "bodyPool": [
+            { "email": "secondtonone1@163.com", "passwd": "654321)" },
+            { "email": "18165031775@qq.com", "passwd": "123456" },
+            { "email": "3157199927@qq.com", "passwd": "xuexi1228" },
+            { "email": "1017234088@qq.com", "passwd": "654321)" },
+            { "email": "161945471@qq.com", "passwd": "230745" },
+            { "email": "3175614975@qq.com", "passwd": "745230" },
+            { "email": "q3175614975@163.com", "passwd": "745230" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "login_mix",
+      "requests": [
+        {
+          "name": "user_login",
+          "weight": 8,
+          "method": "POST",
+          "path": "/user_login",
+          "bodyPool": [
+            { "email": "secondtonone1@163.com", "passwd": "654321)" },
+            { "email": "18165031775@qq.com", "passwd": "123456" },
+            { "email": "3157199927@qq.com", "passwd": "xuexi1228" },
+            { "email": "1017234088@qq.com", "passwd": "654321)" },
+            { "email": "161945471@qq.com", "passwd": "230745" },
+            { "email": "3175614975@qq.com", "passwd": "745230" },
+            { "email": "q3175614975@163.com", "passwd": "745230" }
+          ]
+        },
+        {
+          "name": "get_test",
+          "weight": 2,
+          "method": "GET",
+          "path": "/get_test?ping=1"
+        }
+      ]
+    }
+  ]
+}

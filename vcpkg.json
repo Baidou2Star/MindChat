@@ -1,0 +1,17 @@
+{
+  "name": "mychat-servers",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "boost-asio",
+    "boost-beast",
+    "boost-filesystem",
+    "boost-property-tree",
+    "boost-system",
+    "boost-uuid",
+    "grpc",
+    "protobuf",
+    "jsoncpp",
+    "hiredis",
+    "mysql-connector-cpp"
+  ]
+}
