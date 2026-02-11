@@ -274,7 +274,8 @@ void FileWorker::RegisterHandlers()
 				task->_callback(result);
 			}
 
-			//通过grpc通知ChatServer
+			std::cout << "[IMG][UploadComplete] notify chatserver, msg_id=" << task->_chat_msg_id << " receiver=" << task->_receiver << std::endl;
+//通过grpc通知ChatServer
 			ChatServerGrpcClient::GetInstance()->NotifyChatImgMsg(task->_chat_msg_id, uid_ip_value);
 			return;
 		}
@@ -360,7 +361,8 @@ void FileWorker::RegisterHandlers()
 				task->_callback(result);
 			}
 
-			//通过grpc通知ChatServer
+			std::cout << "[IMG][UploadComplete] notify chatserver, msg_id=" << task->_chat_msg_id << " receiver=" << task->_receiver << std::endl;
+//通过grpc通知ChatServer
 			ChatServerGrpcClient::GetInstance()->NotifyChatImgMsg(task->_chat_msg_id, uid_ip_value);
 			return;
 		}
@@ -443,7 +445,8 @@ void FileWorker::RegisterHandlers()
 				return;
 			}
 
-			//通过grpc通知ChatServer
+			std::cout << "[IMG][UploadComplete] notify chatserver, msg_id=" << task->_chat_msg_id << " receiver=" << task->_receiver << std::endl;
+//通过grpc通知ChatServer
 			ChatServerGrpcClient::GetInstance()->NotifyChatImgMsg(task->_chat_msg_id, uid_ip_value);
 			if (task->_callback) {
 				task->_callback(result);

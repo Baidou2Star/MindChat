@@ -27,7 +27,8 @@ NotifyChatImgRsp  ChatServerGrpcClient::NotifyChatImgMsg(int message_id,std::str
 
 	auto &pool_ = _hash_pools[chatserver];
 	auto stub = pool_->getConnection();
-	Status status = stub->NotifyChatImgMsg(&context, request, &reply);
+std::cout << "[IMG][ChatServerGrpcClient] notify chatserver=" << chatserver << " message_id=" << message_id << " file=" << request.file_name() << " total_size=" << request.total_size() << " to_uid=" << request.to_uid() << std::endl;
+Status status = stub->NotifyChatImgMsg(&context, request, &reply);
 	Defer defer([&stub, &pool_, this]() {
 		pool_->returnConnection(std::move(stub));
 		});
@@ -51,3 +52,7 @@ ChatServerGrpcClient::ChatServerGrpcClient()
 	std::string port2 = gCfgMgr["chatserver2"]["Port"];
 	_hash_pools["chatserver2"] = std::make_unique<ChatServerConPool>(5, host2, port2);
 }
+
+
+
+
