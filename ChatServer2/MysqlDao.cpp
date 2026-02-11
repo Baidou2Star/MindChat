@@ -327,8 +327,8 @@ bool MysqlDao::AddFriend(const int& from, const int& to, std::string back_name,
         // 5) 插入消息
         auto insert_msg = [&](int sender, int recv, const std::string& content) {
             cg->session.sql(
-                "INSERT INTO chat_message(thread_id, sender_id, recv_id, content, created_at, status) "
-                "VALUES (?, ?, ?, ?, NOW(), 2)"
+                "INSERT INTO chat_message(thread_id, sender_id, recv_id, content, created_at, updated_at, status, msg_type) "
+"VALUES (?, ?, ?, ?, NOW(), NOW(), 2, 0)"
             ).bind(threadId, sender, recv, content).execute();
 
             auto mid_row = cg->session.sql("SELECT LAST_INSERT_ID()").execute().fetchOne();
@@ -579,43 +579,45 @@ std::shared_ptr<PageResult> MysqlDao::LoadChatMsg(int thread_id, int last_messag
 
     try {
         auto page_res = std::make_shared<PageResult>();
+        page_res->load_more = false;
+        page_res->next_cursor = last_message_id;
 
-        // 多取一条 (page_size + 1) 用来判断是否有下一页 (load_more)
+        // 取 page_size + 1 条，用于判断是否还有更多 (load_more)
         auto res = cg->session.sql(
             "SELECT message_id, thread_id, sender_id, recv_id, content, "
-            "created_at, status, msg_type "
-            "FROM chat_message "
-            "WHERE thread_id = ? AND message_id > ? "
+            "created_at, updated_at, status, msg_type "
+            "FROM chat_message WHERE thread_id = ? AND message_id > ? "
             "ORDER BY message_id ASC LIMIT ?"
         ).bind(thread_id, last_message_id, page_size + 1).execute();
 
+        // 关键：转成 std::vector<Row>，就能 size/pop_back
         std::vector<mysqlx::Row> rows = res.fetchAll();
 
-        // 判断是否还有更多数据
-        page_res->load_more = (rows.size() > (size_t)page_size);
-        if (page_res->load_more) {
-            rows.pop_back(); // 移除多取的那一条
-        }
+        page_res->load_more = (rows.size() > static_cast<size_t>(page_size));
+        if (page_res->load_more) rows.pop_back();
 
         for (auto& row : rows) {
             ChatMessage msg;
-            msg.message_id = row[0].get<uint64_t>();
-            msg.thread_id = row[1].get<uint64_t>();
-            msg.sender_id = row[2].get<uint64_t>();
-            msg.recv_id = row[3].get<uint64_t>();
+            msg.message_id = row[0].get<int>();
+            msg.thread_id = row[1].get<int>();
+            msg.sender_id = row[2].get<int>();
+            msg.recv_id = row[3].get<int>();
             msg.content = row[4].get<std::string>();
-            msg.chat_time = row[5].get<std::string>(); // created_at
-            msg.status = row[6].get<int>();
-            msg.msg_type = row[7].get<int>();
-
+            msg.chat_time = row[5].get<std::string>();   // created_at
+            msg.status = row[7].get<int>();
+            msg.msg_type = row[8].get<int>();
             page_res->messages.push_back(std::move(msg));
         }
 
         if (!page_res->messages.empty()) {
-            page_res->next_cursor = (int)page_res->messages.back().message_id;
+            page_res->next_cursor = page_res->messages.back().message_id;
         }
 
         return page_res;
+    }
+    catch (const mysqlx::Error& e) {
+        std::cerr << "[LoadChatMsg] mysqlx::Error: " << e.what() << std::endl;
+        return nullptr;
     }
     catch (const std::exception& e) {
         std::cerr << "[LoadChatMsg] Exception: " << e.what() << std::endl;
@@ -627,37 +629,41 @@ bool MysqlDao::AddChatMsg(std::vector<std::shared_ptr<ChatMessage>>& chat_datas)
     ConnGuard cg(pool_.get(), pool_->getConnection());
     if (!cg) return false;
 
+    if (chat_datas.empty()) return true;
+
     try {
-        // 使用项目定义的 TxGuard 开启事务
         TxGuard tx(cg->session);
 
         for (auto& msg : chat_datas) {
-            // 注意：SQL 增加了 updated_at 和 msg_type 字段
             cg->session.sql(
                 "INSERT INTO chat_message "
                 "(thread_id, sender_id, recv_id, content, created_at, updated_at, status, msg_type) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-            ).bind(msg->thread_id, msg->sender_id, msg->recv_id, msg->content,
-                msg->chat_time, msg->chat_time, msg->status, msg->msg_type)
-                .execute();
+            ).bind(
+                msg->thread_id,
+                msg->sender_id,
+                msg->recv_id,
+                msg->content,
+                msg->chat_time,   // created_at
+                msg->chat_time,   // updated_at
+                msg->status,
+                msg->msg_type
+            ).execute();
 
-            // 获取刚插入的 ID
-            auto res = cg->session.sql("SELECT LAST_INSERT_ID()").execute();
-            auto row = res.fetchOne();
-            if (row) {
-                msg->message_id = row[0].get<uint64_t>();
+            auto mid = cg->session.sql("SELECT LAST_INSERT_ID()").execute().fetchOne();
+            if (mid) {
+                msg->message_id = mid[0].get<uint64_t>();
             }
         }
 
-        tx.commit(); // 提交事务
+        tx.commit();
         return true;
     }
     catch (const mysqlx::Error& e) {
-        std::cerr << "[AddChatMsg Batch] MySQL Error: " << e.what() << std::endl;
+        std::cerr << "[AddChatMsg] Error: " << e.what() << std::endl;
         return false;
     }
-    catch (const std::exception& e) {
-        std::cerr << "[AddChatMsg Batch] Exception: " << e.what() << std::endl;
+    catch (...) {
         return false;
     }
 }
@@ -667,73 +673,66 @@ bool MysqlDao::AddChatMsg(std::shared_ptr<ChatMessage> chat_data) {
     if (!cg) return false;
 
     try {
-        // 单条插入也可以直接使用事务保护或直接执行
         cg->session.sql(
             "INSERT INTO chat_message "
             "(thread_id, sender_id, recv_id, content, created_at, updated_at, status, msg_type) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-        ).bind(chat_data->thread_id, chat_data->sender_id, chat_data->recv_id,
-            chat_data->content, chat_data->chat_time, chat_data->chat_time,
-            chat_data->status, chat_data->msg_type)
-            .execute();
+        ).bind(
+            chat_data->thread_id,
+            chat_data->sender_id,
+            chat_data->recv_id,
+            chat_data->content,
+            chat_data->chat_time,   // created_at
+            chat_data->chat_time,   // updated_at
+            chat_data->status,
+            chat_data->msg_type
+        ).execute();
 
-        auto res = cg->session.sql("SELECT LAST_INSERT_ID()").execute();
-        auto row = res.fetchOne();
-        if (row) {
-            chat_data->message_id = row[0].get<uint64_t>();
+        auto mid = cg->session.sql("SELECT LAST_INSERT_ID()").execute().fetchOne();
+        if (mid) {
+            chat_data->message_id = mid[0].get<uint64_t>();
         }
-
         return true;
     }
     catch (const mysqlx::Error& e) {
-        std::cerr << "[AddChatMsg Single] MySQL Error: " << e.what() << std::endl;
+        std::cerr << "[AddChatMsg Single] Error: " << e.what() << std::endl;
+        return false;
+    }
+    catch (...) {
         return false;
     }
 }
 
 std::shared_ptr<ChatMessage> MysqlDao::GetChatMsg(int message_id) {
-    // 1. 使用文件中定义的 ConnGuard 自动获取和归还连接
     ConnGuard cg(pool_.get(), pool_->getConnection());
-    if (!cg) {
-        return nullptr;
-    }
+    if (!cg) return nullptr;
 
     try {
-        // 2. 使用 X DevAPI 的链式调用进行查询
-        // 注意：根据你提供的 SQL，增加了 msg_type 等字段
         auto row = cg->session.sql(
-            "SELECT message_id, thread_id, sender_id, recv_id, content, "
-            "created_at, status, msg_type "
+            "SELECT message_id, thread_id, sender_id, recv_id, "
+            "content, created_at, updated_at, status, msg_type "
             "FROM chat_message WHERE message_id = ?"
         ).bind(message_id).execute().fetchOne();
 
-        // 3. 如果没查到数据，返回 nullptr
-        if (!row) {
-            return nullptr;
-        }
+        if (!row) return nullptr;
 
-        // 4. 解析结果并填充结构体
-        // mysqlx::Row 的 get<T> 是基于索引的，需对应 SELECT 中的字段顺序
         auto msg = std::make_shared<ChatMessage>();
         msg->message_id = row[0].get<uint64_t>();
         msg->thread_id = row[1].get<uint64_t>();
         msg->sender_id = row[2].get<uint64_t>();
         msg->recv_id = row[3].get<uint64_t>();
         msg->content = row[4].get<std::string>();
-        msg->chat_time = row[5].get<std::string>();
-        msg->status = row[6].get<int>();
-
-        // 假设你的 ChatMessage 结构体中有 msg_type 成员
-        msg->msg_type = row[7].get<int>();
+        msg->chat_time = row[5].get<std::string>();   // created_at
+        msg->status = row[7].get<int>();
+        msg->msg_type = row[8].get<int>();
 
         return msg;
     }
     catch (const mysqlx::Error& e) {
-        std::cerr << "[GetChatMsg] MySQL Error: " << e.what() << std::endl;
+        std::cerr << "[GetChatMsg] Error: " << e.what() << std::endl;
         return nullptr;
     }
-    catch (const std::exception& e) {
-        std::cerr << "[GetChatMsg] Exception: " << e.what() << std::endl;
+    catch (...) {
         return nullptr;
     }
 }
