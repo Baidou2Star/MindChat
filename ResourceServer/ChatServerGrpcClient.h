@@ -1,47 +1,25 @@
 #pragma once
+#include <grpcpp/grpcpp.h>
 #include "const.h"
 #include "Singleton.h"
 #include "ConfigMgr.h"
-#include <grpcpp/grpcpp.h> 
 #include "message.grpc.pb.h"
 #include "message.pb.h"
 #include <queue>
 #include <condition_variable>
-#include <atomic>
-#include <unordered_map>
-#include <mutex>
-#include <string>
-#include "data.h"
-#include <json/json.h>
-#include <json/value.h>
-#include <json/reader.h>
 
 using grpc::Channel;
 using grpc::Status;
 using grpc::ClientContext;
 
-using message::AddFriendReq;
-using message::AddFriendRsp;
 
-using message::AuthFriendReq;
-using message::AuthFriendRsp;
-
-using message::GetChatServerRsp;
-using message::LoginRsp;
-using message::LoginReq;
 using message::ChatService;
+using message::NotifyChatImgReq;
+using message::NotifyChatImgRsp;
 
-using message::TextChatMsgReq;
-using message::TextChatMsgRsp;
-using message::TextChatData;
-
-using message::KickUserReq;
-using message::KickUserRsp;
-
-
-class ChatConPool {
+class ChatServerConPool {
 public:
-	ChatConPool(size_t poolSize, std::string host, std::string port)
+	ChatServerConPool(size_t poolSize, std::string host, std::string port)
 		: poolSize_(poolSize), host_(host), port_(port), b_stop_(false) {
 		for (size_t i = 0; i < poolSize_; ++i) {
 
@@ -52,7 +30,7 @@ public:
 		}
 	}
 
-	~ChatConPool() {
+	~ChatServerConPool() {
 		std::lock_guard<std::mutex> lock(mutex_);
 		Close();
 		while (!connections_.empty()) {
@@ -96,26 +74,21 @@ private:
 	size_t poolSize_;
 	std::string host_;
 	std::string port_;
-	std::queue<std::unique_ptr<ChatService::Stub> > connections_;
+	std::queue<std::unique_ptr<ChatService::Stub>> connections_;
 	std::mutex mutex_;
 	std::condition_variable cond_;
 };
 
-class ChatGrpcClient :public Singleton<ChatGrpcClient>
+class ChatServerGrpcClient :public Singleton<ChatServerGrpcClient>
 {
-	friend class Singleton<ChatGrpcClient>;
+	friend class Singleton<ChatServerGrpcClient>;
 public:
-	~ChatGrpcClient() {
+	~ChatServerGrpcClient() {
 
 	}
-
-	AddFriendRsp NotifyAddFriend(std::string server_ip, const AddFriendReq& req);
-	AuthFriendRsp NotifyAuthFriend(std::string server_ip, const AuthFriendReq& req);
-	bool GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo);
-	TextChatMsgRsp NotifyTextChatMsg(std::string server_ip, const TextChatMsgReq& req, const Json::Value& rtvalue);
-	KickUserRsp NotifyKickUser(std::string server_ip, const KickUserReq& req);
+	NotifyChatImgRsp NotifyChatImgMsg(int message_id, std::string chatserver);
 private:
-	ChatGrpcClient();
-	unordered_map<std::string, std::unique_ptr<ChatConPool>> _pools;
+	ChatServerGrpcClient();
+	//sever_ip到连接池的映射,  <chatserver1,std::unique_ptr<ChatServerConPool>>
+	std::unordered_map<std::string, std::unique_ptr<ChatServerConPool>> _hash_pools;
 };
-

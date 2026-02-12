@@ -681,3 +681,88 @@ bool MysqlDao::UpdateHeadInfo(int uid, const std::string& icon)
         return false;
     }
 }
+
+bool MysqlDao::UpdateUploadStatus(int chat_message_id) {
+    ConnGuard cg(pool_.get(), pool_->getConnection());
+    if (!cg) return false;
+
+    try {
+        // 使用 mysqlx 风格的参数绑定
+        // 假设 MsgStatus::READED 对应的数值是 2 (参考文件中 AddChatMsg 的逻辑)
+        auto res = cg->session.sql("UPDATE chat_message SET status = 2 WHERE message_id = ?")
+            .bind(chat_message_id)
+            .execute();
+
+        return res.getAffectedItemsCount() > 0;
+    }
+    catch (const mysqlx::Error& e) {
+        std::cerr << "[UpdateUploadStatus] MySQL Error: " << e.what() << std::endl;
+        return false;
+    }
+    catch (...) {
+        return false;
+    }
+}
+
+std::shared_ptr<ChatImgInfo> MysqlDao::GetImgInfoByMsgId(int message_id) {
+    ConnGuard cg(pool_.get(), pool_->getConnection());
+    if (!cg) return nullptr;
+
+    try {
+        auto row = cg->session.sql(
+            "SELECT message_id, sender_id, recv_id, content FROM chat_message WHERE message_id = ?"
+        ).bind(message_id).execute().fetchOne();
+
+        if (!row) return nullptr;
+
+        // 构造 ChatImgInfo (根据你提供的构造函数顺序: sender, recv, msgid, imgname)
+        return std::make_shared<ChatImgInfo>(
+            row[1].get<uint64_t>(),           // sender_id
+            row[2].get<uint64_t>(),           // recv_id
+            row[0].get<uint64_t>(),           // message_id
+            row[3].get<std::string>()         // content (图片路径或名称)
+        );
+    }
+    catch (const mysqlx::Error& e) {
+        std::cerr << "[GetImgInfoByMsgId] MySQL Error: " << e.what() << std::endl;
+        return nullptr;
+    }
+    catch (...) {
+        return nullptr;
+    }
+}
+
+std::shared_ptr<ChatMessage> MysqlDao::GetChatMsgById(int message_id) {
+    ConnGuard cg(pool_.get(), pool_->getConnection());
+    if (!cg) return nullptr;
+
+    try {
+        auto row = cg->session.sql(
+            "SELECT message_id, thread_id, sender_id, recv_id, content, created_at, status "
+            "FROM chat_message WHERE message_id = ?"
+        ).bind(message_id).execute().fetchOne();
+
+        if (!row) return nullptr;
+
+        auto msg = std::make_shared<ChatMessage>();
+        msg->message_id = row[0].get<uint64_t>();
+        msg->thread_id = row[1].get<uint64_t>();
+        msg->sender_id = row[2].get<uint64_t>();
+        msg->recv_id = row[3].get<uint64_t>();
+        msg->content = row[4].get<std::string>();
+        msg->chat_time = row[5].get<std::string>(); // 对应数据库 created_at
+        msg->status = row[6].get<int>();
+
+        // 如果你的结构体中有 msg_type，且数据库中有该列，可在此补充
+        // msg->msg_type = row[7].get<int>(); 
+
+        return msg;
+    }
+    catch (const mysqlx::Error& e) {
+        std::cerr << "[GetChatMsgById] MySQL Error: " << e.what() << std::endl;
+        return nullptr;
+    }
+    catch (...) {
+        return nullptr;
+    }
+}

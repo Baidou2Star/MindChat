@@ -82,9 +82,21 @@ set(MYCHAT_COMMON_LIBS
 )
 
 function(mychat_add_server target_name source_dir)
-  cmake_parse_arguments(MCS "" "ENTRY" "SOURCES" ${ARGN})
+  cmake_parse_arguments(MCS "" "ENTRY" "SOURCES;EXCLUDE_SOURCES" ${ARGN})
   if(NOT MCS_ENTRY)
     message(FATAL_ERROR "mychat_add_server(${target_name}) requires ENTRY")
+  endif()
+
+  if(NOT MCS_SOURCES)
+    file(GLOB MCS_SOURCES CONFIGURE_DEPENDS
+      RELATIVE "${CMAKE_SOURCE_DIR}"
+      "${CMAKE_SOURCE_DIR}/${source_dir}/*.cpp"
+      "${CMAKE_SOURCE_DIR}/${source_dir}/*.cc"
+    )
+    list(REMOVE_ITEM MCS_SOURCES "${source_dir}/${MCS_ENTRY}")
+    if(MCS_EXCLUDE_SOURCES)
+      list(REMOVE_ITEM MCS_SOURCES ${MCS_EXCLUDE_SOURCES})
+    endif()
   endif()
 
   add_executable(${target_name}
@@ -111,99 +123,22 @@ endfunction()
 
 mychat_add_server(ChatServer ChatServer
   ENTRY ChatServer.cpp
-  SOURCES
-    ChatServer/AsioIOServicePool.cpp
-    ChatServer/ChatGrpcClient.cpp
-    ChatServer/ChatServiceImpl.cpp
-    ChatServer/ConfigMgr.cpp
-    ChatServer/CServer.cpp
-    ChatServer/CSession.cpp
-    ChatServer/DistLock.cpp
-    ChatServer/LogicSystem.cpp
-    ChatServer/message.grpc.pb.cc
-    ChatServer/message.pb.cc
-    ChatServer/MsgNode.cpp
-    ChatServer/MysqlDao.cpp
-    ChatServer/MysqlMgr.cpp
-    ChatServer/RedisMgr.cpp
-    ChatServer/StatusGrpcClient.cpp
-    ChatServer/UserMgr.cpp
-    ChatServer/utils.cpp
 )
 
 mychat_add_server(ChatServer2 ChatServer2
   ENTRY ChatServer.cpp
-  SOURCES
-    ChatServer2/AsioIOServicePool.cpp
-    ChatServer2/ChatGrpcClient.cpp
-    ChatServer2/ChatServiceImpl.cpp
-    ChatServer2/ConfigMgr.cpp
-    ChatServer2/CServer.cpp
-    ChatServer2/CSession.cpp
-    ChatServer2/DistLock.cpp
-    ChatServer2/LogicSystem.cpp
-    ChatServer2/message.grpc.pb.cc
-    ChatServer2/message.pb.cc
-    ChatServer2/MsgNode.cpp
-    ChatServer2/MysqlDao.cpp
-    ChatServer2/MysqlMgr.cpp
-    ChatServer2/RedisMgr.cpp
-    ChatServer2/StatusGrpcClient.cpp
-    ChatServer2/UserMgr.cpp
-    ChatServer2/utils.cpp
 )
 
 mychat_add_server(GateServerWin GateServerWin
-  ENTRY main.cpp
-  SOURCES
-    GateServerWin/AsioIOServicePool.cpp
-    GateServerWin/ConfigMgr.cpp
-    GateServerWin/CServer.cpp
-    GateServerWin/DistLock.cpp
-    GateServerWin/HttpConnection.cpp
-    GateServerWin/LogicSystem.cpp
-    GateServerWin/message.grpc.pb.cc
-    GateServerWin/message.pb.cc
-    GateServerWin/MysqlDao.cpp
-    GateServerWin/MysqlMgr.cpp
-    GateServerWin/RedisMgr.cpp
-    GateServerWin/StatusGrpcClient.cpp
-    GateServerWin/VerifyGrpcClient.cpp
+  ENTRY GateServerWin.cpp
+  EXCLUDE_SOURCES
+    GateServerWin/main.cpp
 )
 
 mychat_add_server(StatusServer StatusServer
   ENTRY StatusServer.cpp
-  SOURCES
-    StatusServer/AsioIOServicePool.cpp
-    StatusServer/ConfigMgr.cpp
-    StatusServer/DistLock.cpp
-    StatusServer/message.grpc.pb.cc
-    StatusServer/message.pb.cc
-    StatusServer/MysqlDao.cpp
-    StatusServer/MysqlMgr.cpp
-    StatusServer/RedisMgr.cpp
-    StatusServer/StatusServiceImpl.cpp
 )
 
 mychat_add_server(ResourceServer ResourceServer
   ENTRY ResourceServer.cpp
-  SOURCES
-    ResourceServer/AsioIOServicePool.cpp
-    ResourceServer/base64.cpp
-    ResourceServer/ConfigMgr.cpp
-    ResourceServer/CServer.cpp
-    ResourceServer/CSession.cpp
-    ResourceServer/DistLock.cpp
-    ResourceServer/FileInfo.cpp
-    ResourceServer/FileSystem.cpp
-    ResourceServer/FileWorker.cpp
-    ResourceServer/LogicSystem.cpp
-    ResourceServer/LogicWorker.cpp
-    ResourceServer/message.grpc.pb.cc
-    ResourceServer/message.pb.cc
-    ResourceServer/MsgNode.cpp
-    ResourceServer/MysqlDao.cpp
-    ResourceServer/MysqlMgr.cpp
-    ResourceServer/RedisMgr.cpp
-    ResourceServer/UserMgr.cpp
 )

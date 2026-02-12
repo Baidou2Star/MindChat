@@ -455,8 +455,8 @@ bool RedisMgr::SetFileInfo(const std::string& name, std::shared_ptr<FileInfo> fi
 	root["file_path_str"] = file_info->_file_path_str;
 	root["name"] = file_info->_name;
 	root["seq"] = file_info->_seq;
-	root["total_size"] = file_info->_total_size;
-	root["trans_size"] = file_info->_trans_size;
+	root["total_size"] = std::to_string(file_info->_total_size);
+	root["trans_size"] = std::to_string(file_info->_trans_size);
 
 	auto file_info_str = root.toStyledString();
 	if (file_info_str.empty()) {
@@ -479,8 +479,8 @@ bool RedisMgr::SetDownLoadInfo(const std::string& name, std::shared_ptr<FileInfo
 	root["file_path_str"] = file_info->_file_path_str;
 	root["name"] = file_info->_name;
 	root["seq"] = file_info->_seq;
-	root["total_size"] = file_info->_total_size;
-	root["trans_size"] = file_info->_trans_size;
+	root["total_size"] = std::to_string(file_info->_total_size);
+	root["trans_size"] = std::to_string(file_info->_trans_size);
 
 	auto file_info_str = root.toStyledString();
 	if (file_info_str.empty()) {
@@ -523,8 +523,8 @@ std::shared_ptr<FileInfo> RedisMgr::GetFileInfo(const std::string& name)
 		file_info->_file_path_str = root.get("file_path_str", "").asString();
 		file_info->_name = root.get("name", "").asString();
 		file_info->_seq = root.get("seq", 0).asInt();
-		file_info->_total_size = root.get("total_size", 0).asInt();
-		file_info->_trans_size = root.get("trans_size", 0).asInt();
+		file_info->_total_size = std::stoll(root.get("total_size", "0").asString());
+		file_info->_trans_size = std::stoll(root.get("trans_size", "0").asString());
 	}
 	catch (const std::exception& e) {
 		std::cout << "GetFileInfo failed: field parse error, name=" << name
@@ -559,8 +559,8 @@ std::shared_ptr<FileInfo> RedisMgr::GetDownloadInfo(const std::string& name)
 		file_info->_file_path_str = root.get("file_path_str", "").asString();
 		file_info->_name = root.get("name", "").asString();
 		file_info->_seq = root.get("seq", 0).asInt();
-		file_info->_total_size = root.get("total_size", 0).asInt();
-		file_info->_trans_size = root.get("trans_size", 0).asInt();
+		file_info->_total_size = std::stoll(root.get("total_size", "0").asString());
+		file_info->_trans_size = std::stoll(root.get("trans_size", "0").asString());
 	}
 	catch (const std::exception& e) {
 		std::cout << "GetDownloadInfo failed: field parse error, name=" << name

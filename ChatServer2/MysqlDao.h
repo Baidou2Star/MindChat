@@ -70,6 +70,7 @@ public:
     std::shared_ptr<PageResult> LoadChatMsg(int thread_id, int last_message_id, int page_size);
     bool AddChatMsg(std::vector<std::shared_ptr<ChatMessage>>& chat_datas);
     bool AddChatMsg(std::shared_ptr<ChatMessage> chat_data);
+    std::shared_ptr<ChatMessage> GetChatMsg(int message_id);
 
 private:
     std::unique_ptr<MySqlPool> pool_;

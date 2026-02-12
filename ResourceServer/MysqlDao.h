@@ -9,7 +9,7 @@
 #include <memory>
 #include "data.h"
 #include "message.pb.h"
-
+#include "FileInfo.h"
 using message::AddFriendMsg;
 using message::TextChatData;
 
@@ -71,6 +71,10 @@ public:
     bool AddChatMsg(std::vector<std::shared_ptr<ChatMessage>>& chat_datas);
     bool AddChatMsg(std::shared_ptr<ChatMessage> chat_data);
     bool UpdateHeadInfo(int uid, const std::string& icon);
+
+    bool UpdateUploadStatus(int chat_message_id);
+    std::shared_ptr<ChatImgInfo> GetImgInfoByMsgId(int message_id);
+    std::shared_ptr<ChatMessage> GetChatMsgById(int message_id);
 
 private:
     std::unique_ptr<MySqlPool> pool_;

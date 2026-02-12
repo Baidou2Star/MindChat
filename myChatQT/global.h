@@ -81,6 +81,10 @@ enum ReqId{
     ID_FILE_INFO_SYNC_RSP     =  1042,     //文件信息同步回复
     ID_IMG_CHAT_CONTINUE_UPLOAD_REQ = 1043,  //续传聊天图片资源请求
     ID_IMG_CHAT_CONTINUE_UPLOAD_RSP = 1044,  //续传聊天图片资源回复
+    ID_IMG_CHAT_DOWN_INFO_SYNC_REQ  = 1045,  //获取图片下载信息同步请求
+    ID_IMG_CHAT_DOWN_INFO_SYNC_RSP  = 1046,  //获取图片下载信息同步回复
+    ID_IMG_CHAT_DOWN_REQ          =  1047,    //聊天图片下载请求
+    ID_IMG_CHAT_DOWN_RSP          =  1048     //聊天图片下载回复
 };
 Q_DECLARE_METATYPE(ReqId)
 
@@ -187,6 +191,8 @@ struct MsgInfo{
     qint64 _thread_id;             // 会话id
     TransferState _transfer_state;  //上传或者下载, 暂停，传输完成
     TransferType  _transfer_type;   //文件类型, 上传或者下载
+    int           _sender;          //发送者
+    int           _receiver;        //接收者
     
 };
 //声明为元对象类型
@@ -265,7 +271,8 @@ enum class ChatFormType {
 enum class ChatMsgType {
     TEXT = 0,
     PIC = 1,
-    FILE = 2
+    VIDEO = 2,
+    FILE = 3
 };
 
 
@@ -283,5 +290,6 @@ struct DownloadInfo {
 };
 
 extern QString calculateFileHash(const QString& filePath);
+extern     QPixmap CreateLoadingPlaceholder(int width = 200, int height = 200);
 
 #endif // GLOBAL_H

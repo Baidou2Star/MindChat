@@ -159,12 +159,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    rc.qrc \
     rc.qrc
 
 DISTFILES += \
     config.ini \
-    icon.ico \
     res/add_friend.png \
     res/add_friend_hover.png \
     res/add_friend_normal.png \
@@ -184,6 +182,8 @@ DISTFILES += \
     res/filedir.png \
     res/filedir_hover.png \
     res/filedir_press.png \
+    res/myhead.jpg \
+    res/head_0.jpg \
     res/head_1.jpg \
     res/head_2.jpg \
     res/head_3.jpg \
