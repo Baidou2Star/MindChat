@@ -783,8 +783,8 @@ void TcpMgr::initHandlers()
                 file_info->_thread_id = thread_id;
                 //设置文件传输的类型
                 file_info->_transfer_type = TransferType::Download;
-                //设置文件传输状态
-                file_info->_transfer_state = TransferState::Uploading;
+                //设置文件传输状态：历史本地已存在，不显示进度
+                file_info->_transfer_state = TransferState::None;
                 //放入chat_datas列表
                 auto chat_data = std::make_shared<ImgChatData>(file_info,"", thread_id, ChatFormType::PRIVATE,
                     ChatMsgType::PIC, send_uid, status, chat_time);
@@ -951,8 +951,8 @@ void TcpMgr::initHandlers()
          file_info->_thread_id = thread_id;
          //设置文件传输的类型
          file_info->_transfer_type = TransferType::Download;
-         //设置文件传输状态
-         file_info->_transfer_state = TransferState::Uploading;
+         //设置文件传输状态：接收方为下载中
+         file_info->_transfer_state = TransferState::Downloading;
 
          auto img_chat_data_ptr = std::make_shared<ImgChatData>(file_info, "",
              thread_id, ChatFormType::PRIVATE, ChatMsgType::PIC,
@@ -998,8 +998,8 @@ void TcpMgr::CreatePlaceholderImgMsgL(QString img_path_str, QString msg_content,
     file_info->_thread_id = thread_id;
     //设置文件传输的类型
     file_info->_transfer_type = TransferType::Download;
-    //设置文件传输状态
-    file_info->_transfer_state = TransferState::Uploading;
+    //设置文件传输状态：占位图对应下载中
+    file_info->_transfer_state = TransferState::Downloading;
     file_info->_rsp_size = file_info->_current_size;
     //放入chat_datas列表
     auto chat_data = std::make_shared<ImgChatData>(file_info, "", thread_id, ChatFormType::PRIVATE,
