@@ -103,6 +103,7 @@ bool ChatGrpcClient::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<
 		redis_root["icon"] = userinfo->icon;
 		RedisMgr::GetInstance()->Set(base_key, redis_root.toStyledString());
 	}
+	return true;
 
 }
 

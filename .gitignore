@@ -124,7 +124,7 @@ compile_commands.json
 
 .vs/
 x64/
-/redis/redis-5.0.14.1
+/redis
 /ChatServer/ChatServer
 /GateServerWin/GateServerWin
 /StatusServer/StatusServer
