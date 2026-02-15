@@ -13,6 +13,11 @@ FindSuccessDlg::FindSuccessDlg(QWidget *parent) :
     // 隐藏对话框标题栏
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
     this->setObjectName("FindSuccessDlg");
+    ui->head_lb->setAlignment(Qt::AlignCenter);
+    ui->head_lb->setStyleSheet("border-radius: 32px; border: 1px solid #cbd8ea; background: #eef4fc;");
+    ui->name_lb->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->add_friend_btn->setCursor(Qt::PointingHandCursor);
+    ui->add_friend_btn->setMinimumHeight(38);
     // 获取当前应用程序的路径
     QString app_path = QCoreApplication::applicationDirPath();
     QString pix_path = QDir::toNativeSeparators(app_path +
@@ -33,6 +38,7 @@ FindSuccessDlg::~FindSuccessDlg()
 void FindSuccessDlg::SetSearchInfo(std::shared_ptr<SearchInfo> si)
 {
     ui->name_lb->setText(si->_name);
+    ui->sub_lb->setText(QString("UID: %1").arg(si->_uid));
     // 加载图片
     QPixmap pixmap(si->_icon);
 

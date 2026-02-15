@@ -13,12 +13,64 @@
 #include "filetcpmgr.h"
 #include "global.h"
 #include <QRegularExpression>
+#include <QSpacerItem>
+#include <QSizePolicy>
 
 UserInfoPage::UserInfoPage(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::UserInfoPage)
 {
     ui->setupUi(this);
+    ui->verticalLayout_2->setContentsMargins(24, 20, 24, 20);
+    ui->verticalLayout_2->setSpacing(10);
+    ui->label->setText(tr("昵称："));
+    ui->label_2->setText(tr("用户名："));
+    ui->label_3->setText(tr("描述："));
+    ui->label->setFixedWidth(72);
+    ui->label_2->setFixedWidth(72);
+    ui->label_3->setFixedWidth(72);
+    ui->label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    ui->label_2->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    ui->label_3->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    ui->nick_ed->setMinimumWidth(0);
+    ui->name_ed->setMinimumWidth(0);
+    ui->desc_ed->setMinimumWidth(0);
+    ui->nick_ed->setMaximumWidth(QWIDGETSIZE_MAX);
+    ui->name_ed->setMaximumWidth(QWIDGETSIZE_MAX);
+    ui->desc_ed->setMaximumWidth(QWIDGETSIZE_MAX);
+    ui->nick_ed->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    ui->name_ed->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    ui->desc_ed->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    ui->horizontalLayout_2->setStretch(1, 1);
+    ui->horizontalLayout_3->setStretch(1, 1);
+    ui->horizontalLayout_4->setStretch(1, 1);
+    ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    ui->horizontalSpacer_2->changeSize(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    ui->horizontalSpacer_3->changeSize(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    ui->head_lb->setFixedSize(160, 160);
+    ui->head_lb->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    ui->horizontalSpacer_6->changeSize(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    ui->horizontalLayout->setStretch(1, 1);
+    ui->head_lb->setStyleSheet("border-radius: 12px; border: 2px solid #d8e4f4; background: #f6f9ff;");
+    ui->head_lb->setAlignment(Qt::AlignCenter);
+    ui->label_4->setObjectName("profile_title");
+    ui->up_btn->setCursor(Qt::PointingHandCursor);
+    ui->submit_btn->setCursor(Qt::PointingHandCursor);
+    ui->up_btn->setMinimumHeight(34);
+    ui->submit_btn->setMinimumHeight(34);
+    ui->nick_ed->setPlaceholderText("请输入昵称");
+    ui->name_ed->setPlaceholderText("请输入用户名");
+    ui->desc_ed->setPlaceholderText("请输入个性签名");
+    ui->nick_ed->setClearButtonEnabled(true);
+    ui->name_ed->setClearButtonEnabled(true);
+    ui->desc_ed->setClearButtonEnabled(true);
+    ui->nick_ed->setMaxLength(20);
+    ui->name_ed->setMaxLength(20);
+    ui->desc_ed->setMaxLength(40);
+    ui->head_lb->setPixmap(QPixmap(":/res/profile_cover_banner.jpg").scaled(
+        ui->head_lb->size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+    ui->head_lb->setScaledContents(false);
+
     auto icon = UserMgr::GetInstance()->GetIcon();
     qDebug() << "icon is " << icon ;
 
@@ -30,7 +82,7 @@ UserInfoPage::UserInfoPage(QWidget *parent) :
         QPixmap scaledPixmap = pixmap.scaled(ui->head_lb->size(), 
             Qt::KeepAspectRatio, Qt::SmoothTransformation); // 将图片缩放到label的大小
         ui->head_lb->setPixmap(scaledPixmap); // 将缩放后的图片设置到QLabel上
-        ui->head_lb->setScaledContents(true); // 设置QLabel自动缩放图片内容以适应大小
+        ui->head_lb->setScaledContents(false); // 保持正方形头像，不进行控件拉伸
     }
     else {
         // 如果是用户上传的头像，获取存储目录
@@ -53,14 +105,14 @@ UserInfoPage::UserInfoPage(QWidget *parent) :
                     QPixmap scaledPixmap = pixmap.scaled(ui->head_lb->size(),
                         Qt::KeepAspectRatio, Qt::SmoothTransformation); // 将图片缩放到label的大小
                     ui->head_lb->setPixmap(scaledPixmap); // 将缩放后的图片设置到QLabel上
-                    ui->head_lb->setScaledContents(true); // 设置QLabel自动缩放图片内容以适应大小
+                    ui->head_lb->setScaledContents(false); // 保持正方形头像，不进行控件拉伸
                     
                 }
                 else {
                     QPixmap scaledPixmap = pixmap.scaled(ui->head_lb->size(),
                         Qt::KeepAspectRatio, Qt::SmoothTransformation); // 将图片缩放到label的大小
                     ui->head_lb->setPixmap(scaledPixmap); // 将缩放后的图片设置到QLabel上
-                    ui->head_lb->setScaledContents(true); // 设置QLabel自动缩放图片内容以适应大小
+                    ui->head_lb->setScaledContents(false); // 保持正方形头像，不进行控件拉伸
                 }
             }
             else {
@@ -100,7 +152,7 @@ void UserInfoPage::LoadHeadIcon(QString avatarPath, QLabel* icon_label, QString 
     QPixmap scaledPixmap = pixmap.scaled(ui->head_lb->size(),
         Qt::KeepAspectRatio, Qt::SmoothTransformation); // 将图片缩放到label的大小
     ui->head_lb->setPixmap(scaledPixmap); // 将缩放后的图片设置到QLabel上
-    ui->head_lb->setScaledContents(true); // 设置QLabel自动缩放图片内容以适应大小
+    ui->head_lb->setScaledContents(false); // 保持正方形头像，不进行控件拉伸
 
     //判断是否正在下载
     bool is_loading = UserMgr::GetInstance()->IsDownLoading(file_name);
@@ -154,7 +206,7 @@ void UserInfoPage::slot_up_load()
 
     QPixmap scaledPixmap = image.scaled( ui->head_lb->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation); // 将图片缩放到label的大小
     ui->head_lb->setPixmap(scaledPixmap); // 将缩放后的图片设置到QLabel上
-    ui->head_lb->setScaledContents(true); // 设置QLabel自动缩放图片内容以适应大小
+    ui->head_lb->setScaledContents(false); // 保持正方形头像，不进行控件拉伸
 
     QString storageDir = QStandardPaths::writableLocation(
                              QStandardPaths::AppDataLocation);
@@ -268,9 +320,5 @@ void UserInfoPage::slot_up_load()
     file.close();
     emit sig_reset_head();
 }
-
-
-
-
 
 

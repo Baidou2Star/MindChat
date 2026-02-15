@@ -265,48 +265,16 @@
           <number>2</number>
          </property>
          <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>36</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="ClickedBtn" name="receive_btn">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>接收</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_3">
+         <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+            <enum>QSizePolicy::Expanding</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>10</width>
+             <width>36</width>
              <height>20</height>
             </size>
            </property>
@@ -374,7 +342,7 @@
   <customwidget>
    <class>ChatView</class>
    <extends>QWidget</extends>
-   <header>chatview.h</header>
+   <header>ChatView.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

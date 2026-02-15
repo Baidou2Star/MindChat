@@ -4,12 +4,42 @@
 #include <QRegularExpression>
 #include "global.h"
 #include "httpmgr.h"
+#include <QShortcut>
 
 ResetDialog::ResetDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ResetDialog)
 {
     ui->setupUi(this);
+    setMinimumSize(420, 500);
+    setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    setWindowTitle("myChat - 重置密码");
+
+    ui->user_edit->setPlaceholderText("请输入用户名");
+    ui->email_edit->setPlaceholderText("请输入注册邮箱");
+    ui->varify_edit->setPlaceholderText("请输入验证码");
+    ui->pwd_edit->setPlaceholderText("请输入新密码（6-15位）");
+
+    ui->user_edit->setClearButtonEnabled(true);
+    ui->email_edit->setClearButtonEnabled(true);
+    ui->varify_edit->setClearButtonEnabled(true);
+    ui->pwd_edit->setClearButtonEnabled(true);
+
+    ui->user_edit->setMaxLength(20);
+    ui->email_edit->setMaxLength(50);
+    ui->varify_edit->setMaxLength(6);
+    ui->pwd_edit->setMaxLength(15);
+    ui->pwd_edit->setEchoMode(QLineEdit::Password);
+
+    ui->varify_btn->setCursor(Qt::PointingHandCursor);
+    ui->sure_btn->setCursor(Qt::PointingHandCursor);
+    ui->return_btn->setCursor(Qt::PointingHandCursor);
+
+    ui->varify_btn->setMinimumHeight(34);
+    ui->sure_btn->setMinimumHeight(34);
+    ui->return_btn->setMinimumHeight(34);
+
+    ui->user_edit->setFocus();
 
     connect(ui->user_edit,&QLineEdit::editingFinished,this,[this](){
         checkUserValid();
@@ -27,6 +57,14 @@ ResetDialog::ResetDialog(QWidget *parent) :
     connect(ui->varify_edit, &QLineEdit::editingFinished, this, [this](){
          checkVarifyValid();
     });
+
+    connect(ui->user_edit, &QLineEdit::returnPressed, this, &ResetDialog::on_sure_btn_clicked);
+    connect(ui->email_edit, &QLineEdit::returnPressed, this, &ResetDialog::on_sure_btn_clicked);
+    connect(ui->varify_edit, &QLineEdit::returnPressed, this, &ResetDialog::on_sure_btn_clicked);
+    connect(ui->pwd_edit, &QLineEdit::returnPressed, this, &ResetDialog::on_sure_btn_clicked);
+
+    auto *escShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(escShortcut, &QShortcut::activated, this, &ResetDialog::on_return_btn_clicked);
 
     //连接reset相关信号和注册处理回调
     initHandlers();
@@ -56,6 +94,7 @@ void ResetDialog::on_varify_btn_clicked()
         return;
     }
 
+    ui->varify_btn->setEnabled(false);
     //发送http请求获取验证码
     QJsonObject json_obj;
     json_obj["email"] = email;
@@ -66,6 +105,9 @@ void ResetDialog::on_varify_btn_clicked()
 void ResetDialog::slot_reset_mod_finish(ReqId id, QString res, ErrorCodes err)
 {
     if(err != ErrorCodes::SUCCESS){
+        if (id == ReqId::ID_GET_VARIFY_CODE) {
+            ui->varify_btn->setEnabled(true);
+        }
         showTip(tr("网络请求错误"),false);
         return;
     }
@@ -183,11 +225,13 @@ void ResetDialog::initHandlers()
     _handlers.insert(ReqId::ID_GET_VARIFY_CODE, [this](QJsonObject jsonObj){
         int error = jsonObj["error"].toInt();
         if(error != ErrorCodes::SUCCESS){
+            ui->varify_btn->ResetCountDown();
             showTip(tr("参数错误"),false);
             return;
         }
         auto email = jsonObj["email"].toString();
         showTip(tr("验证码已发送到邮箱，注意查收"), true);
+        ui->varify_btn->BeginCountDown();
         qDebug()<< "email is " << email ;
     });
 

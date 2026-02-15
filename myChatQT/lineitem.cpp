@@ -16,5 +16,12 @@ LineItem::~LineItem()
 
 QSize LineItem::sizeHint() const
 {
-   return QSize(250,5); // 返回自定义的尺寸
+   int width = 1000;
+   if (parentWidget()) {
+       width = parentWidget()->width() - 10;
+       if (width < 250) {
+           width = 250;
+       }
+   }
+   return QSize(width, 8);
 }

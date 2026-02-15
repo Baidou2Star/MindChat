@@ -812,3 +812,1164 @@ LoadingDlg #status_lb {
     font-family: "Microsoft YaHei";
 }
 
+/* ===================== 2026 Visual Refresh ===================== */
+QWidget {
+    font-family: "Segoe UI", "Microsoft YaHei UI";
+    color: #1f2a3d;
+}
+
+QDialog#LoginDialog,
+QDialog#RegisterDialog,
+QDialog#ResetDialog {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #f7fbff, stop:1 #eef3f9);
+    border: 1px solid #dde6f2;
+    border-radius: 14px;
+}
+
+#head_widget {
+    background: transparent;
+}
+
+#head_label {
+    border: 2px solid #ffffff;
+    border-radius: 14px;
+    background: #dbe7f5;
+}
+
+#err_tip[state='normal'] {
+    color: #1a9d62;
+    font-size: 13px;
+}
+
+#err_tip[state='err'] {
+    color: #d64545;
+    font-size: 13px;
+}
+
+#tip_lb,
+#tip2_lb {
+    color: #1a9d62;
+    font-size: 13px;
+}
+
+#email_lb,
+#pass_label,
+#user_label,
+#confirm_label,
+#varify_label,
+#user_lb,
+#pwd_lb,
+#email_label,
+#varify_lb {
+    color: #40506a;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#email_edit,
+#pass_edit,
+#user_edit,
+#confirm_edit,
+#varify_edit,
+#pwd_edit,
+#name_ed,
+#back_ed,
+#lb_ed {
+    min-height: 32px;
+    border: 1px solid #cfdceb;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 0 10px;
+    selection-background-color: #1f6feb;
+    selection-color: #ffffff;
+}
+
+#email_edit:focus,
+#pass_edit:focus,
+#user_edit:focus,
+#confirm_edit:focus,
+#varify_edit:focus,
+#pwd_edit:focus,
+#name_ed:focus,
+#back_ed:focus,
+#lb_ed:focus {
+    border: 1px solid #1f6feb;
+}
+
+#login_btn,
+#reg_btn,
+#sure_btn,
+#cancel_btn,
+#return_btn,
+#get_code,
+#varify_btn,
+#fail_sure_btn {
+    min-height: 34px;
+    border: none;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#login_btn,
+#sure_btn,
+#return_btn,
+#fail_sure_btn {
+    color: #ffffff;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                stop:0 #1f6feb, stop:1 #3590ff);
+}
+
+#login_btn:hover,
+#sure_btn:hover,
+#return_btn:hover,
+#fail_sure_btn:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                stop:0 #165fd2, stop:1 #2f7de1);
+}
+
+#login_btn:pressed,
+#sure_btn:pressed,
+#return_btn:pressed,
+#fail_sure_btn:pressed {
+    background: #1654bb;
+}
+
+#reg_btn,
+#cancel_btn {
+    color: #1f6feb;
+    background: #e9f1fd;
+    border: 1px solid #c7daf7;
+}
+
+#reg_btn:hover,
+#cancel_btn:hover {
+    background: #dceafe;
+}
+
+#reg_btn:pressed,
+#cancel_btn:pressed {
+    background: #cde2ff;
+}
+
+#get_code,
+#varify_btn {
+    color: #1f6feb;
+    background: #eaf2ff;
+    border: 1px solid #c6d9f8;
+}
+
+#get_code:hover,
+#varify_btn:hover {
+    background: #ddeafe;
+}
+
+#get_code:disabled,
+#varify_btn:disabled {
+    color: #9cadc4;
+    background: #f2f5fa;
+    border: 1px solid #e2e8f1;
+}
+
+#forget_label[state='normal'],
+#forget_label[state='selected'] {
+    color: #5a6b84;
+}
+
+#forget_label[state='hover'],
+#forget_label[state='selected_hover'] {
+    color: #1f6feb;
+}
+
+QDialog#ChatDialog {
+    background: #f2f6fb;
+    border: 1px solid #d9e2ee;
+    border-radius: 12px;
+}
+
+#side_bar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #263245, stop:1 #1f2838);
+    border-right: 1px solid #33445d;
+}
+
+#side_head_lb {
+    border-radius: 17px;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+}
+
+#chat_user_wid {
+    background: #f8fbff;
+    border-right: 1px solid #dde6f1;
+}
+
+#search_wid {
+    background: #f8fbff;
+    border-bottom: 1px solid #e2eaf4;
+}
+
+#search_edit {
+    min-height: 32px;
+    border: 1px solid #d2deec;
+    border-radius: 16px;
+    background: #ffffff;
+    padding-left: 10px;
+    padding-right: 8px;
+    color: #1f2a3d;
+}
+
+#search_edit:focus {
+    border: 1px solid #1f6feb;
+}
+
+#chat_user_list,
+#search_list,
+#con_user_list {
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 4px;
+}
+
+#chat_user_list::item,
+#search_list::item,
+#con_user_list::item {
+    border-radius: 8px;
+}
+
+#chat_user_list::item:selected,
+#search_list::item:selected,
+#con_user_list::item:selected {
+    background: #dceaff;
+}
+
+#chat_user_list::item:hover,
+#search_list::item:hover,
+#con_user_list::item:hover {
+    background: #eaf2fd;
+}
+
+#user_name_lb {
+    color: #1a2438;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+#user_chat_lb {
+    color: #7788a1;
+    font-size: 12px;
+}
+
+#time_wid #time_lb {
+    color: #8898ac;
+    font-size: 11px;
+}
+
+#title_wid {
+    background: #ffffff;
+    border-bottom: 1px solid #e2eaf2;
+}
+
+#title_lb {
+    color: #1f2a3d;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+#chat_data_list {
+    background: #f6f9fd;
+}
+
+#tool_wid {
+    background: #ffffff;
+    border-top: 1px solid #e6edf5;
+    border-bottom: 1px solid #e6edf5;
+}
+
+#chatEdit {
+    background: #ffffff;
+    color: #1f2a3d;
+    border: 1px solid #d9e4f2;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 14px;
+    selection-background-color: #1f6feb;
+    selection-color: #ffffff;
+}
+
+#chatEdit:focus {
+    border: 1px solid #1f6feb;
+}
+
+#send_wid {
+    background: #ffffff;
+    border-top: 1px solid #edf2f7;
+}
+
+#send_btn[state='normal'],
+#receive_btn[state='normal'] {
+    color: #ffffff;
+    background: #1f6feb;
+    border-radius: 15px;
+}
+
+#send_btn[state='hover'],
+#receive_btn[state='hover'] {
+    background: #2f7de1;
+    color: #ffffff;
+    border-radius: 15px;
+}
+
+#send_btn[state='press'],
+#receive_btn[state='press'] {
+    background: #1654bb;
+    color: #ffffff;
+    border-radius: 15px;
+}
+
+#ApplyFriend,
+#AuthenFriend,
+#friend_info_page,
+#user_info_page {
+    background: #f6f9fd;
+}
+
+#friend_apply_wid {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e9f2;
+}
+
+#friend_apply_lb {
+    color: #1f2a3d;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+#apply_friend_list {
+    background: #f6f9fd;
+    border-left: 1px solid #e2e9f2;
+}
+
+ApplyFriendItem {
+    background: #f6f9fd;
+    border-bottom: 1px solid #e2e9f2;
+}
+
+ApplyFriendItem #addBtn[state='normal'] {
+    background-color: #e9f2ff;
+    color: #1f6feb;
+    border-radius: 15px;
+}
+
+ApplyFriendItem #addBtn[state='hover'] {
+    background-color: #dceaff;
+    color: #1f6feb;
+    border-radius: 15px;
+}
+
+ApplyFriendItem #addBtn[state='press'] {
+    background-color: #cde1ff;
+    color: #1f6feb;
+    border-radius: 15px;
+}
+
+QScrollBar:vertical {
+    background: transparent;
+    width: 10px;
+    margin: 2px;
+}
+
+QScrollBar::handle:vertical {
+    background: #c2cfdf;
+    border-radius: 5px;
+    min-height: 16px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #aabbd1;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical,
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    height: 0px;
+    background: transparent;
+}
+
+LoadingDlg {
+    background: rgba(13, 22, 36, 80);
+}
+
+LoadingDlg #status_lb {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* ---------------- Additional Polishing ---------------- */
+QWidget {
+    font-size: 14px;
+}
+
+QLabel {
+    font-size: 14px;
+}
+
+QLineEdit,
+QTextEdit {
+    font-size: 14px;
+}
+
+QPushButton {
+    font-size: 14px;
+}
+
+#login_title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f395f;
+    letter-spacing: 1px;
+}
+
+#login_subtitle {
+    font-size: 13px;
+    color: #6e7f99;
+}
+
+#side_chat_lb[state='normal'],
+#side_contact_lb[state='normal'],
+#side_settings_lb[state='normal'] {
+    background-color: transparent;
+    border-radius: 10px;
+}
+
+#side_chat_lb[state='normal'] {
+    border-image: url(:/res/sidebar_chat_outline_enterprise.png);
+}
+
+#side_chat_lb[state='pressed'],
+#side_chat_lb[state='selected_normal'],
+#side_chat_lb[state='selected_hover'],
+#side_chat_lb[state='selected_pressed'] {
+    border-image: url(:/res/sidebar_chat_active_enterprise.png);
+}
+
+#side_contact_lb[state='normal'] {
+    border-image: url(:/res/sidebar_contact_outline_enterprise.png);
+}
+
+#side_contact_lb[state='pressed'],
+#side_contact_lb[state='selected_normal'],
+#side_contact_lb[state='selected_hover'],
+#side_contact_lb[state='selected_pressed'] {
+    border-image: url(:/res/sidebar_contact_active_enterprise.png);
+}
+
+#side_settings_lb[state='normal'] {
+    border-image: url(:/res/sidebar_settings_outline_enterprise.png);
+}
+
+#side_settings_lb[state='pressed'],
+#side_settings_lb[state='selected_normal'],
+#side_settings_lb[state='selected_hover'],
+#side_settings_lb[state='selected_pressed'] {
+    border-image: url(:/res/sidebar_settings_active_enterprise.png);
+}
+
+#side_chat_lb[state='hover'],
+#side_contact_lb[state='hover'],
+#side_settings_lb[state='hover'] {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+}
+
+#side_chat_lb[state='selected_normal'],
+#side_chat_lb[state='selected_hover'],
+#side_chat_lb[state='selected_pressed'],
+#side_contact_lb[state='selected_normal'],
+#side_contact_lb[state='selected_hover'],
+#side_contact_lb[state='selected_pressed'],
+#side_settings_lb[state='selected_normal'],
+#side_settings_lb[state='selected_hover'],
+#side_settings_lb[state='selected_pressed'] {
+    background-color: rgba(100, 162, 255, 0.28);
+    border-radius: 10px;
+}
+
+#chat_user_name {
+    font-size: 12px;
+    color: #74859f;
+}
+
+#GroupTipItem QLabel {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6e7d94;
+}
+
+#ConUserItem #user_name_lb,
+#ChatUserWid #user_name_lb {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+#friend_info_card {
+    background: #ffffff;
+    border: 1px solid #dbe5f2;
+    border-radius: 16px;
+}
+
+#friend_action_bar {
+    border-top: 1px solid #e4ecf7;
+    margin-top: 8px;
+}
+
+#FriendInfoPage #name_lb {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a2c45;
+}
+
+#FriendInfoPage #nick_tip,
+#FriendInfoPage #bak_tip {
+    font-size: 13px;
+    color: #7a8ba4;
+}
+
+#FriendInfoPage #nick_lb,
+#FriendInfoPage #bak_lb {
+    font-size: 15px;
+    color: #1f2f49;
+}
+
+#UserInfoPage {
+    background: #f6f9fe;
+}
+
+#profile_title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a2d46;
+}
+
+#UserInfoPage #label,
+#UserInfoPage #label_2,
+#UserInfoPage #label_3 {
+    font-size: 13px;
+    color: #6f819d;
+    font-weight: 600;
+}
+
+#UserInfoPage #up_btn,
+#UserInfoPage #submit_btn {
+    border-radius: 10px;
+    border: 1px solid #c4d7f4;
+    background: #eaf2ff;
+    color: #1f6feb;
+    font-weight: 600;
+}
+
+#UserInfoPage #up_btn:hover,
+#UserInfoPage #submit_btn:hover {
+    background: #dce9ff;
+}
+
+#UserInfoPage #up_btn:pressed,
+#UserInfoPage #submit_btn:pressed {
+    background: #cde0ff;
+}
+
+/* ---------------- 4K + Enterprise Refresh ---------------- */
+QWidget {
+    font-size: 16px;
+}
+
+QLabel {
+    font-size: 16px;
+}
+
+QLineEdit,
+QTextEdit,
+QPlainTextEdit {
+    font-size: 16px;
+}
+
+QPushButton {
+    font-size: 15px;
+}
+
+#title_lb {
+    font-size: 20px;
+}
+
+#chatEdit {
+    font-size: 16px;
+}
+
+#chat_user_name {
+    font-size: 14px;
+}
+
+#user_name_lb {
+    font-size: 17px;
+}
+
+#user_chat_lb {
+    font-size: 14px;
+}
+
+#time_wid #time_lb {
+    font-size: 13px;
+}
+
+#search_edit {
+    min-height: 38px;
+    border-radius: 19px;
+}
+
+#side_bar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #1f3048, stop:1 #18263a);
+    border-right: 1px solid #2f4462;
+}
+
+#side_chat_lb[state='normal'],
+#side_chat_lb[state='hover'],
+#side_chat_lb[state='pressed'],
+#side_contact_lb[state='normal'],
+#side_contact_lb[state='hover'],
+#side_contact_lb[state='pressed'],
+#side_settings_lb[state='normal'],
+#side_settings_lb[state='hover'],
+#side_settings_lb[state='pressed'] {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+#side_chat_lb[state='normal'],
+#side_chat_lb[state='hover'] {
+    border-image: none;
+}
+
+#side_chat_lb[state='pressed'],
+#side_chat_lb[state='selected_normal'],
+#side_chat_lb[state='selected_hover'],
+#side_chat_lb[state='selected_pressed'] {
+    border-image: none;
+}
+
+#side_contact_lb[state='normal'],
+#side_contact_lb[state='hover'] {
+    border-image: none;
+}
+
+#side_contact_lb[state='pressed'],
+#side_contact_lb[state='selected_normal'],
+#side_contact_lb[state='selected_hover'],
+#side_contact_lb[state='selected_pressed'] {
+    border-image: none;
+}
+
+#side_settings_lb[state='normal'],
+#side_settings_lb[state='hover'] {
+    border-image: none;
+}
+
+#side_settings_lb[state='pressed'],
+#side_settings_lb[state='selected_normal'],
+#side_settings_lb[state='selected_hover'],
+#side_settings_lb[state='selected_pressed'] {
+    border-image: none;
+}
+
+#side_chat_lb[state='selected_normal'],
+#side_chat_lb[state='selected_hover'],
+#side_chat_lb[state='selected_pressed'],
+#side_contact_lb[state='selected_normal'],
+#side_contact_lb[state='selected_hover'],
+#side_contact_lb[state='selected_pressed'],
+#side_settings_lb[state='selected_normal'],
+#side_settings_lb[state='selected_hover'],
+#side_settings_lb[state='selected_pressed'] {
+    background-color: rgba(76, 144, 255, 0.36);
+    border: 1px solid rgba(148, 191, 255, 0.52);
+    border-radius: 12px;
+}
+
+#ApplyFriend,
+#AuthenFriend {
+    background: #eff4fb;
+    border: 1px solid #d5e2f2;
+    border-radius: 16px;
+}
+
+#ApplyFriend #scrollArea,
+#AuthenFriend #scrollArea {
+    border: none;
+    background: transparent;
+}
+
+#ApplyFriend #scrollcontent,
+#AuthenFriend #scrollcontent {
+    background: transparent;
+}
+
+#ApplyFriend #apply_lb,
+#AuthenFriend #apply_lb {
+    min-height: 60px;
+    padding-left: 20px;
+    color: #1b3656;
+    font-size: 22px;
+    font-weight: 700;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                stop:0 #edf4ff, stop:1 #e1ebfa);
+    border-bottom: 1px solid #d7e3f3;
+}
+
+#ApplyFriend #apply_wid,
+#AuthenFriend #apply_wid {
+    background: #ffffff;
+    border: 1px solid #dbe6f4;
+    border-radius: 14px;
+    margin: 14px 14px 0 14px;
+}
+
+#ApplyFriend #apply_wid QLabel,
+#AuthenFriend #apply_wid QLabel {
+    color: #38506d;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#ApplyFriend #name_ed,
+#ApplyFriend #back_ed,
+#ApplyFriend #lb_ed,
+#AuthenFriend #back_ed,
+#AuthenFriend #lb_ed {
+    border: 1px solid #cfdced;
+    border-radius: 10px;
+    background: #fbfdff;
+    padding: 0 10px;
+    color: #1f2a3d;
+}
+
+#ApplyFriend #name_ed:focus,
+#ApplyFriend #back_ed:focus,
+#ApplyFriend #lb_ed:focus,
+#AuthenFriend #back_ed:focus,
+#AuthenFriend #lb_ed:focus {
+    border: 1px solid #1f6feb;
+    background: #ffffff;
+}
+
+#ApplyFriend #gridWidget,
+#AuthenFriend #gridWidget {
+    background: #f8fbff;
+    border: 1px solid #e0eaf6;
+    border-radius: 10px;
+}
+
+#ApplyFriend #input_tip_wid,
+#AuthenFriend #input_tip_wid {
+    background: #edf5ff;
+    border: 1px solid #d6e4f7;
+    border-radius: 8px;
+}
+
+#ApplyFriend #tip_lb,
+#AuthenFriend #tip_lb {
+    padding-left: 8px;
+    color: #315885;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#ApplyFriend #tipslb[state='normal'],
+#AuthenFriend #tipslb[state='normal'] {
+    padding: 3px 10px;
+    color: #4f607a;
+    background: #e9eff7;
+    border: 1px solid #d0dceb;
+    border-radius: 12px;
+}
+
+#ApplyFriend #tipslb[state='hover'],
+#AuthenFriend #tipslb[state='hover'] {
+    padding: 3px 10px;
+    color: #274d77;
+    background: #dfeaf9;
+    border: 1px solid #bed3ee;
+    border-radius: 12px;
+}
+
+#ApplyFriend #tipslb[state='pressed'],
+#ApplyFriend #tipslb[state='selected_normal'],
+#ApplyFriend #tipslb[state='selected_hover'],
+#ApplyFriend #tipslb[state='selected_pressed'],
+#AuthenFriend #tipslb[state='pressed'],
+#AuthenFriend #tipslb[state='selected_normal'],
+#AuthenFriend #tipslb[state='selected_hover'],
+#AuthenFriend #tipslb[state='selected_pressed'] {
+    padding: 3px 10px;
+    color: #ffffff;
+    background: #1f6feb;
+    border: 1px solid #1d63d6;
+    border-radius: 12px;
+}
+
+#FriendLabel {
+    background: #dcecff;
+    border: 1px solid #b8d3fb;
+    color: #1f4f87;
+    border-radius: 12px;
+}
+
+#FriendLabel #tip_lb {
+    padding-left: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f4f87;
+}
+
+#ApplyFriend #more_lb,
+#AuthenFriend #more_lb {
+    border-image: url(:/res/arowdown.png);
+    background: transparent;
+}
+
+#ApplyFriend #sure_btn[state='normal'],
+#AuthenFriend #sure_btn[state='normal'] {
+    color: #ffffff;
+    background: #1f6feb;
+    border-radius: 10px;
+}
+
+#ApplyFriend #sure_btn[state='hover'],
+#AuthenFriend #sure_btn[state='hover'] {
+    color: #ffffff;
+    background: #2f7de1;
+    border-radius: 10px;
+}
+
+#ApplyFriend #sure_btn[state='press'],
+#AuthenFriend #sure_btn[state='press'] {
+    color: #ffffff;
+    background: #1654bb;
+    border-radius: 10px;
+}
+
+#ApplyFriend #cancel_btn[state='normal'],
+#AuthenFriend #cancel_btn[state='normal'] {
+    color: #31547f;
+    background: #e8f0fc;
+    border: 1px solid #c4d8f4;
+    border-radius: 10px;
+}
+
+#ApplyFriend #cancel_btn[state='hover'],
+#AuthenFriend #cancel_btn[state='hover'] {
+    color: #31547f;
+    background: #dce9fb;
+    border: 1px solid #b7cff1;
+    border-radius: 10px;
+}
+
+#ApplyFriend #cancel_btn[state='press'],
+#AuthenFriend #cancel_btn[state='press'] {
+    color: #31547f;
+    background: #cddff8;
+    border: 1px solid #a8c5ee;
+    border-radius: 10px;
+}
+
+/* ---------------- Unified Blue Theme V2 ---------------- */
+QWidget {
+    font-size: 15px;
+}
+
+QLabel {
+    font-size: 15px;
+}
+
+QLineEdit,
+QTextEdit,
+QPlainTextEdit {
+    font-size: 15px;
+}
+
+QPushButton {
+    font-size: 14px;
+}
+
+#title_lb {
+    font-size: 19px;
+}
+
+#chatEdit {
+    font-size: 15px;
+}
+
+#chat_user_name {
+    font-size: 13px;
+}
+
+#user_name_lb {
+    font-size: 16px;
+}
+
+#user_chat_lb {
+    font-size: 13px;
+}
+
+#time_wid #time_lb {
+    font-size: 12px;
+}
+
+#search_edit {
+    min-height: 36px;
+    border-radius: 18px;
+}
+
+#send_btn[state='normal'],
+#receive_btn[state='normal'],
+#add_friend_btn[state='normal'],
+#fail_sure_btn[state='normal'],
+ApplyFriendItem #addBtn[state='normal'] {
+    color: #ffffff;
+    background: #1f6feb;
+    border: none;
+    border-radius: 10px;
+}
+
+#send_btn[state='hover'],
+#receive_btn[state='hover'],
+#add_friend_btn[state='hover'],
+#fail_sure_btn[state='hover'],
+ApplyFriendItem #addBtn[state='hover'] {
+    color: #ffffff;
+    background: #2f7de1;
+    border: none;
+    border-radius: 10px;
+}
+
+#send_btn[state='press'],
+#receive_btn[state='press'],
+#add_friend_btn[state='press'],
+#fail_sure_btn[state='press'],
+ApplyFriendItem #addBtn[state='press'] {
+    color: #ffffff;
+    background: #1654bb;
+    border: none;
+    border-radius: 10px;
+}
+
+#apply_sure_wid #sure_btn[state='normal'] {
+    color: #ffffff;
+    background: #1f6feb;
+    border-radius: 10px;
+}
+
+#apply_sure_wid #sure_btn[state='hover'] {
+    color: #ffffff;
+    background: #2f7de1;
+    border-radius: 10px;
+}
+
+#apply_sure_wid #sure_btn[state='press'] {
+    color: #ffffff;
+    background: #1654bb;
+    border-radius: 10px;
+}
+
+#apply_sure_wid #cancel_btn[state='normal'] {
+    color: #31547f;
+    background: #e8f0fc;
+    border: 1px solid #c4d8f4;
+    border-radius: 10px;
+}
+
+#apply_sure_wid #cancel_btn[state='hover'] {
+    color: #31547f;
+    background: #dce9fb;
+    border: 1px solid #b7cff1;
+    border-radius: 10px;
+}
+
+#apply_sure_wid #cancel_btn[state='press'] {
+    color: #31547f;
+    background: #cddff8;
+    border: 1px solid #a8c5ee;
+    border-radius: 10px;
+}
+
+/* ---------------- Final Visual Tune ---------------- */
+#side_bar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #e7eef8, stop:1 #d7e2f1);
+    border-right: 1px solid #c6d4e7;
+}
+
+#side_head_lb {
+    border-radius: 17px;
+    border: 1px solid #b9cade;
+    background: #f4f8ff;
+}
+
+#side_chat_lb[state='normal'],
+#side_contact_lb[state='normal'],
+#side_settings_lb[state='normal'] {
+    border: 1px solid #c4d3e6;
+    border-radius: 10px;
+    background: #f4f8ff;
+}
+
+#side_chat_lb[state='hover'],
+#side_contact_lb[state='hover'],
+#side_settings_lb[state='hover'] {
+    border: 1px solid #a9c1de;
+    border-radius: 10px;
+    background: #e8f0fc;
+}
+
+#side_chat_lb[state='selected_normal'],
+#side_chat_lb[state='selected_hover'],
+#side_chat_lb[state='selected_pressed'],
+#side_contact_lb[state='selected_normal'],
+#side_contact_lb[state='selected_hover'],
+#side_contact_lb[state='selected_pressed'],
+#side_settings_lb[state='selected_normal'],
+#side_settings_lb[state='selected_hover'],
+#side_settings_lb[state='selected_pressed'] {
+    border: 1px solid #80aee6;
+    border-radius: 10px;
+    background: #dceaff;
+}
+
+#side_chat_lb[state='normal'],
+#side_chat_lb[state='hover'] {
+    border-image: none;
+}
+
+#side_chat_lb[state='pressed'],
+#side_chat_lb[state='selected_normal'],
+#side_chat_lb[state='selected_hover'],
+#side_chat_lb[state='selected_pressed'] {
+    border-image: none;
+}
+
+#side_contact_lb[state='normal'],
+#side_contact_lb[state='hover'] {
+    border-image: none;
+}
+
+#side_contact_lb[state='pressed'],
+#side_contact_lb[state='selected_normal'],
+#side_contact_lb[state='selected_hover'],
+#side_contact_lb[state='selected_pressed'] {
+    border-image: none;
+}
+
+#side_settings_lb[state='normal'],
+#side_settings_lb[state='hover'] {
+    border-image: none;
+}
+
+#side_settings_lb[state='pressed'],
+#side_settings_lb[state='selected_normal'],
+#side_settings_lb[state='selected_hover'],
+#side_settings_lb[state='selected_pressed'] {
+    border-image: none;
+}
+
+#FindSuccessDlg,
+#FindFailDlg {
+    background: #f3f7fd;
+    border: 1px solid #d6e2f2;
+    border-radius: 14px;
+}
+
+#FindSuccessDlg #title_lb,
+#FindFailDlg #title_lb {
+    color: #1c3552;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+#FindSuccessDlg #result_card,
+#FindFailDlg #fail_card {
+    background: #ffffff;
+    border: 1px solid #d9e4f3;
+    border-radius: 12px;
+}
+
+#FindSuccessDlg #name_lb {
+    color: #1f2f49;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+#FindSuccessDlg #sub_lb,
+#FindFailDlg #fail_tip2 {
+    color: #6a7e9b;
+    font-size: 14px;
+}
+
+#FindFailDlg #fail_tip {
+    color: #2a3f5f;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+#FindSuccessDlg #add_friend_btn[state='normal'],
+#FindSuccessDlg #add_friend_btn[state='hover'],
+#FindSuccessDlg #add_friend_btn[state='press'],
+#FindFailDlg #fail_sure_btn[state='normal'],
+#FindFailDlg #fail_sure_btn[state='hover'],
+#FindFailDlg #fail_sure_btn[state='press'] {
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+}
+
+#FindSuccessDlg #add_friend_btn[state='normal'],
+#FindFailDlg #fail_sure_btn[state='normal'] {
+    background: #1f6feb;
+}
+
+#FindSuccessDlg #add_friend_btn[state='hover'],
+#FindFailDlg #fail_sure_btn[state='hover'] {
+    background: #2f7de1;
+}
+
+#FindSuccessDlg #add_friend_btn[state='press'],
+#FindFailDlg #fail_sure_btn[state='press'] {
+    background: #1654bb;
+}
+
+#UserInfoPage #nick_ed,
+#UserInfoPage #name_ed,
+#UserInfoPage #desc_ed,
+#user_info_page #nick_ed,
+#user_info_page #name_ed,
+#user_info_page #desc_ed {
+    min-height: 36px;
+    border: 1px solid #cfdced;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #1f2a3d;
+    padding: 0 10px;
+}
+
+#UserInfoPage #nick_ed:focus,
+#UserInfoPage #name_ed:focus,
+#UserInfoPage #desc_ed:focus,
+#user_info_page #nick_ed:focus,
+#user_info_page #name_ed:focus,
+#user_info_page #desc_ed:focus {
+    border: 1px solid #1f6feb;
+    background: #ffffff;
+}
+

@@ -20,7 +20,8 @@
 #include "usermgr.h"
 #include <QTimer>
 #include <QStandardPaths>
-#include "FileTcpMgr.h"
+#include "filetcpmgr.h"
+#include <QShortcut>
 
 ChatDialog::ChatDialog(QWidget* parent) :
 	QDialog(parent),
@@ -29,13 +30,46 @@ ChatDialog::ChatDialog(QWidget* parent) :
 	_cur_chat_thread_id(0), _loading_dlg(nullptr), _cur_load_chat(nullptr)
 {
 	ui->setupUi(this);
+	setWindowTitle("myChat");
+
+	ui->side_bar->setMinimumWidth(82);
+	ui->side_bar->setMaximumWidth(82);
+	ui->chat_user_wid->setMinimumWidth(300);
+	ui->chat_user_wid->setMaximumWidth(340);
+	ui->chat_user_wid->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+	ui->search_wid->setMinimumHeight(68);
+	ui->search_wid->setMaximumHeight(68);
+	ui->search_edit->setFixedHeight(34);
+	ui->add_btn->setFixedSize(34, 34);
+	ui->horizontalLayout_2->setAlignment(ui->add_btn, Qt::AlignVCenter);
+	ui->search_edit->setClearButtonEnabled(true);
+	ui->search_edit->setPlaceholderText(QStringLiteral("搜索好友 UID / 名称"));
+	ui->add_btn->setToolTip(QStringLiteral("添加好友"));
+	ui->search_list->setVisible(false);
+	ui->chat_user_list->setMinimumWidth(0);
+	ui->chat_user_list->setMaximumWidth(QWIDGETSIZE_MAX);
+	ui->con_user_list->setMinimumWidth(0);
+	ui->con_user_list->setMaximumWidth(QWIDGETSIZE_MAX);
+	ui->search_list->setMinimumWidth(0);
+	ui->search_list->setMaximumWidth(QWIDGETSIZE_MAX);
+	ui->verticalLayout_4->setContentsMargins(8, 20, 8, 10);
+	ui->verticalLayout_4->setSpacing(18);
+	ui->verticalLayout_5->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
+	ui->verticalLayout_5->setSpacing(18);
+	ui->side_chat_lb->setFixedSize(34, 34);
+	ui->side_contact_lb->setFixedSize(34, 34);
+	ui->side_settings_lb->setFixedSize(34, 34);
+
+	ui->chat_user_list->setSpacing(2);
+	ui->con_user_list->setSpacing(2);
+	ui->search_list->setSpacing(2);
 
 	ui->add_btn->SetState("normal", "hover", "press");
 	ui->add_btn->setProperty("state", "normal");
 	QAction* searchAction = new QAction(ui->search_edit);
 	searchAction->setIcon(QIcon(":/res/search.png"));
 	ui->search_edit->addAction(searchAction, QLineEdit::LeadingPosition);
-	ui->search_edit->setPlaceholderText(QStringLiteral("搜索"));
+	ui->search_edit->setPlaceholderText(QStringLiteral("搜索好友 UID / 名称"));
 
 
 	// 创建一个清除动作并设置图标
@@ -65,7 +99,18 @@ ChatDialog::ChatDialog(QWidget* parent) :
 		ShowSearch(false);
 		});
 
-	ui->search_edit->SetMaxLength(15);
+	ui->search_edit->SetMaxLength(30);
+	auto* focusSearchShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this);
+	connect(focusSearchShortcut, &QShortcut::activated, this, [this]() {
+		ui->search_edit->setFocus();
+		ui->search_edit->selectAll();
+	});
+
+	auto* clearSearchShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+	connect(clearSearchShortcut, &QShortcut::activated, this, [this]() {
+		ui->search_edit->clear();
+		ShowSearch(false);
+	});
 
 	//连接加载信号和槽
 	connect(ui->chat_user_list, &ChatUserList::sig_loading_chat_user, this, &ChatDialog::slot_loading_chat_user);
@@ -330,8 +375,10 @@ void ChatDialog::handleGlobalMousePress(QMouseEvent* event)
 
 	// 将鼠标点击位置转换为搜索列表坐标系中的位置
 	QPoint posInSearchList = ui->search_list->mapFromGlobal(event->globalPos());
+	QPoint posInSearchEdit = ui->search_edit->mapFromGlobal(event->globalPos());
 	// 判断点击位置是否在聊天列表的范围内
-	if (!ui->search_list->rect().contains(posInSearchList)) {
+	if (!ui->search_list->rect().contains(posInSearchList) &&
+		!ui->search_edit->rect().contains(posInSearchEdit)) {
 		// 如果不在聊天列表内，清空输入框
 		ui->search_edit->clear();
 		ShowSearch(false);
@@ -785,7 +832,7 @@ void ChatDialog::ShowSearch(bool bsearch)
 		ui->chat_user_list->hide();
 		ui->search_list->hide();
 		ui->con_user_list->show();
-		_mode = ChatUIMode::ContactMode;
+		_mode = ChatUIMode::SettingsMode;
 		ui->search_list->CloseFindDlg();
 		ui->search_edit->clear();
 		ui->search_edit->clearFocus();
@@ -852,9 +899,12 @@ void ChatDialog::slot_side_setting() {
 void ChatDialog::slot_text_changed(const QString& str)
 {
 	//qDebug()<< "receive slot text changed str is " << str;
-	if (!str.isEmpty()) {
+	if (!str.trimmed().isEmpty()) {
 		ShowSearch(true);
+		return;
 	}
+
+	ShowSearch(false);
 }
 
 void ChatDialog::slot_focus_out()

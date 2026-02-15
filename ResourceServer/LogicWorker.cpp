@@ -71,7 +71,9 @@ void LogicWorker::RegisterCallBacks()
 				session->Send(return_str, ID_TEST_MSG_RSP);
 				});
 
-			rtvalue["error"] = ErrorCodes::Success;
+			if (!rtvalue.isMember("error")) {
+	rtvalue["error"] = ErrorCodes::Success;
+}
 			rtvalue["data"] = data;
 		};
 
@@ -98,7 +100,9 @@ void LogicWorker::RegisterCallBacks()
 
 				// 在异步任务完成后调用
 				Json::Value rtvalue = result;
-				rtvalue["error"] = ErrorCodes::Success;
+				if (!rtvalue.isMember("error")) {
+	rtvalue["error"] = ErrorCodes::Success;
+}
 				rtvalue["total_size"] = total_size;
 				rtvalue["seq"] = seq;
 				rtvalue["name"] = name;
@@ -184,7 +188,9 @@ void LogicWorker::RegisterCallBacks()
 				return;
 			}
 
-			rtvalue["error"] = ErrorCodes::Success;
+			if (!rtvalue.isMember("error")) {
+	rtvalue["error"] = ErrorCodes::Success;
+}
 			rtvalue["total_size"] = std::to_string(file->_total_size);
 			rtvalue["seq"] = file->_seq;
 			rtvalue["name"] = file->_name;
@@ -399,7 +405,9 @@ void LogicWorker::RegisterCallBacks()
 
 				// 在异步任务完成后调用
 				Json::Value rtvalue = result;
-				rtvalue["error"] = ErrorCodes::Success;
+				if (!rtvalue.isMember("error")) {
+	rtvalue["error"] = ErrorCodes::Success;
+}
 				rtvalue["total_size"] = std::to_string(total_size);
 				rtvalue["seq"] = seq;
 				rtvalue["name"] = name;
@@ -492,7 +500,9 @@ void LogicWorker::RegisterCallBacks()
 
 				// 在异步任务完成后调用
 				Json::Value rtvalue = result;
-				rtvalue["error"] = ErrorCodes::Success;
+				if (!rtvalue.isMember("error")) {
+	rtvalue["error"] = ErrorCodes::Success;
+}
 				rtvalue["seq"] = seq;
 				rtvalue["name"] = name;
 				rtvalue["last"] = last;
@@ -582,7 +592,9 @@ void LogicWorker::RegisterCallBacks()
 
 				// 在异步任务完成后调用
 				Json::Value rtvalue = result;
-				rtvalue["error"] = ErrorCodes::Success;
+				if (!rtvalue.isMember("error")) {
+	rtvalue["error"] = ErrorCodes::Success;
+}
 				rtvalue["total_size"] = total_size;
 				rtvalue["seq"] = seq;
 				rtvalue["name"] = name;
@@ -656,6 +668,9 @@ void LogicWorker::RegisterCallBacks()
 			if (chat_msg == nullptr) {
 				Json::Value rtvalue;
 				rtvalue["error"] = ErrorCodes::MsgIdErr;
+				rtvalue["message_id"] = message_id;
+				std::string return_str = rtvalue.toStyledString();
+				session->Send(return_str, ID_IMG_CHAT_DOWN_INFO_SYNC_RSP);
 				return;
 			}
 
@@ -664,11 +679,32 @@ void LogicWorker::RegisterCallBacks()
 			//该消息是接收方客户端发送过来的,服务器将资源存储在发送方的文件夹中
 			auto uid_str = std::to_string(chat_msg->sender_id);
 			auto file_path = (file_dir / uid_str / chat_msg->content);
-			boost::uintmax_t file_size = boost::filesystem::file_size(file_path);
+			boost::system::error_code fs_error;
+			if (!boost::filesystem::exists(file_path, fs_error) || fs_error) {
+				Json::Value error_rsp;
+				error_rsp["error"] = ErrorCodes::FileNotExists;
+				error_rsp["message_id"] = chat_msg->message_id;
+				error_rsp["name"] = chat_msg->content;
+				std::string return_str = error_rsp.toStyledString();
+				session->Send(return_str, ID_IMG_CHAT_DOWN_INFO_SYNC_RSP);
+				return;
+			}
+			const boost::uintmax_t file_size = boost::filesystem::file_size(file_path, fs_error);
+			if (fs_error) {
+				Json::Value error_rsp;
+				error_rsp["error"] = ErrorCodes::FileReadFailed;
+				error_rsp["message_id"] = chat_msg->message_id;
+				error_rsp["name"] = chat_msg->content;
+				std::string return_str = error_rsp.toStyledString();
+				session->Send(return_str, ID_IMG_CHAT_DOWN_INFO_SYNC_RSP);
+				return;
+			}
 
 			// 在异步任务完成后调用
 			Json::Value rtvalue;
-			rtvalue["error"] = ErrorCodes::Success;
+			if (!rtvalue.isMember("error")) {
+	rtvalue["error"] = ErrorCodes::Success;
+}
 			rtvalue["message_id"] = chat_msg->message_id;
 			rtvalue["thread_id"] = chat_msg->thread_id;
 			rtvalue["sender_id"] = chat_msg->sender_id;
@@ -702,7 +738,9 @@ void LogicWorker::RegisterCallBacks()
 			auto callback = [=](const Json::Value& result) {
 				// 在异步任务完成后调用
 				Json::Value rtvalue = result;
-				rtvalue["error"] = ErrorCodes::Success;
+				if (!rtvalue.isMember("error")) {
+	rtvalue["error"] = ErrorCodes::Success;
+}
 				rtvalue["name"] = name;
 				rtvalue["sender_id"] = sender;
 				rtvalue["receiver_id"] = receiver;

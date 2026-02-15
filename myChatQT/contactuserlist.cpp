@@ -130,7 +130,7 @@ bool ContactUserList::eventFilter(QObject *watched, QEvent *event)
 
         if (maxScrollValue - currentValue <= 0) {
 
-            auto b_loaded = UserMgr::GetInstance()->IsLoadChatFin();
+            auto b_loaded = UserMgr::GetInstance()->IsLoadConFin();
             if(b_loaded){
                 return true;
             }
@@ -255,5 +255,4 @@ void ContactUserList::slot_auth_rsp(std::shared_ptr<AuthRsp> auth_rsp)
     this->setItemWidget(item, con_user_wid);
 
 }
-
 

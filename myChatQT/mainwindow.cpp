@@ -5,6 +5,8 @@
 #include <QLayout>
 #include <QMessageBox>
 #include "filetcpmgr.h"
+#include <QScreen>
+#include <QGuiApplication>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -12,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     _ui_status = LOGIN_UI;
     ui->setupUi(this);
+    this->setMinimumSize(480, 360);
+    this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    applyWindowSizeByScreen();
     //创建一个CentralWidget, 并将其设置为MainWindow的中心部件
     _login_dlg = new LoginDialog(this);
     _login_dlg->setWindowFlags(Qt::CustomizeWindowHint|Qt::FramelessWindowHint);
@@ -33,6 +38,38 @@ MainWindow::MainWindow(QWidget *parent) :
             this, &MainWindow::SlotResServerConOffline);
 }
 
+void MainWindow::applyWindowSizeByScreen()
+{
+    if (_ui_status != CHAT_UI) {
+        applyAuthWindowSize();
+        return;
+    }
+
+    QScreen* screen = QGuiApplication::primaryScreen();
+    if (!screen) {
+        this->setMinimumSize(720, 480);
+        this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+        this->resize(960, 540);
+        return;
+    }
+
+    const QSize screen_size = screen->availableGeometry().size();
+    const int width = qMax(720, screen_size.width() / 2);
+    const int height = qMax(480, (screen_size.height() * 2) / 3);
+    this->setMinimumSize(720, 480);
+    this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    this->resize(width, height);
+}
+
+void MainWindow::applyAuthWindowSize()
+{
+    constexpr int kAuthWidth = 420;
+    constexpr int kAuthHeight = 500;
+    this->setMinimumSize(kAuthWidth, kAuthHeight);
+    this->setMaximumSize(kAuthWidth, kAuthHeight);
+    this->resize(kAuthWidth, kAuthHeight);
+}
+
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -51,6 +88,7 @@ void MainWindow::SlotSwitchReg()
     _login_dlg->hide();
     _reg_dlg->show();
     _ui_status = REGISTER_UI;
+    applyWindowSizeByScreen();
 }
 
 //从注册界面返回登录界面
@@ -63,11 +101,12 @@ void MainWindow::SlotSwitchLogin()
 
    _reg_dlg->hide();
     _login_dlg->show();
+    _ui_status = LOGIN_UI;
+    applyWindowSizeByScreen();
     //连接登录界面注册信号
     connect(_login_dlg, &LoginDialog::switchRegister, this, &MainWindow::SlotSwitchReg);
     //连接登录界面忘记密码信号
     connect(_login_dlg, &LoginDialog::switchReset, this, &MainWindow::SlotSwitchReset);
-    _ui_status = LOGIN_UI;
 }
 
 void MainWindow::SlotSwitchReset()
@@ -80,6 +119,7 @@ void MainWindow::SlotSwitchReset()
 
    _login_dlg->hide();
     _reset_dlg->show();
+    applyWindowSizeByScreen();
     //注册返回登录信号和槽函数
     connect(_reset_dlg, &ResetDialog::switchLogin, this, &MainWindow::SlotSwitchLogin2);
 }
@@ -94,11 +134,12 @@ void MainWindow::SlotSwitchLogin2()
 
    _reset_dlg->hide();
     _login_dlg->show();
+    _ui_status = LOGIN_UI;
+    applyWindowSizeByScreen();
     //连接登录界面忘记密码信号
     connect(_login_dlg, &LoginDialog::switchReset, this, &MainWindow::SlotSwitchReset);
     //连接登录界面注册信号
     connect(_login_dlg, &LoginDialog::switchRegister, this, &MainWindow::SlotSwitchReg);
-    _ui_status = LOGIN_UI;
 }
 
 void MainWindow::SlotSwitchChat()
@@ -108,9 +149,8 @@ void MainWindow::SlotSwitchChat()
     setCentralWidget(_chat_dlg);
     _chat_dlg->show();
     _login_dlg->hide();
-    this->setMinimumSize(QSize(1050,900));
-    this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
     _ui_status = CHAT_UI;
+    applyWindowSizeByScreen();
     _chat_dlg->loadChatList();
 }
 
@@ -149,15 +189,11 @@ void MainWindow::offlineLogin(){
     setCentralWidget(_login_dlg);
 
    _chat_dlg->hide();
-   this->setMaximumSize(300,500);
-   this->setMinimumSize(300,500);
-   this->resize(300,500);
+   _ui_status = LOGIN_UI;
+   applyWindowSizeByScreen();
     _login_dlg->show();
     //连接登录界面注册信号
     connect(_login_dlg, &LoginDialog::switchRegister, this, &MainWindow::SlotSwitchReg);
     //连接登录界面忘记密码信号
     connect(_login_dlg, &LoginDialog::switchReset, this, &MainWindow::SlotSwitchReset);
-    _ui_status = LOGIN_UI;
 }
-
-

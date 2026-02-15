@@ -12,6 +12,7 @@ public:
     void setMargin(int margin);
     //inline int margin(){return margin;}
     void setWidget(QWidget *w);
+    ChatRole role() const { return m_role; }
 protected:
     void paintEvent(QPaintEvent *e);
 private:

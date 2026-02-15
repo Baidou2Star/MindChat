@@ -59,5 +59,13 @@
         <file>res/unread.png</file>
         <file>res/myhead.jpg</file>
         <file>res/head_0.jpg</file>
+        <file>res/login_hero_banner.jpg</file>
+        <file>res/profile_cover_banner.jpg</file>
+        <file>res/sidebar_chat_outline_enterprise.png</file>
+        <file>res/sidebar_chat_active_enterprise.png</file>
+        <file>res/sidebar_contact_outline_enterprise.png</file>
+        <file>res/sidebar_contact_active_enterprise.png</file>
+        <file>res/sidebar_settings_outline_enterprise.png</file>
+        <file>res/sidebar_settings_active_enterprise.png</file>
     </qresource>
 </RCC>

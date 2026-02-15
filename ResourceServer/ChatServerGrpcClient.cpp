@@ -13,6 +13,10 @@ NotifyChatImgRsp  ChatServerGrpcClient::NotifyChatImgMsg(int message_id,std::str
 		return reply;
 	}
 	auto chat_msg = MysqlMgr::GetInstance()->GetChatMsgById(message_id);
+	if (chat_msg == nullptr) {
+		reply.set_error(ErrorCodes::MsgIdErr);
+		return reply;
+	}
 	request.set_file_name(chat_msg->content);
 	request.set_from_uid(chat_msg->sender_id);
 	request.set_to_uid(chat_msg->recv_id);
@@ -22,11 +26,24 @@ NotifyChatImgRsp  ChatServerGrpcClient::NotifyChatImgMsg(int message_id,std::str
 	//该消息是接收方客户端发送过来的,服务器将资源存储在发送方的文件夹中
 	auto uid_str = std::to_string(chat_msg->sender_id);
 	auto file_path = (file_dir / uid_str / chat_msg->content);
-	boost::uintmax_t file_size = boost::filesystem::file_size(file_path);
+	boost::system::error_code fs_error;
+	if (!boost::filesystem::exists(file_path, fs_error) || fs_error) {
+		reply.set_error(ErrorCodes::FileNotExists);
+		return reply;
+	}
+	const boost::uintmax_t file_size = boost::filesystem::file_size(file_path, fs_error);
+	if (fs_error) {
+		reply.set_error(ErrorCodes::FileReadFailed);
+		return reply;
+	}
 	request.set_total_size(file_size);
 
 	auto &pool_ = _hash_pools[chatserver];
 	auto stub = pool_->getConnection();
+	if (!stub) {
+		reply.set_error(ErrorCodes::RPCFailed);
+		return reply;
+	}
 std::cout << "[IMG][ChatServerGrpcClient] notify chatserver=" << chatserver << " message_id=" << message_id << " file=" << request.file_name() << " total_size=" << request.total_size() << " to_uid=" << request.to_uid() << std::endl;
 Status status = stub->NotifyChatImgMsg(&context, request, &reply);
 	Defer defer([&stub, &pool_, this]() {

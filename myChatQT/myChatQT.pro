@@ -12,6 +12,12 @@ TARGET = myChat
 TEMPLATE = app
 RC_ICONS = icon.ico
 DESTDIR = ./bin
+win32: BUILD_DIR = $$OUT_PWD/build_artifacts_win
+unix: BUILD_DIR = $$OUT_PWD/build_artifacts_unix
+!win32:!unix: BUILD_DIR = $$OUT_PWD/build_artifacts
+OBJECTS_DIR = $$BUILD_DIR
+MOC_DIR = $$BUILD_DIR
+
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -213,48 +219,29 @@ DISTFILES += \
     res/voice_chat_normal.png \
     res/voice_chat_press.png
 
-CONFIG(debug, debug|release) {
-        #debug
-    message("debug mode")
-    #指定要拷贝的文件目录为工程目录下release目录下的所有dll、lib文件，例如工程目录在D:\QT\Test
-    #PWD就为D:/QT/Test，DllFile = D:/QT/Test/release/*.dll
-    TargetConfig = $${PWD}/config.ini
-    #将输入目录中的"/"替换为"\"
-    TargetConfig = $$replace(TargetConfig, /, \\)
-    #将输出目录中的"/"替换为"\"
-    OutputDir =  $${OUT_PWD}/$${DESTDIR}
-    OutputDir = $$replace(OutputDir, /, \\)
-    //执行copy命令
-    QMAKE_POST_LINK += copy /Y \"$$TargetConfig\" \"$$OutputDir\" &
+win32 {
+    CONFIG(debug, debug|release) {
+        message("debug mode")
+    } else {
+        message("release mode")
+    }
 
-    # 首先，定义static文件夹的路径
-    StaticDir = $${PWD}/static
-    # 将路径中的"/"替换为"\"
-    StaticDir = $$replace(StaticDir, /, \\)
-    #message($${StaticDir})
-    # 使用xcopy命令拷贝文件夹，/E表示拷贝子目录及其内容，包括空目录。/I表示如果目标不存在则创建目录。/Y表示覆盖现有文件而不提示。
-     QMAKE_POST_LINK += xcopy /Y /E /I \"$$StaticDir\" \"$$OutputDir\\static\\\"
-}else{
-      #release
-    message("release mode")
-    #指定要拷贝的文件目录为工程目录下release目录下的所有dll、lib文件，例如工程目录在D:\QT\Test
-    #PWD就为D:/QT/Test，DllFile = D:/QT/Test/release/*.dll
     TargetConfig = $${PWD}/config.ini
-    #将输入目录中的"/"替换为"\"
     TargetConfig = $$replace(TargetConfig, /, \\)
-    #将输出目录中的"/"替换为"\"
-    OutputDir =  $${OUT_PWD}/$${DESTDIR}
+    OutputDir = $${OUT_PWD}/$${DESTDIR}
     OutputDir = $$replace(OutputDir, /, \\)
-    //执行copy命令
-    QMAKE_POST_LINK += copy /Y \"$$TargetConfig\" \"$$OutputDir\"
-
-    # 首先，定义static文件夹的路径
     StaticDir = $${PWD}/static
-    # 将路径中的"/"替换为"\"
     StaticDir = $$replace(StaticDir, /, \\)
-    #message($${StaticDir})
-    # 使用xcopy命令拷贝文件夹，/E表示拷贝子目录及其内容，包括空目录。/I表示如果目标不存在则创建目录。/Y表示覆盖现有文件而不提示。
-     QMAKE_POST_LINK += xcopy /Y /E /I \"$$StaticDir\" \"$$OutputDir\\static\\\"
+
+    # keep post-link commands separate and avoid trailing \"\\\" in quoted paths
+    QMAKE_POST_LINK += copy /Y \"$$TargetConfig\" \"$$OutputDir\" $$escape_expand(\\n\\t)
+    QMAKE_POST_LINK += xcopy /Y /E /I \"$$StaticDir\" \"$$OutputDir\\static\"
+} else {
+    CONFIG(debug, debug|release) {
+        message("debug mode")
+    } else {
+        message("release mode")
+    }
 }
 
 win32-msvc*:QMAKE_CXXFLAGS += /wd"4819" /utf-8

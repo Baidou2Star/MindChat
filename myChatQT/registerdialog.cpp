@@ -5,12 +5,47 @@
 #include "httpmgr.h"
 #include <QRegularExpressionValidator>
 #include <QRandomGenerator>
+#include <QShortcut>
 
 RegisterDialog::RegisterDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::RegisterDialog),_countdown(5)
 {
     ui->setupUi(this);
+    setMinimumSize(420, 500);
+    setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    setWindowTitle("myChat - 注册账号");
+
+    ui->user_edit->setPlaceholderText("请输入用户名");
+    ui->email_edit->setPlaceholderText("请输入邮箱");
+    ui->pass_edit->setPlaceholderText("请输入密码（6-15位）");
+    ui->confirm_edit->setPlaceholderText("请再次输入密码");
+    ui->varify_edit->setPlaceholderText("请输入验证码");
+
+    ui->user_edit->setClearButtonEnabled(true);
+    ui->email_edit->setClearButtonEnabled(true);
+    ui->pass_edit->setClearButtonEnabled(true);
+    ui->confirm_edit->setClearButtonEnabled(true);
+    ui->varify_edit->setClearButtonEnabled(true);
+
+    ui->user_edit->setMaxLength(20);
+    ui->email_edit->setMaxLength(50);
+    ui->pass_edit->setMaxLength(15);
+    ui->confirm_edit->setMaxLength(15);
+    ui->varify_edit->setMaxLength(6);
+
+    ui->get_code->setCursor(Qt::PointingHandCursor);
+    ui->sure_btn->setCursor(Qt::PointingHandCursor);
+    ui->cancel_btn->setCursor(Qt::PointingHandCursor);
+    ui->return_btn->setCursor(Qt::PointingHandCursor);
+
+    ui->get_code->setMinimumHeight(34);
+    ui->sure_btn->setMinimumHeight(34);
+    ui->cancel_btn->setMinimumHeight(34);
+    ui->return_btn->setMinimumHeight(34);
+
+    ui->user_edit->setFocus();
+
     ui->user_edit->setValidator(new QRegExpValidator(QRegExp("[a-zA-Z0-9]+$")));
     //设置密码格式隐藏
     ui->pass_edit->setEchoMode(QLineEdit::Password);
@@ -42,6 +77,15 @@ RegisterDialog::RegisterDialog(QWidget *parent) :
     connect(ui->varify_edit, &QLineEdit::editingFinished, this, [this](){
          checkVarifyValid();
     });
+
+    connect(ui->user_edit, &QLineEdit::returnPressed, this, &RegisterDialog::on_sure_btn_clicked);
+    connect(ui->email_edit, &QLineEdit::returnPressed, this, &RegisterDialog::on_sure_btn_clicked);
+    connect(ui->pass_edit, &QLineEdit::returnPressed, this, &RegisterDialog::on_sure_btn_clicked);
+    connect(ui->confirm_edit, &QLineEdit::returnPressed, this, &RegisterDialog::on_sure_btn_clicked);
+    connect(ui->varify_edit, &QLineEdit::returnPressed, this, &RegisterDialog::on_sure_btn_clicked);
+
+    auto *escShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(escShortcut, &QShortcut::activated, this, &RegisterDialog::on_cancel_btn_clicked);
 
     //设置浮动显示手形状
     ui->pass_visible->setCursor(Qt::PointingHandCursor);
@@ -102,6 +146,7 @@ void RegisterDialog::on_get_code_clicked()
     auto email = ui->email_edit->text();
     bool valid = checkEmailValid();
     if(valid){
+        ui->get_code->setEnabled(false);
         //发送http请求获取验证码
         QJsonObject json_obj;
         json_obj["email"] = email;
@@ -113,6 +158,9 @@ void RegisterDialog::on_get_code_clicked()
 void RegisterDialog::slot_reg_mod_finish(ReqId id, QString res, ErrorCodes err)
 {
     if(err != ErrorCodes::SUCCESS){
+        if (id == ReqId::ID_GET_VARIFY_CODE) {
+            ui->get_code->setEnabled(true);
+        }
         showTip(tr("网络请求错误"),false);
         return;
     }
@@ -253,11 +301,13 @@ void RegisterDialog::initHttpHandlers()
     _handlers.insert(ReqId::ID_GET_VARIFY_CODE, [this](QJsonObject jsonObj){
         int error = jsonObj["error"].toInt();
         if(error != ErrorCodes::SUCCESS){
+            ui->get_code->ResetCountDown();
             showTip(tr("参数错误"),false);
             return;
         }
         auto email = jsonObj["email"].toString();
         showTip(tr("验证码已发送到邮箱，注意查收"), true);
+        ui->get_code->BeginCountDown();
         qDebug()<< "email is " << email ;
     });
 
