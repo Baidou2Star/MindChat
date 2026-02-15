@@ -39,13 +39,13 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>56</width>
+       <width>82</width>
        <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>56</width>
+       <width>82</width>
        <height>16777215</height>
       </size>
      </property>
@@ -109,49 +109,49 @@
           </widget>
          </item>
          <item>
-          <widget class="StateWidget" name="side_chat_lb" native="true">
+         <widget class="StateWidget" name="side_chat_lb" native="true">
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>34</width>
+             <height>34</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>34</width>
+             <height>34</height>
             </size>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="StateWidget" name="side_contact_lb" native="true">
+         <widget class="StateWidget" name="side_contact_lb" native="true">
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>34</width>
+             <height>34</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>34</width>
+             <height>34</height>
             </size>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="StateWidget" name="side_settings_lb" native="true">
+         <widget class="StateWidget" name="side_settings_lb" native="true">
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>34</width>
+             <height>34</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>34</width>
+             <height>34</height>
             </size>
            </property>
           </widget>
@@ -188,13 +188,13 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>250</width>
+       <width>300</width>
        <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>250</width>
+       <width>340</width>
        <height>16777215</height>
       </size>
      </property>
@@ -303,18 +303,18 @@
       </item>
       <item>
        <widget class="ChatUserList" name="chat_user_list">
-        <property name="minimumSize">
-         <size>
-          <width>250</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>250</width>
-          <height>16777215</height>
-         </size>
-        </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
        </widget>
       </item>
       <item>

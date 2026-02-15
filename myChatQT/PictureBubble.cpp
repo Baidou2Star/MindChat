@@ -44,16 +44,17 @@ PictureBubble::PictureBubble(const QPixmap &picture, ChatRole role, int total, Q
     // 样式美化
     m_progressBar->setStyleSheet(
         "QProgressBar {"
-        "   border: 1px solid #ccc;"
-        "   border-radius: 3px;"
+        "   border: 1px solid #cfdceb;"
+        "   border-radius: 5px;"
         "   text-align: center;"
-        "   background-color: #f0f0f0;"
-        "   font-size: 10px;"
+        "   background-color: #f3f7fd;"
+        "   color: #40608b;"
+        "   font-size: 12px;"
         "}"
         "QProgressBar::chunk {"
         "   background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
-        "       stop:0 #4CAF50, stop:1 #45a049);"
-        "   border-radius: 2px;"
+        "       stop:0 #2f7de1, stop:1 #4f98ff);"
+        "   border-radius: 4px;"
         "}"
     );
 

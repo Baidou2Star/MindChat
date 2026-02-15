@@ -108,7 +108,13 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="user_name_lb">
+   <widget class="QLabel" name="user_name_lb">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+      <horstretch>1</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
      <property name="text">
       <string>TextLabel</string>
      </property>

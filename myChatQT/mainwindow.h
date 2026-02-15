@@ -44,6 +44,8 @@ public slots:
     void SlotResServerConOffline();
 
 private:
+    void applyWindowSizeByScreen();
+    void applyAuthWindowSize();
     void offlineLogin();
     Ui::MainWindow *ui;
     LoginDialog* _login_dlg;

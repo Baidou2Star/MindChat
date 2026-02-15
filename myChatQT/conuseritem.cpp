@@ -18,7 +18,14 @@ ConUserItem::~ConUserItem()
 
 QSize ConUserItem::sizeHint() const
 {
-    return QSize(250, 70); // 返回自定义的尺寸
+    int width = 1000;
+    if (parentWidget()) {
+        width = parentWidget()->width() - 10;
+        if (width < 250) {
+            width = 250;
+        }
+    }
+    return QSize(width, 72);
 }
 
 void ConUserItem::SetInfo(std::shared_ptr<AuthInfo> auth_info)

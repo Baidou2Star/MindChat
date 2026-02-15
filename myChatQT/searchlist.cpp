@@ -10,7 +10,7 @@
 #include "userdata.h"
 #include "usermgr.h"
 
-SearchList::SearchList(QWidget *parent):QListWidget(parent),_find_dlg(nullptr), _search_edit(nullptr), _send_pending(false)
+SearchList::SearchList(QWidget *parent):QListWidget(parent),_find_dlg(nullptr), _search_edit(nullptr), _send_pending(false), _loadingDialog(nullptr)
 {
     Q_UNUSED(parent);
      this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -40,14 +40,21 @@ void SearchList::SetSearchEdit(QWidget* edit) {
 void SearchList::waitPending(bool pending)
 {
     if(pending){
+        if (_loadingDialog) {
+            _loadingDialog->deleteLater();
+            _loadingDialog = nullptr;
+        }
         _loadingDialog = new LoadingDlg(this);
         _loadingDialog->setModal(true);
         _loadingDialog->show();
         _send_pending = pending;
     }else{
-        _loadingDialog->hide();
-        _loadingDialog->deleteLater();
-         _send_pending = pending;
+        if (_loadingDialog) {
+            _loadingDialog->hide();
+            _loadingDialog->deleteLater();
+            _loadingDialog = nullptr;
+        }
+        _send_pending = pending;
     }
 }
 
@@ -56,8 +63,7 @@ void SearchList::addTipItem()
 {
     auto *invalid_item = new QWidget();
     QListWidgetItem *item_tmp = new QListWidgetItem;
-    //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
-    item_tmp->setSizeHint(QSize(250,10));
+    item_tmp->setSizeHint(QSize(1000,10));
     this->addItem(item_tmp);
     invalid_item->setObjectName("invalid_item");
     this->setItemWidget(item_tmp, invalid_item);

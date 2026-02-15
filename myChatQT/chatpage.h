@@ -4,7 +4,7 @@
 #include <QWidget>
 #include "userdata.h"
 #include <QMap>
-#include "chatitembase.h"
+#include "ChatItemBase.h"
 
 namespace Ui {
 class ChatPage;
@@ -30,8 +30,6 @@ protected:
 
 private slots:
     void on_send_btn_clicked();
-
-    void on_receive_btn_clicked();
 
     //接收PictureBubble传回来的暂停信号
     void on_clicked_paused(QString unique_name, TransferType transfer_type);

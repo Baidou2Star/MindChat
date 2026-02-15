@@ -27,9 +27,10 @@
   </property>
   <property name="styleSheet">
    <string notr="true">#FriendLabel {
-	background: #daf6e7;
-    color: #48bf56;
-    border-radius: 10px;
+	background: #dcecff;
+    border: 1px solid #b8d3fb;
+    color: #1f4f87;
+    border-radius: 12px;
 } </string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">

@@ -4,6 +4,52 @@
 #include <QPainter>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QImage>
+
+namespace {
+QRect AlphaBoundingRect(const QImage& image)
+{
+    int left = image.width();
+    int right = -1;
+    int top = image.height();
+    int bottom = -1;
+
+    for (int y = 0; y < image.height(); ++y) {
+        const QRgb* line = reinterpret_cast<const QRgb*>(image.scanLine(y));
+        for (int x = 0; x < image.width(); ++x) {
+            if (qAlpha(line[x]) == 0) {
+                continue;
+            }
+            left = qMin(left, x);
+            right = qMax(right, x);
+            top = qMin(top, y);
+            bottom = qMax(bottom, y);
+        }
+    }
+
+    if (right < left || bottom < top) {
+        return QRect(0, 0, image.width(), image.height());
+    }
+    return QRect(QPoint(left, top), QPoint(right, bottom));
+}
+
+QString ResolveSideIconPath(const QString& object_name, bool selected)
+{
+    if (object_name == "side_chat_lb") {
+        return selected ? QStringLiteral(":/res/sidebar_chat_active_enterprise.png")
+                        : QStringLiteral(":/res/sidebar_chat_outline_enterprise.png");
+    }
+    if (object_name == "side_contact_lb") {
+        return selected ? QStringLiteral(":/res/sidebar_contact_active_enterprise.png")
+                        : QStringLiteral(":/res/sidebar_contact_outline_enterprise.png");
+    }
+    if (object_name == "side_settings_lb") {
+        return selected ? QStringLiteral(":/res/sidebar_settings_active_enterprise.png")
+                        : QStringLiteral(":/res/sidebar_settings_outline_enterprise.png");
+    }
+    return QString();
+}
+}
 
 StateWidget::StateWidget(QWidget *parent) : QWidget(parent),_curstate(ClickLbState::Normal)
 {
@@ -14,11 +60,37 @@ StateWidget::StateWidget(QWidget *parent) : QWidget(parent),_curstate(ClickLbSta
 
 void StateWidget::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
     QStyleOption opt;
     opt.init(this);
     QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setRenderHint(QPainter::SmoothPixmapTransform, true);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
-    return;
+
+    const QString state_name = property("state").toString();
+    const bool selected = state_name.startsWith("selected") || (_curstate == ClickLbState::Selected);
+    const QString icon_path = ResolveSideIconPath(objectName(), selected);
+    if (icon_path.isEmpty()) {
+        return;
+    }
+
+    QPixmap source(icon_path);
+    if (source.isNull()) {
+        return;
+    }
+    const QImage image = source.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    const QRect crop = AlphaBoundingRect(image);
+    const QPixmap trimmed = source.copy(crop);
+
+    const QSize target_size(18, 18);
+    QRect target_rect(QPoint(0, 0), target_size);
+    target_rect.moveCenter(rect().center());
+    const QPixmap scaled = trimmed.scaled(target_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    const QRect draw_rect(target_rect.x() + (target_rect.width() - scaled.width()) / 2,
+                          target_rect.y() + (target_rect.height() - scaled.height()) / 2,
+                          scaled.width(), scaled.height());
+    p.drawPixmap(draw_rect, scaled);
 
 }
 
@@ -166,7 +238,7 @@ void StateWidget::AddRedPoint()
 
 void StateWidget::ShowRedPoint(bool show)
 {
-    _red_point->setVisible(true);
+    _red_point->setVisible(show);
 }
 
 

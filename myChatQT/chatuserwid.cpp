@@ -10,6 +10,13 @@ ChatUserWid::ChatUserWid(QWidget *parent) :
     ui(new Ui::ChatUserWid)
 {
     ui->setupUi(this);
+    ui->user_info_wid->setMaximumWidth(QWIDGETSIZE_MAX);
+    ui->user_info_wid->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    ui->user_name_lb->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    ui->user_chat_lb->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    ui->time_wid->setMinimumWidth(62);
+    ui->time_wid->setMaximumWidth(62);
+    ui->user_chat_lb->setWordWrap(false);
     SetItemType(ListItemType::CHAT_USER_ITEM);
     ui->red_point->raise();
     ShowRedPoint(false);
@@ -22,7 +29,14 @@ ChatUserWid::~ChatUserWid()
 
 QSize ChatUserWid::sizeHint() const
 {
-    return QSize(250, 70); // 返回自定义的尺寸
+    int width = 1000;
+    if (parentWidget()) {
+        width = parentWidget()->width() - 10;
+        if (width < 250) {
+            width = 250;
+        }
+    }
+    return QSize(width, 72);
 }
 
 void ChatUserWid::SetChatData(std::shared_ptr<ChatThreadData> chat_data) {

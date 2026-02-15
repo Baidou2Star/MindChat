@@ -4,9 +4,29 @@
 #include "global.h"
 #include "tcpmgr.h"
 #include "filetcpmgr.h"
+#include <QScreen>
 int main(int argc, char *argv[])
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
     QApplication a(argc, argv);
+
+    QFont app_font("Segoe UI");
+    int base_size = 10;
+    if (const QScreen* screen = QGuiApplication::primaryScreen()) {
+        const QRect geometry = screen->geometry();
+        const qreal dpi = screen->logicalDotsPerInch();
+        if (geometry.width() >= 3200 || dpi >= 130.0) {
+            base_size = 12;
+        } else if (geometry.width() >= 2560 || dpi >= 110.0) {
+            base_size = 11;
+        }
+    }
+    app_font.setPointSize(base_size);
+    a.setFont(app_font);
 
     QFile qss(":/style/stylesheet.qss");
 

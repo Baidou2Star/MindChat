@@ -12,6 +12,10 @@ FindFailDlg::FindFailDlg(QWidget *parent) :
     // 隐藏对话框标题栏
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
     this->setObjectName("FindFailDlg");
+    ui->fail_tip->setAlignment(Qt::AlignCenter);
+    ui->fail_tip2->setAlignment(Qt::AlignCenter);
+    ui->fail_sure_btn->setCursor(Qt::PointingHandCursor);
+    ui->fail_sure_btn->setMinimumHeight(38);
     ui->fail_sure_btn->SetState("normal","hover","press");
     // 获取当前应用程序的路径
     this->setModal(true);

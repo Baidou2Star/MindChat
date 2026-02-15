@@ -6,6 +6,12 @@
 #include "usermgr.h"
 #include "tcpmgr.h"
 
+namespace {
+constexpr int kTipChipHPadding = 24;
+constexpr int kTipChipVPadding = 10;
+constexpr int kTipChipGap = 10;
+}
+
 AuthenFriend::AuthenFriend(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AuthenFriend),_label_point(2,6)
@@ -15,20 +21,36 @@ AuthenFriend::AuthenFriend(QWidget *parent) :
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
     this->setObjectName("AuthenFriend");
     this->setModal(true);
-    ui->lb_ed->setPlaceholderText("搜索、添加标签");
-    ui->back_ed->setPlaceholderText("燃烧的胸毛");
+    setFixedSize(420, 670);
+    ui->apply_lb->setText(tr("处理协作邀请"));
+    ui->apply_lb->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    ui->label_2->setText(tr("联系人备注"));
+    ui->label_3->setText(tr("业务标签"));
+    ui->lb_ed->setPlaceholderText(tr("输入标签并回车，例如：跨部门协作"));
+    ui->back_ed->setPlaceholderText(tr("例如：研发中心-技术负责人"));
+    ui->back_ed->setFixedHeight(40);
+    ui->lb_ed->setFixedHeight(32);
+    ui->verticalLayout_2->setContentsMargins(22, 14, 22, 14);
+    ui->verticalLayout_2->setSpacing(10);
+    ui->horizontalLayout->setContentsMargins(0, 4, 0, 0);
+    ui->horizontalLayout->setSpacing(8);
+    ui->horizontalLayout_2->setContentsMargins(22, 6, 22, 14);
+    ui->horizontalLayout_2->setSpacing(10);
+    ui->sure_btn->setFixedSize(132, 40);
+    ui->cancel_btn->setFixedSize(132, 40);
 
-    ui->lb_ed->SetMaxLength(21);
+    ui->lb_ed->SetMaxLength(24);
     ui->lb_ed->move(2, 2);
-    ui->lb_ed->setFixedHeight(20);
-    ui->lb_ed->setMaxLength(10);
     ui->input_tip_wid->hide();
 
     _tip_cur_point = QPoint(5, 5);
 
-    _tip_data = { "同学","家人","菜鸟教程","C++ Primer","Rust 程序设计",
-                             "父与子学Python","nodejs开发指南","go 语言开发指南",
-                                "游戏伙伴","金融投资","微信读书","拼多多拼友" };
+    int list_width = ui->widget->width() - ui->more_lb_wid->width() - ui->horizontalLayout->spacing();
+    ui->lb_list->setFixedWidth(qMax(240, list_width));
+
+    _tip_data = { "同部门", "跨部门协作", "项目对接", "产品需求", "技术支持",
+                  "测试联调", "运维保障", "客户联系人", "商务合作", "供应商",
+                  "财务对接", "人力行政" };
 
     connect(ui->more_lb, &ClickedOnceLabel::clicked, this, &AuthenFriend::ShowMoreLabel);
     InitTipLbs();
@@ -66,9 +88,9 @@ void AuthenFriend::InitTipLbs()
         lb->setText(_tip_data[i]);
         connect(lb, &ClickedLabel::clicked, this, &AuthenFriend::SlotChangeFriendLabelByTip);
 
-        QFontMetrics fontMetrics(lb->font()); // 获取QLabel控件的字体信息
-        int textWidth = fontMetrics.width(lb->text()); // 获取文本的宽度
-        int textHeight = fontMetrics.height(); // 获取文本的高度
+        QFontMetrics fontMetrics(lb->font());
+        int textWidth = fontMetrics.horizontalAdvance(lb->text()) + kTipChipHPadding;
+        int textHeight = fontMetrics.height() + kTipChipVPadding;
 
         if (_tip_cur_point.x() + textWidth + tip_offset > ui->lb_list->width()) {
             lines++;
@@ -78,7 +100,7 @@ void AuthenFriend::InitTipLbs()
             }
 
             _tip_cur_point.setX(tip_offset);
-            _tip_cur_point.setY(_tip_cur_point.y() + textHeight + 15);
+            _tip_cur_point.setY(_tip_cur_point.y() + textHeight + kTipChipGap);
 
         }
 
@@ -93,11 +115,12 @@ void AuthenFriend::InitTipLbs()
 
 void AuthenFriend::AddTipLbs(ClickedLabel* lb, QPoint cur_point, QPoint& next_point, int text_width, int text_height)
 {
+    lb->setFixedSize(text_width, text_height);
     lb->move(cur_point);
     lb->show();
     _add_labels.insert(lb->text(), lb);
     _add_label_keys.push_back(lb->text());
-    next_point.setX(lb->pos().x() + text_width + 15);
+    next_point.setX(lb->pos().x() + text_width + kTipChipGap);
     next_point.setY(lb->pos().y());
 }
 
@@ -125,26 +148,27 @@ void AuthenFriend::ShowMoreLabel()
     qDebug()<< "receive more label clicked";
     ui->more_lb_wid->hide();
 
-    ui->lb_list->setFixedWidth(325);
+    ui->lb_list->setFixedWidth(ui->widget->width());
     _tip_cur_point = QPoint(5, 5);
     auto next_point = _tip_cur_point;
-    int textWidth;
-    int textHeight;
+    int textWidth = 0;
+    int textHeight = 32;
     //重拍现有的label
     for(auto & added_key : _add_label_keys){
         auto added_lb = _add_labels[added_key];
 
-        QFontMetrics fontMetrics(added_lb->font()); // 获取QLabel控件的字体信息
-        textWidth = fontMetrics.width(added_lb->text()); // 获取文本的宽度
-        textHeight = fontMetrics.height(); // 获取文本的高度
+        QFontMetrics fontMetrics(added_lb->font());
+        textWidth = fontMetrics.horizontalAdvance(added_lb->text()) + kTipChipHPadding;
+        textHeight = fontMetrics.height() + kTipChipVPadding;
 
         if(_tip_cur_point.x() +textWidth + tip_offset > ui->lb_list->width()){
             _tip_cur_point.setX(tip_offset);
-            _tip_cur_point.setY(_tip_cur_point.y()+textHeight+15);
+            _tip_cur_point.setY(_tip_cur_point.y() + textHeight + kTipChipGap);
         }
+        added_lb->setFixedSize(textWidth, textHeight);
         added_lb->move(_tip_cur_point);
 
-        next_point.setX(added_lb->pos().x() + textWidth + 15);
+        next_point.setX(added_lb->pos().x() + textWidth + kTipChipGap);
         next_point.setY(_tip_cur_point.y());
 
         _tip_cur_point = next_point;
@@ -165,14 +189,14 @@ void AuthenFriend::ShowMoreLabel()
         lb->setText(_tip_data[i]);
         connect(lb, &ClickedLabel::clicked, this, &AuthenFriend::SlotChangeFriendLabelByTip);
 
-        QFontMetrics fontMetrics(lb->font()); // 获取QLabel控件的字体信息
-        int textWidth = fontMetrics.width(lb->text()); // 获取文本的宽度
-        int textHeight = fontMetrics.height(); // 获取文本的高度
+        QFontMetrics fontMetrics(lb->font());
+        int textWidth = fontMetrics.horizontalAdvance(lb->text()) + kTipChipHPadding;
+        int textHeight = fontMetrics.height() + kTipChipVPadding;
 
         if (_tip_cur_point.x() + textWidth + tip_offset > ui->lb_list->width()) {
 
             _tip_cur_point.setX(tip_offset);
-            _tip_cur_point.setY(_tip_cur_point.y() + textHeight + 15);
+            _tip_cur_point.setY(_tip_cur_point.y() + textHeight + kTipChipGap);
 
         }
 
@@ -384,15 +408,15 @@ void AuthenFriend::SlotAddFirendLabelByClickTip(QString text)
     qDebug() << "ui->lb_list->width() is " << ui->lb_list->width();
     qDebug() << "_tip_cur_point.x() is " << _tip_cur_point.x();
 
-    QFontMetrics fontMetrics(lb->font()); // 获取QLabel控件的字体信息
-    int textWidth = fontMetrics.width(lb->text()); // 获取文本的宽度
-    int textHeight = fontMetrics.height(); // 获取文本的高度
+    QFontMetrics fontMetrics(lb->font());
+    int textWidth = fontMetrics.horizontalAdvance(lb->text()) + kTipChipHPadding;
+    int textHeight = fontMetrics.height() + kTipChipVPadding;
     qDebug() << "textWidth is " << textWidth;
 
     if (_tip_cur_point.x() + textWidth+ tip_offset+3 > ui->lb_list->width()) {
 
         _tip_cur_point.setX(5);
-        _tip_cur_point.setY(_tip_cur_point.y() + textHeight + 15);
+        _tip_cur_point.setY(_tip_cur_point.y() + textHeight + kTipChipGap);
 
     }
 

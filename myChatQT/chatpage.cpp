@@ -14,19 +14,32 @@
 #include <QStandardPaths>
 #include "filetcpmgr.h"
 #include <memory>
+#include <QShortcut>
 
 ChatPage::ChatPage(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ChatPage)
 {
     ui->setupUi(this);
+    ui->chatEdit->setPlaceholderText("输入消息，Enter 发送，Shift+Enter 换行");
+    ui->chatEdit->setTabStopDistance(36);
+    ui->send_btn->setToolTip("发送消息");
+    ui->send_btn->setMinimumWidth(116);
+    ui->send_btn->setMaximumWidth(116);
+
     //设置按钮样式
-    ui->receive_btn->SetState("normal","hover","press");
     ui->send_btn->SetState("normal","hover","press");
 
     //设置图标样式
     ui->emo_lb->SetState("normal","hover","press","normal","hover","press");
     ui->file_lb->SetState("normal","hover","press","normal","hover","press");
+
+    connect(ui->chatEdit, &MessageTextEdit::send, this, &ChatPage::on_send_btn_clicked);
+
+    auto* sendShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return), this);
+    connect(sendShortcut, &QShortcut::activated, this, &ChatPage::on_send_btn_clicked);
+    auto* sendShortcut2 = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Enter), this);
+    connect(sendShortcut2, &QShortcut::activated, this, &ChatPage::on_send_btn_clicked);
 
 }
 
@@ -536,44 +549,6 @@ void ChatPage::on_send_btn_clicked() {
         textObj = QJsonObject();
         //发送tcp请求给chat server
         emit TcpMgr::GetInstance()->sig_send_data(ReqId::ID_TEXT_CHAT_MSG_REQ, jsonData);
-    }
-}
-
-
-void ChatPage::on_receive_btn_clicked()
-{
-    auto pTextEdit = ui->chatEdit;
-    ChatRole role = ChatRole::Other;
-    auto friend_info = UserMgr::GetInstance()->GetFriendById(_chat_data->GetOtherId());
-    QString userName = friend_info->_name;
-    QString userIcon = friend_info->_icon;
-
-    const QVector<std::shared_ptr<MsgInfo>>& msgList = pTextEdit->getMsgList();
-    for(int i=0; i<msgList.size(); ++i)
-    {
-        MsgType type = msgList[i]->_msg_type;
-        ChatItemBase *pChatItem = new ChatItemBase(role);
-        pChatItem->setUserName(userName);
-        pChatItem->setUserIcon(QPixmap(userIcon));
-        QWidget *pBubble = nullptr;
-        if(type == MsgType::TEXT_MSG)
-        {
-            pBubble = new TextBubble(role, msgList[i]->_text_or_url);
-        }
-        else if(type == MsgType::IMG_MSG)
-        {
-            pBubble = new PictureBubble(QPixmap(msgList[i]->_text_or_url) , role, msgList[i]->_total_size);
-        }
-        else if(type == MsgType::FILE_MSG)
-        {
-
-        }
-        if(pBubble != nullptr)
-        {
-            pChatItem->setWidget(pBubble);
-            pChatItem->setStatus(2);
-            ui->chat_data_list->appendChatItem(pChatItem);
-        }
     }
 }
 

@@ -8,9 +8,9 @@ class TimerBtn : public QPushButton
 public:
     TimerBtn(QWidget *parent = nullptr);
     ~ TimerBtn();
+    void BeginCountDown(int seconds = 10);
+    void ResetCountDown();
 
-    // 重写mouseReleaseEvent
-    virtual void mouseReleaseEvent(QMouseEvent *e) override;
 private:
     QTimer  *_timer;
     int _counter;

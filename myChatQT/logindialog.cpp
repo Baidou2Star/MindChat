@@ -8,11 +8,50 @@
 #include <QPainter>
 #include "filetcpmgr.h"
 #include "QPainterPath"
+#include <QShortcut>
+#include <QLabel>
+
 LoginDialog::LoginDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LoginDialog)
 {
     ui->setupUi(this);
+    setMinimumSize(420, 500);
+    setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    setWindowTitle("myChat - 登录");
+
+    ui->email_edit->setPlaceholderText("请输入邮箱");
+    ui->pass_edit->setPlaceholderText("请输入密码");
+    ui->email_edit->setClearButtonEnabled(true);
+    ui->pass_edit->setClearButtonEnabled(true);
+    ui->email_edit->setMaxLength(50);
+    ui->pass_edit->setMaxLength(15);
+    ui->pass_edit->setEchoMode(QLineEdit::Password);
+    ui->email_edit->setFocus();
+
+    ui->login_btn->setCursor(Qt::PointingHandCursor);
+    ui->reg_btn->setCursor(Qt::PointingHandCursor);
+    ui->login_btn->setMinimumHeight(36);
+    ui->reg_btn->setMinimumHeight(36);
+    ui->head_widget->setMinimumHeight(180);
+    ui->head_label->setFixedSize(220, 140);
+    ui->gridLayout->setAlignment(ui->head_label, Qt::AlignCenter);
+
+    auto* titleLabel = new QLabel("myChat", this);
+    titleLabel->setObjectName("login_title");
+    titleLabel->setAlignment(Qt::AlignCenter);
+    auto* subtitleLabel = new QLabel("轻量、稳定、可私有部署的即时通讯", this);
+    subtitleLabel->setObjectName("login_subtitle");
+    subtitleLabel->setAlignment(Qt::AlignCenter);
+    ui->verticalLayout_2->insertWidget(1, titleLabel);
+    ui->verticalLayout_2->insertWidget(2, subtitleLabel);
+
+    connect(ui->email_edit, &QLineEdit::returnPressed, this, &LoginDialog::on_login_btn_clicked);
+    connect(ui->pass_edit, &QLineEdit::returnPressed, this, &LoginDialog::on_login_btn_clicked);
+
+    auto *escShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(escShortcut, &QShortcut::activated, this, &QDialog::close);
+
     connect(ui->reg_btn, &QPushButton::clicked, this, &LoginDialog::switchRegister);
     ui->forget_label->SetState("normal","hover","","selected","selected_hover","");
     ui->forget_label->setCursor(Qt::PointingHandCursor);
@@ -45,12 +84,15 @@ LoginDialog::~LoginDialog()
 
 void LoginDialog::initHead()
 {
-    // 加载图片
-    QPixmap originalPixmap(":/res/myhead.jpg");
+    // 占位图：后续可替换成品牌插画/产品场景图
+    QPixmap originalPixmap(":/res/login_hero_banner.jpg");
+    if (originalPixmap.isNull()) {
+        originalPixmap = QPixmap(":/res/myhead.jpg");
+    }
       // 设置图片自动缩放
     qDebug()<< originalPixmap.size() << ui->head_label->size();
     originalPixmap = originalPixmap.scaled(ui->head_label->size(),
-            Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
 
     // 创建一个和原始图片相同大小的QPixmap，用于绘制圆角图片
     QPixmap roundedPixmap(originalPixmap.size());
@@ -62,7 +104,7 @@ void LoginDialog::initHead()
 
     // 使用QPainterPath设置圆角
     QPainterPath path;
-    path.addRoundedRect(0, 0, originalPixmap.width(), originalPixmap.height(), 10, 10); // 最后两个参数分别是x和y方向的圆角半径
+    path.addRoundedRect(0, 0, originalPixmap.width(), originalPixmap.height(), 16, 16);
     painter.setClipPath(path);
 
     // 将原始图片绘制到roundedPixmap上
