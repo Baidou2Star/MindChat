@@ -1,4 +1,4 @@
-#include "logindialog.h"
+﻿#include "logindialog.h"
 #include "ui_logindialog.h"
 #include <QDebug>
 #include "httpmgr.h"
@@ -40,7 +40,7 @@ LoginDialog::LoginDialog(QWidget *parent) :
     auto* titleLabel = new QLabel("myChat", this);
     titleLabel->setObjectName("login_title");
     titleLabel->setAlignment(Qt::AlignCenter);
-    auto* subtitleLabel = new QLabel("轻量、稳定、可私有部署的即时通讯", this);
+    auto* subtitleLabel = new QLabel("电话你先挂，聊天我结尾，有事和我讲", this);
     subtitleLabel->setObjectName("login_subtitle");
     subtitleLabel->setAlignment(Qt::AlignCenter);
     ui->verticalLayout_2->insertWidget(1, titleLabel);
