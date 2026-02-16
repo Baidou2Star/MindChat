@@ -67,5 +67,6 @@
         <file>res/sidebar_contact_active_enterprise.png</file>
         <file>res/sidebar_settings_outline_enterprise.png</file>
         <file>res/sidebar_settings_active_enterprise.png</file>
+        <file>res/login_hero_banner.png</file>
     </qresource>
 </RCC>
