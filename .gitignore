@@ -134,3 +134,8 @@ x64/
 .run
 logs
 myChatQT/bin/myChat
+DEPLOYMENT.md
+myChatQT/build_artifacts
+myChatQT/build_artifacts_unix
+myChatQT/.qtcreator
+*.Identifier

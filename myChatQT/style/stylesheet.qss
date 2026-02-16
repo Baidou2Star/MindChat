@@ -832,9 +832,8 @@ QDialog#ResetDialog {
 }
 
 #head_label {
-    border: 2px solid #ffffff;
-    border-radius: 14px;
-    background: #dbe7f5;
+    border: none;
+    background: transparent;
 }
 
 #err_tip[state='normal'] {

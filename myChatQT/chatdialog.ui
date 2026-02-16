@@ -39,13 +39,13 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>82</width>
+       <width>50</width>
        <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>82</width>
+       <width>50</width>
        <height>16777215</height>
       </size>
      </property>
@@ -109,7 +109,7 @@
           </widget>
          </item>
          <item>
-         <widget class="StateWidget" name="side_chat_lb" native="true">
+          <widget class="StateWidget" name="side_chat_lb" native="true">
            <property name="minimumSize">
             <size>
              <width>34</width>
@@ -125,7 +125,7 @@
           </widget>
          </item>
          <item>
-         <widget class="StateWidget" name="side_contact_lb" native="true">
+          <widget class="StateWidget" name="side_contact_lb" native="true">
            <property name="minimumSize">
             <size>
              <width>34</width>
@@ -141,7 +141,7 @@
           </widget>
          </item>
          <item>
-         <widget class="StateWidget" name="side_settings_lb" native="true">
+          <widget class="StateWidget" name="side_settings_lb" native="true">
            <property name="minimumSize">
             <size>
              <width>34</width>
@@ -303,18 +303,18 @@
       </item>
       <item>
        <widget class="ChatUserList" name="chat_user_list">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
        </widget>
       </item>
       <item>
@@ -344,14 +344,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ClickedBtn</class>
-   <extends>QPushButton</extends>
-   <header>clickedbtn.h</header>
-  </customwidget>
-  <customwidget>
    <class>CustomizeEdit</class>
    <extends>QLineEdit</extends>
    <header>customizeedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ClickedBtn</class>
+   <extends>QPushButton</extends>
+   <header>clickedbtn.h</header>
   </customwidget>
   <customwidget>
    <class>ChatUserList</class>

@@ -98,7 +98,7 @@
             <item>
              <widget class="QLabel" name="title_lb">
               <property name="text">
-               <string>燃烧的胸毛</string>
+               <string>孙俊杰</string>
               </property>
              </widget>
             </item>
@@ -265,7 +265,7 @@
           <number>2</number>
          </property>
          <item>
-         <spacer name="horizontalSpacer_2">
+          <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -325,14 +325,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ClickedBtn</class>
-   <extends>QPushButton</extends>
-   <header>clickedbtn.h</header>
-  </customwidget>
-  <customwidget>
    <class>ClickedLabel</class>
    <extends>QLabel</extends>
    <header>clickedlabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ClickedBtn</class>
+   <extends>QPushButton</extends>
+   <header>clickedbtn.h</header>
   </customwidget>
   <customwidget>
    <class>MessageTextEdit</class>

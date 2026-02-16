@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = myChat
 TEMPLATE = app
-RC_ICONS = icon.ico
+RC_ICONS = favicon.ico
 DESTDIR = ./bin
 win32: BUILD_DIR = $$OUT_PWD/build_artifacts_win
 unix: BUILD_DIR = $$OUT_PWD/build_artifacts_unix
