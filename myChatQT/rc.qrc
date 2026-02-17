@@ -65,8 +65,11 @@
         <file>res/sidebar_chat_active_enterprise.png</file>
         <file>res/sidebar_contact_outline_enterprise.png</file>
         <file>res/sidebar_contact_active_enterprise.png</file>
+        <file>res/sidebar_schedule_outline_enterprise.png</file>
+        <file>res/sidebar_schedule_active_enterprise.png</file>
         <file>res/sidebar_settings_outline_enterprise.png</file>
         <file>res/sidebar_settings_active_enterprise.png</file>
         <file>res/login_hero_banner.png</file>
+        <file>res/llm_bot_avatar.png</file>
     </qresource>
 </RCC>

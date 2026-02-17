@@ -9,6 +9,7 @@
 #include <QTextOption>
 #include <QTimer>
 #include <QtMath>
+#include <QMenu>
 
 #include "global.h"
 
@@ -22,8 +23,18 @@ TextBubble::TextBubble(ChatRole role, const QString &text, QWidget *parent)
     m_pTextEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_pTextEdit->setContentsMargins(0, 0, 0, 0);
     m_pTextEdit->installEventFilter(this);
+    m_pTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     m_pTextEdit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_pTextEdit->document()->setDocumentMargin(3);
+    m_pTextEdit->document()->setDocumentMargin(1.0);
+
+    connect(m_pTextEdit, &QWidget::customContextMenuRequested, this, [this](const QPoint& pos) {
+        QMenu menu;
+        QAction* add_todo = menu.addAction(QStringLiteral("添加待办"));
+        QAction* selected = menu.exec(m_pTextEdit->mapToGlobal(pos));
+        if (selected == add_todo) {
+            emit sig_add_todo_requested(m_pTextEdit->toPlainText());
+        }
+    });
 
     // QTextEdit 行盒模型会让底部视觉留白略大，做轻量光学校正。
     const QMargins bubble_margins = layout()->contentsMargins();
@@ -37,7 +48,7 @@ TextBubble::TextBubble(ChatRole role, const QString &text, QWidget *parent)
     QFont font("Microsoft YaHei UI");
     font.setPointSize(12);
     m_pTextEdit->setFont(font);
-    m_pTextEdit->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    m_pTextEdit->setWordWrapMode(QTextOption::WrapAnywhere);
 
     setPlainText(text);
     setWidget(m_pTextEdit);
@@ -61,15 +72,20 @@ void TextBubble::setPlainText(const QString &text)
     doc->setTextWidth(-1);
     doc->adjustSize();
 
-    // 控制单条消息最大宽度，避免气泡被布局拉得过宽。
-    const qreal max_text_width = 560.0;
+    // 控制单条消息最大宽度，避免气泡过宽导致右侧空白明显。
+    qreal max_text_width = 360.0;
+    if (const QWidget* parent = parentWidget(); parent && parent->width() > 0) {
+        const qreal adaptive = parent->width() * 0.48;
+        max_text_width = qBound(280.0, adaptive, 380.0);
+    }
     const qreal natural_width = qCeil(doc->idealWidth());
     const qreal text_width = qMin(max_text_width, natural_width);
     doc->setTextWidth(text_width);
     doc->adjustSize();
 
     const QSizeF doc_size = doc->documentLayout()->documentSize();
-    const int edit_width = qMax(1, static_cast<int>(qCeil(doc_size.width())));
+    Q_UNUSED(doc_size);
+    const int edit_width = qMax(1, static_cast<int>(qCeil(text_width)));
     m_pTextEdit->setFixedWidth(edit_width);
 
     const QMargins margins = layout()->contentsMargins();
@@ -83,7 +99,7 @@ void TextBubble::adjustTextHeight()
     doc->adjustSize();
 
     const qreal text_height = doc->documentLayout()->documentSize().height();
-    const int edit_height = qMax(1, static_cast<int>(qCeil(text_height)));
+    const int edit_height = qMax(1, static_cast<int>(qCeil(text_height)) + 2);
     m_pTextEdit->setFixedHeight(edit_height);
 
     const QMargins margins = layout()->contentsMargins();

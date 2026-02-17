@@ -16,9 +16,9 @@ BubbleFrame::BubbleFrame(ChatRole role, QWidget *parent)
 {
     m_pHLayout = new QHBoxLayout();
     if (m_role == ChatRole::Self) {
-        m_pHLayout->setContentsMargins(m_margin + 1, m_margin, static_cast<int>(kTailWidth) + 3, m_margin);
+        m_pHLayout->setContentsMargins(m_margin, m_margin, static_cast<int>(kTailWidth) + m_margin, m_margin);
     } else {
-        m_pHLayout->setContentsMargins(static_cast<int>(kTailWidth) + 3, m_margin, m_margin + 1, m_margin);
+        m_pHLayout->setContentsMargins(static_cast<int>(kTailWidth) + m_margin, m_margin, m_margin, m_margin);
     }
 
     m_pHLayout->setSpacing(0);

@@ -14,7 +14,7 @@ RegisterDialog::RegisterDialog(QWidget *parent) :
     ui->setupUi(this);
     setMinimumSize(420, 500);
     setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-    setWindowTitle("myChat - 注册账号");
+    setWindowTitle("MindChat - 注册账号");
 
     ui->user_edit->setPlaceholderText("请输入用户名");
     ui->email_edit->setPlaceholderText("请输入邮箱");

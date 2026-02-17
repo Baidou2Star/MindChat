@@ -84,6 +84,12 @@ signals:
     void sig_chat_msg_rsp(int thread_id, std::vector<std::shared_ptr<TextChatData>> msg_list);
     void sig_chat_img_rsp(int thread_id, std::shared_ptr<ImgChatData> msg_list);
     void sig_img_chat_msg(std::shared_ptr<ImgChatData> msg_list);
+    void sig_parse_todo_rsp(QJsonObject rsp);
+    void sig_create_todo_rsp(QJsonObject rsp);
+    void sig_list_todo_rsp(QJsonObject rsp);
+    void sig_update_todo_rsp(QJsonObject rsp);
+    void sig_delete_todo_rsp(QJsonObject rsp);
+    void sig_set_todo_status_rsp(QJsonObject rsp);
 };
 
 #endif // TCPMGR_H

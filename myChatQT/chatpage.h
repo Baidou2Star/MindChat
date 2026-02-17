@@ -25,15 +25,17 @@ public:
     void LoadHeadIcon(QString avatarPath, QLabel* icon_label, QString file_name, QString req_type);
     void AppendOtherMsg(std::shared_ptr<ChatDataBase> msg);
     void DownloadFileFinished(std::shared_ptr<MsgInfo> msg_info, QString file_path);
+signals:
+    void sig_add_todo_from_message(QString text, int thread_id, int message_id);
 protected:
     void paintEvent(QPaintEvent *event);
 
 private slots:
     void on_send_btn_clicked();
 
-    //接收PictureBubble传回来的暂停信号
+    //PictureBubble停藕
     void on_clicked_paused(QString unique_name, TransferType transfer_type);
-    //接收PictureBubble传回来的继续信号
+    //PictureBubble募藕
     void on_clicked_resume(QString unique_name, TransferType transfer_type);
 
 private:
@@ -41,9 +43,9 @@ private:
     Ui::ChatPage *ui;
     std::shared_ptr<ChatThreadData> _chat_data;
     QMap<QString, QWidget*>  _bubble_map;
-    //管理未回复聊天信息
+    //未馗息
     QHash<QString, ChatItemBase*> _unrsp_item_map;
-    //管理已经回复的消息
+    //丫馗息
     QHash<qint64, ChatItemBase*> _base_item_map;
 };
 

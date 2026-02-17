@@ -141,6 +141,22 @@
           </widget>
          </item>
          <item>
+          <widget class="StateWidget" name="side_schedule_lb" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>34</width>
+             <height>34</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>34</width>
+             <height>34</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="StateWidget" name="side_settings_lb" native="true">
            <property name="minimumSize">
             <size>
@@ -338,6 +354,7 @@
      <widget class="ApplyFriendPage" name="friend_apply_page"/>
      <widget class="FriendInfoPage" name="friend_info_page"/>
      <widget class="UserInfoPage" name="user_info_page"/>
+     <widget class="SchedulePage" name="schedule_page"/>
     </widget>
    </item>
   </layout>
@@ -396,6 +413,12 @@
    <class>UserInfoPage</class>
    <extends>QWidget</extends>
    <header location="global">userinfopage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SchedulePage</class>
+   <extends>QWidget</extends>
+   <header location="global">schedulepage.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

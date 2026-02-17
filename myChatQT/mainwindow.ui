@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>myChat</string>
+   <string>MindChat</string>
   </property>
   <widget class="QWidget" name="centralWidget"/>
  </widget>

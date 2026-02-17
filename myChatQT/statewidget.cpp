@@ -43,11 +43,29 @@ QString ResolveSideIconPath(const QString& object_name, bool selected)
         return selected ? QStringLiteral(":/res/sidebar_contact_active_enterprise.png")
                         : QStringLiteral(":/res/sidebar_contact_outline_enterprise.png");
     }
+    if (object_name == "side_schedule_lb") {
+        return selected ? QStringLiteral(":/res/sidebar_schedule_active_enterprise.png")
+                        : QStringLiteral(":/res/sidebar_schedule_outline_enterprise.png");
+    }
     if (object_name == "side_settings_lb") {
         return selected ? QStringLiteral(":/res/sidebar_settings_active_enterprise.png")
                         : QStringLiteral(":/res/sidebar_settings_outline_enterprise.png");
     }
     return QString();
+}
+
+QPixmap DarkenPixmap(const QPixmap& src, int alpha)
+{
+    if (src.isNull()) {
+        return src;
+    }
+
+    QImage image = src.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    QPainter painter(&image);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+    painter.fillRect(image.rect(), QColor(0, 0, 0, alpha));
+    painter.end();
+    return QPixmap::fromImage(image);
 }
 }
 
@@ -75,6 +93,13 @@ void StateWidget::paintEvent(QPaintEvent *event)
         return;
     }
 
+    if (selected) {
+        QRectF indicator_rect(2.0, (height() - 22.0) / 2.0, 4.0, 22.0);
+        p.setPen(Qt::NoPen);
+        p.setBrush(QColor("#1890FF"));
+        p.drawRoundedRect(indicator_rect, 2.0, 2.0);
+    }
+
     QPixmap source(icon_path);
     if (source.isNull()) {
         return;
@@ -83,10 +108,13 @@ void StateWidget::paintEvent(QPaintEvent *event)
     const QRect crop = AlphaBoundingRect(image);
     const QPixmap trimmed = source.copy(crop);
 
-    const QSize target_size(18, 18);
+    const QSize target_size(20, 20);
     QRect target_rect(QPoint(0, 0), target_size);
     target_rect.moveCenter(rect().center());
-    const QPixmap scaled = trimmed.scaled(target_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap scaled = trimmed.scaled(target_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    if (selected) {
+        scaled = DarkenPixmap(scaled, 36);
+    }
     const QRect draw_rect(target_rect.x() + (target_rect.width() - scaled.width()) / 2,
                           target_rect.y() + (target_rect.height() - scaled.height()) / 2,
                           scaled.width(), scaled.height());

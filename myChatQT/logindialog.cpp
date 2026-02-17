@@ -18,7 +18,7 @@ LoginDialog::LoginDialog(QWidget *parent) :
     ui->setupUi(this);
     setMinimumSize(420, 500);
     setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-    setWindowTitle("myChat - 登录");
+    setWindowTitle("MindChat - 登录");
 
     ui->email_edit->setPlaceholderText("请输入邮箱");
     ui->pass_edit->setPlaceholderText("请输入密码");
@@ -37,7 +37,7 @@ LoginDialog::LoginDialog(QWidget *parent) :
     ui->head_label->setFixedSize(220, 140);
     ui->gridLayout->setAlignment(ui->head_label, Qt::AlignCenter);
 
-    auto* titleLabel = new QLabel("myChat", this);
+    auto* titleLabel = new QLabel("MindChat", this);
     titleLabel->setObjectName("login_title");
     titleLabel->setAlignment(Qt::AlignCenter);
     auto* subtitleLabel = new QLabel("电话你先挂，聊天我结尾，有事和我讲", this);
