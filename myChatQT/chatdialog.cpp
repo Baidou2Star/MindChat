@@ -32,8 +32,8 @@ ChatDialog::ChatDialog(QWidget* parent) :
 	ui->setupUi(this);
 	setWindowTitle("myChat");
 
-	ui->side_bar->setMinimumWidth(82);
-	ui->side_bar->setMaximumWidth(82);
+	ui->side_bar->setMinimumWidth(70);
+	ui->side_bar->setMaximumWidth(70);
 	ui->chat_user_wid->setMinimumWidth(300);
 	ui->chat_user_wid->setMaximumWidth(340);
 	ui->chat_user_wid->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
@@ -52,14 +52,14 @@ ChatDialog::ChatDialog(QWidget* parent) :
 	ui->con_user_list->setMaximumWidth(QWIDGETSIZE_MAX);
 	ui->search_list->setMinimumWidth(0);
 	ui->search_list->setMaximumWidth(QWIDGETSIZE_MAX);
-	ui->verticalLayout_4->setContentsMargins(8, 20, 8, 10);
-	ui->verticalLayout_4->setSpacing(18);
+	ui->verticalLayout_4->setContentsMargins(4, 14, 4, 8);
+	ui->verticalLayout_4->setSpacing(12);
 	ui->verticalLayout_5->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
-	ui->verticalLayout_5->setSpacing(18);
-	ui->side_chat_lb->setFixedSize(34, 34);
-	ui->side_contact_lb->setFixedSize(34, 34);
-	ui->side_schedule_lb->setFixedSize(34, 34);
-	ui->side_settings_lb->setFixedSize(34, 34);
+	ui->verticalLayout_5->setSpacing(12);
+	ui->side_chat_lb->setFixedSize(40, 40);
+	ui->side_contact_lb->setFixedSize(40, 40);
+	ui->side_schedule_lb->setFixedSize(40, 40);
+	ui->side_settings_lb->setFixedSize(40, 40);
 
 	ui->chat_user_list->setSpacing(2);
 	ui->con_user_list->setSpacing(2);

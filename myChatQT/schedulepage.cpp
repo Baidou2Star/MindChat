@@ -39,20 +39,27 @@ bool TodoLessByStartTime(const QJsonObject& lhs, const QJsonObject& rhs) {
 }
 
 QString BuildTodoSummary(const QJsonObject& todo) {
-    QString time_text = todo["start_time"].toString().trimmed();
-    if (time_text.isEmpty()) {
+    const QString raw_start_time = todo["start_time"].toString().trimmed();
+    const QDateTime start_time = ParseTodoDateTime(raw_start_time);
+    QString time_text;
+    if (start_time.isValid()) {
+        const QDate task_date = start_time.date();
+        const QDate today = QDate::currentDate();
+        if (task_date == today) {
+            time_text = QStringLiteral("[今日] %1").arg(start_time.toString("MM-dd HH:mm"));
+        } else if (today.daysTo(task_date) > 0 && today.daysTo(task_date) <= 3) {
+            time_text = QStringLiteral("[即将] %1").arg(start_time.toString("MM-dd HH:mm"));
+        } else {
+            time_text = start_time.toString("MM-dd HH:mm");
+        }
+    } else {
         time_text = todo["time_text"].toString().trimmed();
     }
+
     if (time_text.isEmpty()) {
         time_text = QStringLiteral("时间待定");
     }
-
-    QString location = todo["location"].toString().trimmed();
-    if (location.isEmpty()) {
-        location = QStringLiteral("地点待定");
-    }
-
-    return QStringLiteral("%1 | %2").arg(time_text, location);
+    return time_text;
 }
 
 QJsonObject ParseTodoObject(const QListWidgetItem* item) {
@@ -109,10 +116,11 @@ void SchedulePage::LoadFromText(const QString& text, int source_thread_id, int s
     _current_todo_id = 0;
     _current_todo_status = 0;
 
+    ui->all_todo_list->clearSelection();
     ui->pending_todo_list->clearSelection();
     ui->done_todo_list->clearSelection();
     ui->raw_input_edit->setPlainText(text);
-    ui->toggle_status_btn->setText(QStringLiteral("标记已完成"));
+    ui->toggle_status_btn->setText(QStringLiteral("✓ 标记已完成"));
     ui->status_lb->setText(QStringLiteral("已接收消息文本，点击智能解析"));
 
     if (auto_parse) {
@@ -220,6 +228,7 @@ void SchedulePage::on_new_btn_clicked() {
     _source_message_id = 0;
     _source_text.clear();
     ui->raw_input_edit->clear();
+    ui->all_todo_list->clearSelection();
     ui->pending_todo_list->clearSelection();
     ui->done_todo_list->clearSelection();
     ClearEditorForNew();
@@ -299,12 +308,13 @@ void SchedulePage::slot_set_todo_status_rsp(QJsonObject rsp) {
 
     const int status = rsp["status"].toInt(_current_todo_status);
     _current_todo_status = status;
-    ui->toggle_status_btn->setText(status == 1 ? QStringLiteral("标记未完成") : QStringLiteral("标记已完成"));
+    ui->toggle_status_btn->setText(status == 1 ? QStringLiteral("↺ 标记未完成") : QStringLiteral("✓ 标记已完成"));
     ui->status_lb->setText(status == 1 ? QStringLiteral("已标记为完成") : QStringLiteral("已恢复为未完成"));
     RequestList();
 }
 
 void SchedulePage::slot_list_todo_rsp(QJsonObject rsp) {
+    ui->all_todo_list->clear();
     ui->pending_todo_list->clear();
     ui->done_todo_list->clear();
     if (rsp["error"].toInt(1) != 0) {
@@ -329,12 +339,17 @@ void SchedulePage::slot_list_todo_rsp(QJsonObject rsp) {
 
     std::sort(pending_todos.begin(), pending_todos.end(), TodoLessByStartTime);
     std::sort(done_todos.begin(), done_todos.end(), TodoLessByStartTime);
+    QList<QJsonObject> all_todos = pending_todos;
+    all_todos.append(done_todos);
+    std::sort(all_todos.begin(), all_todos.end(), TodoLessByStartTime);
+    FillTodoList(ui->all_todo_list, all_todos);
     FillTodoList(ui->pending_todo_list, pending_todos);
     FillTodoList(ui->done_todo_list, done_todos);
 
-    ui->pending_group_lb->setText(QStringLiteral("未完成（%1）").arg(pending_todos.size()));
-    ui->done_group_lb->setText(QStringLiteral("已完成（%1）").arg(done_todos.size()));
-    ui->status_lb->setText(QStringLiteral("待办列表已刷新：%1 条").arg(rows.size()));
+    ui->todo_tabs->setTabText(0, QStringLiteral("全部（%1）").arg(all_todos.size()));
+    ui->todo_tabs->setTabText(1, QStringLiteral("待办（%1）").arg(pending_todos.size()));
+    ui->todo_tabs->setTabText(2, QStringLiteral("已完成（%1）").arg(done_todos.size()));
+    ui->status_lb->setText(QStringLiteral("已刷新 %1 条待办").arg(rows.size()));
 }
 
 void SchedulePage::RequestParse() {
@@ -366,6 +381,9 @@ void SchedulePage::RequestList() {
 }
 
 void SchedulePage::BindTodoSignals() {
+    connect(ui->all_todo_list, &QListWidget::itemClicked, this, [this](QListWidgetItem* item) {
+        SelectTodoFromItem(ui->all_todo_list, item);
+    });
     connect(ui->pending_todo_list, &QListWidget::itemClicked, this, [this](QListWidgetItem* item) {
         SelectTodoFromItem(ui->pending_todo_list, item);
     });
@@ -388,8 +406,8 @@ void SchedulePage::LoadTodoToEditor(const QJsonObject& todo) {
     ui->time_text_edit->setText(todo["time_text"].toString());
     ui->start_time_edit->setText(todo["start_time"].toString());
     ui->end_time_edit->setText(todo["end_time"].toString());
-    ui->toggle_status_btn->setText(_current_todo_status == 1 ? QStringLiteral("标记未完成")
-                                                              : QStringLiteral("标记已完成"));
+    ui->toggle_status_btn->setText(_current_todo_status == 1 ? QStringLiteral("↺ 标记未完成")
+                                                              : QStringLiteral("✓ 标记已完成"));
 }
 
 void SchedulePage::ClearEditorForNew() {
@@ -401,7 +419,7 @@ void SchedulePage::ClearEditorForNew() {
     ui->time_text_edit->clear();
     ui->start_time_edit->clear();
     ui->end_time_edit->clear();
-    ui->toggle_status_btn->setText(QStringLiteral("标记已完成"));
+    ui->toggle_status_btn->setText(QStringLiteral("✓ 标记已完成"));
 }
 
 QJsonObject SchedulePage::BuildTodoPayload() const {
@@ -444,25 +462,31 @@ void SchedulePage::FillTodoList(QListWidget* list, const QList<QJsonObject>& tod
         }
         const QString summary = BuildTodoSummary(obj);
         const QString event_text = obj["event"].toString().trimmed();
+        const QString location = obj["location"].toString().trimmed();
 
         QString text = title + "\n" + summary;
-        if (!event_text.isEmpty()) {
-            text += "\n" + event_text;
-        }
 
         auto* item = new QListWidgetItem(text);
         item->setData(Qt::UserRole, QJsonDocument(obj).toJson(QJsonDocument::Compact));
-        item->setToolTip(event_text);
-        item->setSizeHint(QSize(item->sizeHint().width(), 72));
+        item->setToolTip(QStringLiteral("地点：%1\n事件：%2")
+                             .arg(location.isEmpty() ? QStringLiteral("未填写") : location,
+                                  event_text.isEmpty() ? QStringLiteral("未填写") : event_text));
+        item->setSizeHint(QSize(item->sizeHint().width(), 58));
         list->addItem(item);
     }
 }
 
 void SchedulePage::SelectTodoFromItem(QListWidget* active_list, QListWidgetItem* item) {
+    if (active_list != ui->all_todo_list) {
+        ui->all_todo_list->clearSelection();
+    }
     if (active_list == ui->pending_todo_list) {
         ui->done_todo_list->clearSelection();
+    } else if (active_list == ui->done_todo_list) {
+        ui->pending_todo_list->clearSelection();
     } else {
         ui->pending_todo_list->clearSelection();
+        ui->done_todo_list->clearSelection();
     }
 
     const QJsonObject obj = ParseTodoObject(item);

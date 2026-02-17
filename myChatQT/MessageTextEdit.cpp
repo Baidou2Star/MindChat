@@ -1,6 +1,8 @@
 ﻿#include "MessageTextEdit.h"
 #include <QDebug>
 #include <QMessageBox>
+#include <QMenu>
+#include <QUrl>
 #include "global.h"
 
 MessageTextEdit::MessageTextEdit(QWidget *parent)
@@ -82,6 +84,23 @@ void MessageTextEdit::dropEvent(QDropEvent *event)
 
 void MessageTextEdit::keyPressEvent(QKeyEvent *e)
 {
+    if (e->matches(QKeySequence::Copy)) {
+        copy();
+        return;
+    }
+    if (e->matches(QKeySequence::Paste)) {
+        paste();
+        return;
+    }
+    if (e->matches(QKeySequence::Cut)) {
+        cut();
+        return;
+    }
+    if (e->matches(QKeySequence::SelectAll)) {
+        selectAll();
+        return;
+    }
+
     if((e->key()==Qt::Key_Enter||e->key()==Qt::Key_Return)&& !(e->modifiers() & Qt::ShiftModifier))
     {
         emit send();
@@ -200,10 +219,29 @@ bool MessageTextEdit::canInsertFromMimeData(const QMimeData *source) const
 
 void MessageTextEdit::insertFromMimeData(const QMimeData *source)
 {
-    QStringList urls = getUrl(source->text());
-
-    if(urls.isEmpty())
+    if (source == nullptr) {
         return;
+    }
+
+    if (source->hasUrls()) {
+        QStringList urls;
+        const auto source_urls = source->urls();
+        for (const QUrl& u : source_urls) {
+            if (u.isLocalFile()) {
+                urls.append(u.toLocalFile());
+            }
+        }
+        if (!urls.isEmpty()) {
+            insertFileFromUrl(urls);
+            return;
+        }
+    }
+
+    QStringList urls = getUrl(source->text());
+    if(urls.isEmpty()) {
+        QTextEdit::insertFromMimeData(source);
+        return;
+    }
 
     foreach (QString url, urls)
     {
@@ -315,4 +353,13 @@ QString MessageTextEdit::getFileSize(qint64 size)
 void MessageTextEdit::textEditChanged()
 {
     //qDebug() << "text changed!" << endl;
+}
+
+void MessageTextEdit::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu* menu = createStandardContextMenu();
+    if (menu) {
+        menu->exec(event->globalPos());
+        delete menu;
+    }
 }

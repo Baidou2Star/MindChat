@@ -28,14 +28,20 @@
    <item>
     <layout class="QHBoxLayout" name="mainLayout">
      <property name="spacing">
-      <number>12</number>
+      <number>14</number>
      </property>
      <item>
       <widget class="QFrame" name="todo_list_panel">
        <property name="minimumSize">
         <size>
-         <width>300</width>
+         <width>320</width>
          <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>380</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="frameShape">
@@ -58,24 +64,80 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QLabel" name="pending_group_lb">
-          <property name="text">
-           <string>未完成（0）</string>
+         <widget class="QTabWidget" name="todo_tabs">
+          <property name="tabPosition">
+           <enum>QTabWidget::North</enum>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QListWidget" name="pending_todo_list"/>
-        </item>
-        <item>
-         <widget class="QLabel" name="done_group_lb">
-          <property name="text">
-           <string>已完成（0）</string>
+          <property name="currentIndex">
+           <number>1</number>
           </property>
+          <widget class="QWidget" name="tab_all">
+           <attribute name="title">
+            <string>全部（0）</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayoutAll">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QListWidget" name="all_todo_list"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_pending">
+           <attribute name="title">
+            <string>待办（0）</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayoutPending">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QListWidget" name="pending_todo_list"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_done">
+           <attribute name="title">
+            <string>已完成（0）</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayoutDone">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QListWidget" name="done_todo_list"/>
+            </item>
+           </layout>
+          </widget>
          </widget>
-        </item>
-        <item>
-         <widget class="QListWidget" name="done_todo_list"/>
         </item>
        </layout>
       </widget>
@@ -87,7 +149,7 @@
        </property>
        <layout class="QVBoxLayout" name="rightLayout">
         <property name="spacing">
-         <number>8</number>
+         <number>10</number>
         </property>
         <property name="leftMargin">
          <number>0</number>
@@ -104,10 +166,10 @@
         <item>
          <widget class="QTextEdit" name="raw_input_edit">
           <property name="maximumHeight">
-           <number>120</number>
+           <number>96</number>
           </property>
           <property name="placeholderText">
-           <string>输入会议通知、班会预约等文本，点击“智能解析”提取时间地点事件</string>
+           <string>粘贴会议通知/聊天文本，点击“智能解析”自动提取待办字段</string>
           </property>
          </widget>
         </item>
@@ -133,19 +195,29 @@
           <item>
            <widget class="QPushButton" name="refresh_btn">
             <property name="text">
-             <string>刷新列表</string>
+             <string>刷新</string>
             </property>
            </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacerTopActions">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
         <item>
-         <layout class="QFormLayout" name="formLayout">
-          <property name="labelAlignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
+         <layout class="QGridLayout" name="formGridLayout">
           <property name="horizontalSpacing">
-           <number>8</number>
+           <number>10</number>
           </property>
           <property name="verticalSpacing">
            <number>8</number>
@@ -157,7 +229,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="3">
            <widget class="QLineEdit" name="title_edit"/>
           </item>
           <item row="1" column="0">
@@ -167,10 +239,10 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="1" colspan="3">
            <widget class="QTextEdit" name="event_edit">
             <property name="maximumHeight">
-             <number>82</number>
+             <number>96</number>
             </property>
            </widget>
           </item>
@@ -184,38 +256,38 @@
           <item row="2" column="1">
            <widget class="QLineEdit" name="location_edit"/>
           </item>
-          <item row="3" column="0">
+          <item row="2" column="2">
            <widget class="QLabel" name="label_time_text">
             <property name="text">
              <string>时间描述</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="2" column="3">
            <widget class="QLineEdit" name="time_text_edit"/>
           </item>
-          <item row="4" column="0">
+          <item row="3" column="0">
            <widget class="QLabel" name="label_start_time">
             <property name="text">
              <string>开始时间</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="3" column="1">
            <widget class="QLineEdit" name="start_time_edit">
             <property name="placeholderText">
              <string>YYYY-MM-DD HH:MM:SS</string>
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
+          <item row="3" column="2">
            <widget class="QLabel" name="label_end_time">
             <property name="text">
              <string>结束时间</string>
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
+          <item row="3" column="3">
            <widget class="QLineEdit" name="end_time_edit">
             <property name="placeholderText">
              <string>YYYY-MM-DD HH:MM:SS</string>
@@ -246,7 +318,7 @@
           <item>
            <widget class="QPushButton" name="toggle_status_btn">
             <property name="text">
-             <string>标记已完成</string>
+             <string>✓ 标记已完成</string>
             </property>
            </widget>
           </item>
@@ -263,6 +335,9 @@
          <widget class="QLabel" name="status_lb">
           <property name="text">
            <string>就绪</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>

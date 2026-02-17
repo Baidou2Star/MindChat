@@ -12,6 +12,7 @@
 #include <QFileIconProvider>
 #include <QPainter>
 #include <QVector>
+#include <QContextMenuEvent>
 #include "global.h"
 
 
@@ -33,6 +34,7 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
     void keyPressEvent(QKeyEvent *e);
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
     void insertImages(const QString &url);

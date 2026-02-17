@@ -53,6 +53,20 @@ QString ResolveSideIconPath(const QString& object_name, bool selected)
     }
     return QString();
 }
+
+QPixmap DarkenPixmap(const QPixmap& src, int alpha)
+{
+    if (src.isNull()) {
+        return src;
+    }
+
+    QImage image = src.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    QPainter painter(&image);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+    painter.fillRect(image.rect(), QColor(0, 0, 0, alpha));
+    painter.end();
+    return QPixmap::fromImage(image);
+}
 }
 
 StateWidget::StateWidget(QWidget *parent) : QWidget(parent),_curstate(ClickLbState::Normal)
@@ -74,28 +88,17 @@ void StateWidget::paintEvent(QPaintEvent *event)
 
     const QString state_name = property("state").toString();
     const bool selected = state_name.startsWith("selected") || (_curstate == ClickLbState::Selected);
-    const bool hover_or_press = state_name.contains("hover") || state_name.contains("pressed");
     const QString icon_path = ResolveSideIconPath(objectName(), selected);
     if (icon_path.isEmpty()) {
         return;
     }
 
-    QRect frame_rect = rect().adjusted(5, 5, -5, -5);
-    frame_rect = QRect(frame_rect.topLeft(), QSize(24, 24));
-    frame_rect.moveCenter(rect().center());
-    QColor bg(255, 255, 255, 24);
-    QColor border(255, 255, 255, 46);
-    if (hover_or_press) {
-        bg = QColor(255, 255, 255, 36);
-        border = QColor(255, 255, 255, 64);
-    }
     if (selected) {
-        bg = QColor(95, 154, 255, 66);
-        border = QColor(183, 216, 255, 180);
+        QRectF indicator_rect(2.0, (height() - 22.0) / 2.0, 4.0, 22.0);
+        p.setPen(Qt::NoPen);
+        p.setBrush(QColor("#1890FF"));
+        p.drawRoundedRect(indicator_rect, 2.0, 2.0);
     }
-    p.setPen(QPen(border, 1));
-    p.setBrush(bg);
-    p.drawRoundedRect(frame_rect, 7, 7);
 
     QPixmap source(icon_path);
     if (source.isNull()) {
@@ -105,10 +108,13 @@ void StateWidget::paintEvent(QPaintEvent *event)
     const QRect crop = AlphaBoundingRect(image);
     const QPixmap trimmed = source.copy(crop);
 
-    const QSize target_size(16, 16);
+    const QSize target_size(20, 20);
     QRect target_rect(QPoint(0, 0), target_size);
     target_rect.moveCenter(rect().center());
-    const QPixmap scaled = trimmed.scaled(target_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap scaled = trimmed.scaled(target_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    if (selected) {
+        scaled = DarkenPixmap(scaled, 36);
+    }
     const QRect draw_rect(target_rect.x() + (target_rect.width() - scaled.width()) / 2,
                           target_rect.y() + (target_rect.height() - scaled.height()) / 2,
                           scaled.width(), scaled.height());
