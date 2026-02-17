@@ -74,6 +74,7 @@ SOURCES += \
         mainwindow.cpp \
         registerdialog.cpp \
         resetdialog.cpp \
+        schedulepage.cpp \
         searchlist.cpp \
         statelabel.cpp \
         statewidget.cpp \
@@ -126,6 +127,7 @@ HEADERS += \
         mainwindow.h \
         registerdialog.h \
         resetdialog.h \
+        schedulepage.h \
         searchlist.h \
         singleton.h \
         statelabel.h \
@@ -157,6 +159,7 @@ FORMS += \
         mainwindow.ui \
         registerdialog.ui \
         resetdialog.ui \
+        schedulepage.ui \
         userinfopage.ui
 
 # Default rules for deployment.
@@ -217,7 +220,10 @@ DISTFILES += \
     res/visible_hover.png \
     res/voice_chat_hover.png \
     res/voice_chat_normal.png \
-    res/voice_chat_press.png
+    res/voice_chat_press.png \
+    res/sidebar_schedule_outline_enterprise.png \
+    res/sidebar_schedule_active_enterprise.png \
+    res/llm_bot_avatar.png
 
 win32 {
     CONFIG(debug, debug|release) {

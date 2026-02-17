@@ -88,7 +88,11 @@ void ChatPage::AppendChatMsg(std::shared_ptr<ChatDataBase> msg, bool rsp)
         SetSelfIcon(pChatItem, self_info->_icon);
         QWidget* pBubble = nullptr;
         if (msg->GetMsgType() == ChatMsgType::TEXT) {
-            pBubble = new TextBubble(role, msg->GetMsgContent());
+            auto* text_bubble = new TextBubble(role, msg->GetMsgContent());
+            connect(text_bubble, &TextBubble::sig_add_todo_requested, this, [this, msg](const QString& text) {
+                emit sig_add_todo_from_message(text, msg->GetThreadId(), msg->GetMsgId());
+            });
+            pBubble = text_bubble;
         }else if (msg->GetMsgType() == ChatMsgType::PIC) {
             auto img_msg = dynamic_pointer_cast<ImgChatData>(msg);
             auto pic_bubble =  new PictureBubble(img_msg->_msg_info->_preview_pix, role, img_msg->_msg_info->_total_size);
@@ -118,10 +122,7 @@ void ChatPage::AppendChatMsg(std::shared_ptr<ChatDataBase> msg, bool rsp)
     
         pChatItem->setUserName(friend_info->_name);
         
-        // 使用正则表达式检查是否是默认头像
-        QRegularExpression regex("^:/res/head_(\\d+)\\.jpg$");
-        QRegularExpressionMatch match = regex.match(friend_info->_icon);
-        if (match.hasMatch()) {
+        if (friend_info->_icon.startsWith(":/res/")) {
             pChatItem->setUserIcon(QPixmap(friend_info->_icon));
         }
         else {
@@ -154,7 +155,11 @@ void ChatPage::AppendChatMsg(std::shared_ptr<ChatDataBase> msg, bool rsp)
 
         QWidget* pBubble = nullptr;
         if (msg->GetMsgType() == ChatMsgType::TEXT) {
-            pBubble = new TextBubble(role, msg->GetMsgContent());
+            auto* text_bubble = new TextBubble(role, msg->GetMsgContent());
+            connect(text_bubble, &TextBubble::sig_add_todo_requested, this, [this, msg](const QString& text) {
+                emit sig_add_todo_from_message(text, msg->GetThreadId(), msg->GetMsgId());
+            });
+            pBubble = text_bubble;
         }
         else if(msg->GetMsgType() == ChatMsgType::PIC) {
             auto img_msg = dynamic_pointer_cast<ImgChatData>(msg);
@@ -187,7 +192,11 @@ void ChatPage::AppendOtherMsg(std::shared_ptr<ChatDataBase> msg) {
         SetSelfIcon(pChatItem, self_info->_icon);
         QWidget* pBubble = nullptr;
         if (msg->GetMsgType() == ChatMsgType::TEXT) {
-            pBubble = new TextBubble(role, msg->GetMsgContent());
+            auto* text_bubble = new TextBubble(role, msg->GetMsgContent());
+            connect(text_bubble, &TextBubble::sig_add_todo_requested, this, [this, msg](const QString& text) {
+                emit sig_add_todo_from_message(text, msg->GetThreadId(), msg->GetMsgId());
+            });
+            pBubble = text_bubble;
         }
         else if (msg->GetMsgType() == ChatMsgType::PIC) {
             auto img_msg = dynamic_pointer_cast<ImgChatData>(msg);
@@ -216,10 +225,7 @@ void ChatPage::AppendOtherMsg(std::shared_ptr<ChatDataBase> msg) {
         }
         pChatItem->setUserName(friend_info->_name);
 
-        // 使用正则表达式检查是否是默认头像
-        QRegularExpression regex("^:/res/head_(\\d+)\\.jpg$");
-        QRegularExpressionMatch match = regex.match(friend_info->_icon);
-        if (match.hasMatch()) {
+        if (friend_info->_icon.startsWith(":/res/")) {
             pChatItem->setUserIcon(QPixmap(friend_info->_icon));
         }
         else {
@@ -253,7 +259,11 @@ void ChatPage::AppendOtherMsg(std::shared_ptr<ChatDataBase> msg) {
 
         QWidget* pBubble = nullptr;
         if (msg->GetMsgType() == ChatMsgType::TEXT) {
-            pBubble = new TextBubble(role, msg->GetMsgContent());
+            auto* text_bubble = new TextBubble(role, msg->GetMsgContent());
+            connect(text_bubble, &TextBubble::sig_add_todo_requested, this, [this, msg](const QString& text) {
+                emit sig_add_todo_from_message(text, msg->GetThreadId(), msg->GetMsgId());
+            });
+            pBubble = text_bubble;
         }
         else if (msg->GetMsgType() == ChatMsgType::PIC) {
             auto img_msg = dynamic_pointer_cast<ImgChatData>(msg);
@@ -441,7 +451,11 @@ void ChatPage::on_send_btn_clicked() {
         QString uuidString = uuid.toString();
         if (type == MsgType::TEXT_MSG)
         {
-            pBubble = new TextBubble(role, msgList[i]->_text_or_url);
+            auto* text_bubble = new TextBubble(role, msgList[i]->_text_or_url);
+            connect(text_bubble, &TextBubble::sig_add_todo_requested, this, [this, thread_id](const QString& text) {
+                emit sig_add_todo_from_message(text, thread_id, 0);
+            });
+            pBubble = text_bubble;
             if (txt_size + msgList[i]->_text_or_url.length() > 1024) {
                 textObj["fromuid"] = user_info->_uid;
                 textObj["touid"] = _chat_data->GetOtherId();

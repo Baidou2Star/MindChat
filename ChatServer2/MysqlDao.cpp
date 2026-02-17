@@ -489,13 +489,14 @@ bool MysqlDao::GetUserThreads(int64_t userId, int64_t lastId, int pageSize,
             "WITH all_threads AS ( "
             "  SELECT thread_id, 'private' AS type, user1_id, user2_id FROM private_chat "
             "  WHERE (user1_id = ? OR user2_id = ?) AND thread_id > ? "
+            "    AND user1_id <> ? AND user2_id <> ? "
             "  UNION ALL "
             "  SELECT thread_id, 'group' AS type, CAST(0 AS UNSIGNED), CAST(0 AS UNSIGNED) FROM group_chat_member "
             "  WHERE user_id = ? AND thread_id > ? "
             ") SELECT thread_id, type, user1_id, user2_id FROM all_threads ORDER BY thread_id LIMIT ?";
 
         auto res = cg->session.sql(sql)
-            .bind(userId, userId, lastId, userId, lastId, pageSize + 1)
+            .bind(userId, userId, lastId, LLM_BOT_UID, LLM_BOT_UID, userId, lastId, pageSize + 1)
             .execute();
 
         std::vector<mysqlx::Row> rows = res.fetchAll();
@@ -734,5 +735,152 @@ std::shared_ptr<ChatMessage> MysqlDao::GetChatMsg(int message_id) {
     }
     catch (...) {
         return nullptr;
+    }
+}
+
+bool MysqlDao::CreateTodo(const TodoItem& todo, int& todo_id) {
+    ConnGuard cg(pool_.get(), pool_->getConnection());
+    if (!cg) return false;
+
+    try {
+        cg->session.sql(
+            "INSERT INTO todo_item "
+            "(uid, source_thread_id, source_message_id, source_text, title, event_text, location, time_text, start_time, end_time, status) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULLIF(?, ''), NULLIF(?, ''), ?)"
+        ).bind(
+            todo.uid,
+            todo.source_thread_id,
+            todo.source_message_id,
+            todo.source_text,
+            todo.title,
+            todo.event_text,
+            todo.location,
+            todo.time_text,
+            todo.start_time,
+            todo.end_time,
+            todo.status
+        ).execute();
+
+        auto row = cg->session.sql("SELECT LAST_INSERT_ID()").execute().fetchOne();
+        if (!row) {
+            return false;
+        }
+        todo_id = row[0].get<int>();
+        return true;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[CreateTodo] Error: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool MysqlDao::UpdateTodo(const TodoItem& todo) {
+    ConnGuard cg(pool_.get(), pool_->getConnection());
+    if (!cg) return false;
+
+    try {
+        auto result = cg->session.sql(
+            "UPDATE todo_item SET "
+            "source_thread_id = ?, source_message_id = ?, source_text = ?, "
+            "title = ?, event_text = ?, location = ?, time_text = ?, "
+            "start_time = NULLIF(?, ''), end_time = NULLIF(?, ''), status = ? "
+            "WHERE uid = ? AND todo_id = ?"
+        ).bind(
+            todo.source_thread_id,
+            todo.source_message_id,
+            todo.source_text,
+            todo.title,
+            todo.event_text,
+            todo.location,
+            todo.time_text,
+            todo.start_time,
+            todo.end_time,
+            todo.status,
+            todo.uid,
+            todo.todo_id
+        ).execute();
+
+        return result.getAffectedItemsCount() > 0;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[UpdateTodo] Error: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool MysqlDao::DeleteTodo(int uid, int todo_id) {
+    ConnGuard cg(pool_.get(), pool_->getConnection());
+    if (!cg) return false;
+
+    try {
+        auto result = cg->session.sql(
+            "DELETE FROM todo_item WHERE uid = ? AND todo_id = ?"
+        ).bind(uid, todo_id).execute();
+        return result.getAffectedItemsCount() > 0;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[DeleteTodo] Error: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool MysqlDao::SetTodoStatus(int uid, int todo_id, int status) {
+    ConnGuard cg(pool_.get(), pool_->getConnection());
+    if (!cg) return false;
+
+    try {
+        auto result = cg->session.sql(
+            "UPDATE todo_item SET status = ? WHERE uid = ? AND todo_id = ?"
+        ).bind(status, uid, todo_id).execute();
+        return result.getAffectedItemsCount() > 0;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[SetTodoStatus] Error: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool MysqlDao::ListTodo(int uid, int limit, std::vector<TodoItem>& todos) {
+    ConnGuard cg(pool_.get(), pool_->getConnection());
+    if (!cg) return false;
+
+    try {
+        auto res = cg->session.sql(
+            "SELECT todo_id, uid, source_thread_id, source_message_id, source_text, title, event_text, location, time_text, "
+            "IFNULL(DATE_FORMAT(start_time, '%Y-%m-%d %H:%i:%s'), ''), "
+            "IFNULL(DATE_FORMAT(end_time, '%Y-%m-%d %H:%i:%s'), ''), "
+            "status, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') "
+            "FROM todo_item WHERE uid = ? "
+            "ORDER BY "
+            "CASE WHEN start_time IS NULL THEN 1 ELSE 0 END ASC, "
+            "start_time ASC, "
+            "created_at ASC "
+            "LIMIT ?"
+        ).bind(uid, std::max(1, limit)).execute();
+
+        std::vector<mysqlx::Row> rows = res.fetchAll();
+        todos.reserve(rows.size());
+        for (auto& row : rows) {
+            TodoItem item;
+            item.todo_id = row[0].get<int>();
+            item.uid = row[1].get<int>();
+            item.source_thread_id = row[2].get<int>();
+            item.source_message_id = row[3].get<int>();
+            item.source_text = row[4].get<std::string>();
+            item.title = row[5].get<std::string>();
+            item.event_text = row[6].get<std::string>();
+            item.location = row[7].get<std::string>();
+            item.time_text = row[8].get<std::string>();
+            item.start_time = row[9].get<std::string>();
+            item.end_time = row[10].get<std::string>();
+            item.status = row[11].get<int>();
+            item.created_at = row[12].get<std::string>();
+            todos.push_back(std::move(item));
+        }
+        return true;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[ListTodo] Error: " << e.what() << std::endl;
+        return false;
     }
 }

@@ -92,3 +92,28 @@ std::shared_ptr<ChatMessage> MysqlMgr::GetChatMsg(int message_id)
 	return _dao.GetChatMsg(message_id);
 }
 
+bool MysqlMgr::CreateTodo(const TodoItem& todo, int& todo_id)
+{
+	return _dao.CreateTodo(todo, todo_id);
+}
+
+bool MysqlMgr::UpdateTodo(const TodoItem& todo)
+{
+	return _dao.UpdateTodo(todo);
+}
+
+bool MysqlMgr::DeleteTodo(int uid, int todo_id)
+{
+	return _dao.DeleteTodo(uid, todo_id);
+}
+
+bool MysqlMgr::SetTodoStatus(int uid, int todo_id, int status)
+{
+	return _dao.SetTodoStatus(uid, todo_id, status);
+}
+
+bool MysqlMgr::ListTodo(int uid, int limit, std::vector<TodoItem>& todos)
+{
+	return _dao.ListTodo(uid, limit, todos);
+}
+

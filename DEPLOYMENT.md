@@ -3,7 +3,7 @@
 本文档给仓库协作者使用，目标是：
 
 1. 在 Linux/WSL 一次性完成依赖安装与编译
-2. 启动 `StatusServer/ChatServer/ChatServer2/ResourceServer/GateServerWin/VarifyServer`
+2. 启动 `LLMServer/StatusServer/ChatServer/ChatServer2/ResourceServer/GateServerWin/VarifyServer`
 3. 避免常见环境坑（protobuf 版本、npm 路径、Redis/MySQL 认证）
 
 ## 1. 目录与服务说明
@@ -11,6 +11,7 @@
 服务端相关目录：
 
 - `StatusServer/`
+- `LLMServer/`（独立 LLM 代理服务，支持多 key/多地址池）
 - `ChatServer/`
 - `ChatServer2/`
 - `ResourceServer/`
@@ -160,6 +161,7 @@ cmake --build build -j
 输出可执行文件：
 
 - `build/StatusServer/StatusServer`
+- `build/LLMServer/LLMServer`
 - `build/ChatServer/ChatServer`
 - `build/ChatServer2/ChatServer2`
 - `build/ResourceServer/ResourceServer`
@@ -194,11 +196,19 @@ scripts/manage_services.sh logs GateServerWin
 1. 检查/拉起 Redis + MySQL
 2. 启动 VarifyServer
 3. 启动 C++ 服务：
+   - `LLMServer`
    - `StatusServer`
    - `ChatServer`
    - `ChatServer2`
    - `ResourceServer`
    - `GateServerWin`
+
+## 6.4 新增数据库补丁
+
+待办模块新增了 `todo_item` 表。
+
+- 全量建库可直接执行：`sql备份/myChatStructure.sql`
+- 只打增量可执行：`sql备份/patch_todo_llm.sql`
 
 ## 6.3 脚本环境变量
 
@@ -214,4 +224,3 @@ VARIFY_AUTO_NPM_INSTALL=1 scripts/manage_services.sh start build
 # 自定义 VarifyServer 启动命令（默认 npm run serve）
 VARIFY_START_CMD='npm run serve' scripts/manage_services.sh start build
 ```
-

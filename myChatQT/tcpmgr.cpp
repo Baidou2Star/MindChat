@@ -983,6 +983,72 @@ void TcpMgr::initHandlers()
          auto send_data = doc.toJson();
          FileTcpMgr::GetInstance()->SendData(ID_IMG_CHAT_DOWN_REQ, send_data);
      });
+
+     _handlers.insert(ID_PARSE_TODO_RSP, [this](ReqId id, int len, QByteArray data) {
+         Q_UNUSED(id);
+         Q_UNUSED(len);
+         QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+         if (jsonDoc.isNull() || !jsonDoc.isObject()) {
+             qWarning() << "parse todo rsp json failed";
+             return;
+         }
+         emit sig_parse_todo_rsp(jsonDoc.object());
+     });
+
+     _handlers.insert(ID_CREATE_TODO_RSP, [this](ReqId id, int len, QByteArray data) {
+         Q_UNUSED(id);
+         Q_UNUSED(len);
+         QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+         if (jsonDoc.isNull() || !jsonDoc.isObject()) {
+             qWarning() << "create todo rsp json failed";
+             return;
+         }
+         emit sig_create_todo_rsp(jsonDoc.object());
+     });
+
+     _handlers.insert(ID_LIST_TODO_RSP, [this](ReqId id, int len, QByteArray data) {
+         Q_UNUSED(id);
+         Q_UNUSED(len);
+         QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+         if (jsonDoc.isNull() || !jsonDoc.isObject()) {
+             qWarning() << "list todo rsp json failed";
+             return;
+         }
+         emit sig_list_todo_rsp(jsonDoc.object());
+     });
+
+     _handlers.insert(ID_UPDATE_TODO_RSP, [this](ReqId id, int len, QByteArray data) {
+         Q_UNUSED(id);
+         Q_UNUSED(len);
+         QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+         if (jsonDoc.isNull() || !jsonDoc.isObject()) {
+             qWarning() << "update todo rsp json failed";
+             return;
+         }
+         emit sig_update_todo_rsp(jsonDoc.object());
+     });
+
+     _handlers.insert(ID_DELETE_TODO_RSP, [this](ReqId id, int len, QByteArray data) {
+         Q_UNUSED(id);
+         Q_UNUSED(len);
+         QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+         if (jsonDoc.isNull() || !jsonDoc.isObject()) {
+             qWarning() << "delete todo rsp json failed";
+             return;
+         }
+         emit sig_delete_todo_rsp(jsonDoc.object());
+     });
+
+     _handlers.insert(ID_SET_TODO_STATUS_RSP, [this](ReqId id, int len, QByteArray data) {
+         Q_UNUSED(id);
+         Q_UNUSED(len);
+         QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+         if (jsonDoc.isNull() || !jsonDoc.isObject()) {
+             qWarning() << "set todo status rsp json failed";
+             return;
+         }
+         emit sig_set_todo_status_rsp(jsonDoc.object());
+     });
     
 }
 

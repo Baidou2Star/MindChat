@@ -48,6 +48,12 @@ private:
 	void CreatePrivateChat(std::shared_ptr<CSession> session, const short& msg_id, const string& msg_data);
 	void LoadChatMsg(std::shared_ptr<CSession> session, const short& msg_id, const string& msg_data);
 	void DealChatImgMsg(std::shared_ptr<CSession> session, const short& msg_id, const string& msg_data);
+	void ParseTodo(std::shared_ptr<CSession> session, const short& msg_id, const string& msg_data);
+	void CreateTodo(std::shared_ptr<CSession> session, const short& msg_id, const string& msg_data);
+	void ListTodo(std::shared_ptr<CSession> session, const short& msg_id, const string& msg_data);
+	void UpdateTodo(std::shared_ptr<CSession> session, const short& msg_id, const string& msg_data);
+	void DeleteTodo(std::shared_ptr<CSession> session, const short& msg_id, const string& msg_data);
+	void SetTodoStatus(std::shared_ptr<CSession> session, const short& msg_id, const string& msg_data);
 
 	std::thread _worker_thread;
 	std::queue<shared_ptr<LogicNode>> _msg_que;

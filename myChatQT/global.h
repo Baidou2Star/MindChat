@@ -84,7 +84,19 @@ enum ReqId{
     ID_IMG_CHAT_DOWN_INFO_SYNC_REQ  = 1045,  //获取图片下载信息同步请求
     ID_IMG_CHAT_DOWN_INFO_SYNC_RSP  = 1046,  //获取图片下载信息同步回复
     ID_IMG_CHAT_DOWN_REQ          =  1047,    //聊天图片下载请求
-    ID_IMG_CHAT_DOWN_RSP          =  1048     //聊天图片下载回复
+    ID_IMG_CHAT_DOWN_RSP          =  1048,    //聊天图片下载回复
+    ID_PARSE_TODO_REQ             =  1049,    //待办解析请求
+    ID_PARSE_TODO_RSP             =  1050,    //待办解析回复
+    ID_CREATE_TODO_REQ            =  1051,    //创建待办请求
+    ID_CREATE_TODO_RSP            =  1052,    //创建待办回复
+    ID_LIST_TODO_REQ              =  1053,    //待办列表请求
+    ID_LIST_TODO_RSP              =  1054,    //待办列表回复
+    ID_UPDATE_TODO_REQ            =  1055,    //更新待办请求
+    ID_UPDATE_TODO_RSP            =  1056,    //更新待办回复
+    ID_DELETE_TODO_REQ            =  1057,    //删除待办请求
+    ID_DELETE_TODO_RSP            =  1058,    //删除待办回复
+    ID_SET_TODO_STATUS_REQ        =  1059,    //设置待办状态请求
+    ID_SET_TODO_STATUS_RSP        =  1060     //设置待办状态回复
 };
 Q_DECLARE_METATYPE(ReqId)
 
@@ -204,6 +216,7 @@ enum ChatUIMode{
     SearchMode, //搜索模式
     ChatMode, //聊天模式
     ContactMode, //联系模式
+    ScheduleMode, //日程待办模式
     SettingsMode, //设置模式
 };
 

@@ -58,6 +58,7 @@ ChatDialog::ChatDialog(QWidget* parent) :
 	ui->verticalLayout_5->setSpacing(18);
 	ui->side_chat_lb->setFixedSize(34, 34);
 	ui->side_contact_lb->setFixedSize(34, 34);
+	ui->side_schedule_lb->setFixedSize(34, 34);
 	ui->side_settings_lb->setFixedSize(34, 34);
 
 	ui->chat_user_list->setSpacing(2);
@@ -124,14 +125,18 @@ ChatDialog::ChatDialog(QWidget* parent) :
 
 	ui->side_contact_lb->SetState("normal", "hover", "pressed", "selected_normal", "selected_hover", "selected_pressed");
 
+	ui->side_schedule_lb->SetState("normal", "hover", "pressed", "selected_normal", "selected_hover", "selected_pressed");
+
 	ui->side_settings_lb->SetState("normal", "hover", "pressed", "selected_normal", "selected_hover", "selected_pressed");
 
 	AddLBGroup(ui->side_chat_lb);
 	AddLBGroup(ui->side_contact_lb);
+	AddLBGroup(ui->side_schedule_lb);
 	AddLBGroup(ui->side_settings_lb);
 
 	connect(ui->side_chat_lb, &StateWidget::clicked, this, &ChatDialog::slot_side_chat);
 	connect(ui->side_contact_lb, &StateWidget::clicked, this, &ChatDialog::slot_side_contact);
+	connect(ui->side_schedule_lb, &StateWidget::clicked, this, &ChatDialog::slot_side_schedule);
 	connect(ui->side_settings_lb, &StateWidget::clicked, this, &ChatDialog::slot_side_setting);
 
 	//链接搜索框输入变化
@@ -237,6 +242,9 @@ ChatDialog::ChatDialog(QWidget* parent) :
 	//接收tcp返回的下载完成信息
 	connect(FileTcpMgr::GetInstance().get(), &FileTcpMgr::sig_download_finish,
 		this, &ChatDialog::slot_download_finish);
+
+	connect(ui->chat_page, &ChatPage::sig_add_todo_from_message,
+		this, &ChatDialog::slot_add_todo_from_message);
 }
 
 ChatDialog::~ChatDialog()
@@ -804,13 +812,27 @@ void ChatDialog::SetSelectChatPage(int thread_id)
 
 void ChatDialog::ShowSearch(bool bsearch)
 {
+	if (_state == ChatUIMode::ScheduleMode || _state == ChatUIMode::SettingsMode) {
+		ui->chat_user_wid->hide();
+		ui->chat_user_list->hide();
+		ui->search_list->hide();
+		ui->con_user_list->hide();
+		_mode = _state;
+		ui->search_list->CloseFindDlg();
+		ui->search_edit->clear();
+		ui->search_edit->clearFocus();
+		return;
+	}
+
 	if (bsearch) {
+		ui->chat_user_wid->show();
 		ui->chat_user_list->hide();
 		ui->con_user_list->hide();
 		ui->search_list->show();
 		_mode = ChatUIMode::SearchMode;
 	}
 	else if (_state == ChatUIMode::ChatMode) {
+		ui->chat_user_wid->show();
 		ui->chat_user_list->show();
 		ui->con_user_list->hide();
 		ui->search_list->hide();
@@ -820,19 +842,11 @@ void ChatDialog::ShowSearch(bool bsearch)
 		ui->search_edit->clearFocus();
 	}
 	else if (_state == ChatUIMode::ContactMode) {
+		ui->chat_user_wid->show();
 		ui->chat_user_list->hide();
 		ui->search_list->hide();
 		ui->con_user_list->show();
 		_mode = ChatUIMode::ContactMode;
-		ui->search_list->CloseFindDlg();
-		ui->search_edit->clear();
-		ui->search_edit->clearFocus();
-	}
-	else if (_state == ChatUIMode::SettingsMode) {
-		ui->chat_user_list->hide();
-		ui->search_list->hide();
-		ui->con_user_list->show();
-		_mode = ChatUIMode::SettingsMode;
 		ui->search_list->CloseFindDlg();
 		ui->search_edit->clear();
 		ui->search_edit->clearFocus();
@@ -884,6 +898,15 @@ void ChatDialog::slot_side_contact() {
 
 	_state = ChatUIMode::ContactMode;
 	ShowSearch(false);
+}
+
+void ChatDialog::slot_side_schedule() {
+	qDebug() << "receive side schedule clicked";
+	ClearLabelState(ui->side_schedule_lb);
+	ui->stackedWidget->setCurrentWidget(ui->schedule_page);
+	_state = ChatUIMode::ScheduleMode;
+	ShowSearch(false);
+	ui->schedule_page->RefreshTodoList();
 }
 
 void ChatDialog::slot_side_setting() {
@@ -1180,6 +1203,16 @@ void ChatDialog::slot_download_finish(std::shared_ptr<MsgInfo> msg_info, QString
 
 	//更新聊天界面信息
 	ui->chat_page->DownloadFileFinished(msg_info, file_path);
+}
+
+void ChatDialog::slot_add_todo_from_message(QString text, int thread_id, int message_id)
+{
+	ui->side_schedule_lb->SetSelected(true);
+	ClearLabelState(ui->side_schedule_lb);
+	ui->stackedWidget->setCurrentWidget(ui->schedule_page);
+	_state = ChatUIMode::ScheduleMode;
+	ShowSearch(false);
+	ui->schedule_page->LoadFromText(text, thread_id, message_id, true);
 }
 
 void ChatDialog::slot_reset_head()

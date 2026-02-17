@@ -12,6 +12,7 @@
     "protobuf",
     "hiredis",
     "jsoncpp",
-    "mysql-connector-cpp"
+    "mysql-connector-cpp",
+    "curl"
   ]
 }

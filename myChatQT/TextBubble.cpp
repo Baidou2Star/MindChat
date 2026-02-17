@@ -9,6 +9,7 @@
 #include <QTextOption>
 #include <QTimer>
 #include <QtMath>
+#include <QMenu>
 
 #include "global.h"
 
@@ -22,8 +23,18 @@ TextBubble::TextBubble(ChatRole role, const QString &text, QWidget *parent)
     m_pTextEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_pTextEdit->setContentsMargins(0, 0, 0, 0);
     m_pTextEdit->installEventFilter(this);
+    m_pTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     m_pTextEdit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_pTextEdit->document()->setDocumentMargin(3);
+
+    connect(m_pTextEdit, &QWidget::customContextMenuRequested, this, [this](const QPoint& pos) {
+        QMenu menu;
+        QAction* add_todo = menu.addAction(QStringLiteral("添加待办"));
+        QAction* selected = menu.exec(m_pTextEdit->mapToGlobal(pos));
+        if (selected == add_todo) {
+            emit sig_add_todo_requested(m_pTextEdit->toPlainText());
+        }
+    });
 
     // QTextEdit 行盒模型会让底部视觉留白略大，做轻量光学校正。
     const QMargins bubble_margins = layout()->contentsMargins();

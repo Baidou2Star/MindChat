@@ -47,12 +47,7 @@ void ChatUserWid::SetChatData(std::shared_ptr<ChatThreadData> chat_data) {
 
     QString head_icon = UserMgr::GetInstance()->GetIcon();
 
-    // 使用正则表达式检查是否是默认头像
-    QRegularExpression regex("^:/res/head_(\\d+)\\.jpg$");
-    QRegularExpressionMatch match = regex.match(other_info->_icon);
-
-    if (match.hasMatch()) {
-        // 如果是默认头像（:/res/head_X.jpg 格式）
+    if (other_info->_icon.startsWith(":/res/")) {
         QPixmap pixmap(other_info->_icon); // 加载默认头像图片
         QPixmap scaledPixmap = pixmap.scaled(ui->icon_lb->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
         ui->icon_lb->setPixmap(scaledPixmap); // 将缩放后的图片设置到QLabel上

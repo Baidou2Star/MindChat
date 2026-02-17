@@ -13,6 +13,7 @@ PID_DIR="${ROOT_DIR}/.run"
 LOG_DIR="${ROOT_DIR}/logs/services"
 
 CPP_SERVICES=(
+  "LLMServer"
   "StatusServer"
   "ChatServer"
   "ChatServer2"
@@ -324,7 +325,7 @@ service_listen_endpoints() {
 
   local host="" port="" rpc_port=""
   case "$svc" in
-    ChatServer|ChatServer2|ResourceServer)
+    ChatServer|ChatServer2|ResourceServer|LLMServer)
       host="$(trim "$(ini_get "$cfg" "SelfServer" "Host")")"
       port="$(trim "$(ini_get "$cfg" "SelfServer" "Port")")"
       rpc_port="$(trim "$(ini_get "$cfg" "SelfServer" "RPCPort")")"

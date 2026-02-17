@@ -330,6 +330,30 @@ LoadingDlg{
     border-image: url(:/res/contact_list_press.png);
 }
 
+#side_schedule_lb[state='normal']{
+    border-image: none;
+}
+
+#side_schedule_lb[state='hover']{
+    border-image: none;
+}
+
+#side_schedule_lb[state='pressed']{
+    border-image: none;
+}
+
+#side_schedule_lb[state='selected_normal']{
+    border-image: none;
+}
+
+#side_schedule_lb[state='selected_hover']{
+    border-image: none;
+}
+
+#side_schedule_lb[state='selected_pressed']{
+    border-image: none;
+}
+
 #side_settings_lb[state='normal']{
     border-image: url(:/res/settings.png);
 }
@@ -1972,3 +1996,129 @@ ApplyFriendItem #addBtn[state='press'] {
     background: #ffffff;
 }
 
+
+/* ---------- Schedule & Sidebar Final Override ---------- */
+#side_chat_lb[state='normal'],
+#side_contact_lb[state='normal'],
+#side_schedule_lb[state='normal'],
+#side_settings_lb[state='normal'] {
+    border-image: none;
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+#side_chat_lb[state='hover'],
+#side_chat_lb[state='pressed'],
+#side_contact_lb[state='hover'],
+#side_contact_lb[state='pressed'],
+#side_schedule_lb[state='hover'],
+#side_schedule_lb[state='pressed'],
+#side_settings_lb[state='hover'],
+#side_settings_lb[state='pressed'] {
+    border-image: none;
+    background-color: rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#side_chat_lb[state='selected_normal'],
+#side_chat_lb[state='selected_hover'],
+#side_chat_lb[state='selected_pressed'],
+#side_contact_lb[state='selected_normal'],
+#side_contact_lb[state='selected_hover'],
+#side_contact_lb[state='selected_pressed'],
+#side_schedule_lb[state='selected_normal'],
+#side_schedule_lb[state='selected_hover'],
+#side_schedule_lb[state='selected_pressed'],
+#side_settings_lb[state='selected_normal'],
+#side_settings_lb[state='selected_hover'],
+#side_settings_lb[state='selected_pressed'] {
+    border-image: none;
+    background-color: rgba(95, 154, 255, 0.34);
+    border-radius: 12px;
+    border: 1px solid rgba(183, 216, 255, 0.72);
+}
+
+#SchedulePage {
+    background: #f4f8fd;
+}
+
+#SchedulePage #todo_list_panel,
+#SchedulePage #todo_editor_panel {
+    background: #ffffff;
+    border: 1px solid #dce7f5;
+    border-radius: 12px;
+    padding: 8px;
+}
+
+#SchedulePage #pending_group_lb,
+#SchedulePage #done_group_lb {
+    color: #24558f;
+    font-weight: 600;
+}
+
+#SchedulePage #status_lb {
+    color: #4f6582;
+    padding-top: 4px;
+}
+
+#SchedulePage QListWidget {
+    background: #f8fbff;
+    border: 1px solid #dbe6f4;
+    border-radius: 10px;
+    outline: none;
+}
+
+#SchedulePage QListWidget::item {
+    border-radius: 8px;
+    margin: 4px;
+    padding: 8px;
+    color: #21344d;
+}
+
+#SchedulePage QListWidget::item:selected {
+    background: #d8e9ff;
+    color: #16304f;
+}
+
+#SchedulePage QLineEdit,
+#SchedulePage QTextEdit {
+    border: 1px solid #d6e2f1;
+    border-radius: 8px;
+    padding: 6px 8px;
+    background: #ffffff;
+    color: #1f2a3d;
+}
+
+#SchedulePage QLineEdit:focus,
+#SchedulePage QTextEdit:focus {
+    border: 1px solid #6aa3ff;
+}
+
+#SchedulePage QPushButton {
+    min-height: 34px;
+    border-radius: 8px;
+}
+
+#SchedulePage #parse_btn,
+#SchedulePage #refresh_btn,
+#SchedulePage #new_btn,
+#SchedulePage #toggle_status_btn {
+    color: #2a4d79;
+    background: #e9f1fc;
+    border: 1px solid #c8d9ef;
+}
+
+#SchedulePage #save_btn,
+#SchedulePage #update_btn {
+    color: #ffffff;
+    background: #2d73db;
+    border: 1px solid #2d73db;
+}
+
+#SchedulePage #delete_btn {
+    color: #ffffff;
+    background: #d9534f;
+    border: 1px solid #d9534f;
+}

@@ -59,6 +59,7 @@ public slots:
     void slot_loading_chat_user();
     void slot_side_chat();
     void slot_side_contact();
+    void slot_side_schedule();
     void slot_side_setting();
     void slot_text_changed(const QString & str);
     void slot_focus_out();
@@ -88,6 +89,7 @@ public slots:
     void slot_update_upload_progress(std::shared_ptr<MsgInfo> msg_info);
     void slot_update_download_progress(std::shared_ptr<MsgInfo> msg_info);
     void slot_download_finish(std::shared_ptr<MsgInfo> msg_info, QString file_path);
+    void slot_add_todo_from_message(QString text, int thread_id, int message_id);
 private slots:
     void slot_reset_head();
 };

@@ -14,6 +14,7 @@ find_package(jsoncpp CONFIG REQUIRED)
 find_package(unofficial-mysql-connector-cpp CONFIG REQUIRED)
 find_package(lz4 CONFIG REQUIRED)
 find_package(zstd CONFIG REQUIRED)
+find_package(CURL REQUIRED)
 
 function(_pick_first_existing_target out_var)
   foreach(candidate IN LISTS ARGN)
@@ -142,3 +143,9 @@ mychat_add_server(StatusServer StatusServer
 mychat_add_server(ResourceServer ResourceServer
   ENTRY ResourceServer.cpp
 )
+
+mychat_add_server(LLMServer LLMServer
+  ENTRY LLMServer.cpp
+)
+
+target_link_libraries(LLMServer PRIVATE CURL::libcurl)

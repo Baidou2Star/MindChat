@@ -33,6 +33,11 @@ public:
 	bool AddChatMsg(std::vector<std::shared_ptr<ChatMessage>>& chat_datas);
 	bool AddChatMsg(std::shared_ptr<ChatMessage> chat_data);
 	std::shared_ptr<ChatMessage> GetChatMsg(int message_id);
+	bool CreateTodo(const TodoItem& todo, int& todo_id);
+	bool UpdateTodo(const TodoItem& todo);
+	bool DeleteTodo(int uid, int todo_id);
+	bool SetTodoStatus(int uid, int todo_id, int status);
+	bool ListTodo(int uid, int limit, std::vector<TodoItem>& todos);
 private:
 	MysqlMgr();
 	MysqlDao  _dao;
