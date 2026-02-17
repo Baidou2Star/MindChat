@@ -139,3 +139,4 @@ myChatQT/build_artifacts
 myChatQT/build_artifacts_unix
 myChatQT/.qtcreator
 *.Identifier
+LLMServer

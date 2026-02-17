@@ -30,7 +30,7 @@ ChatDialog::ChatDialog(QWidget* parent) :
 	_cur_chat_thread_id(0), _loading_dlg(nullptr), _cur_load_chat(nullptr)
 {
 	ui->setupUi(this);
-	setWindowTitle("myChat");
+	setWindowTitle("MindChat");
 
 	ui->side_bar->setMinimumWidth(70);
 	ui->side_bar->setMaximumWidth(70);
