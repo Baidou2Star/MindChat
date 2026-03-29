@@ -1,112 +1,106 @@
-<svg width="820" height="800" viewBox="0 0 820 800" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
-<defs>
+<svg width="1000" height="860" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+ <defs>
   <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+   <path d="m2,1l6,4l-6,4" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" id="svg_1"/>
   </marker>
-</defs>
+ </defs>
+ <!--
+  CLUSTER FRAME: x=56 y=382 w=848 h=88  right=904  bottom=470
+  ChatServer1:   x=80  y=400 w=240 h=52  cx=200
+  ChatServer2:   x=640 y=400 w=240 h=52  cx=760
 
-<rect width="820" height="800" fill="#ffffff"/>
-
-<!-- ── Row1: Qt Client  cx=410 ── -->
-<rect x="260" y="24" width="300" height="52" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
-<text x="410" y="45" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#3C3489">Qt 客户端</text>
-<text x="410" y="63" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#534AB7">聊天 TCP 通道 ｜ 资源 TCP 通道</text>
-
-<!-- Client → GateServer (left branch) -->
-<path d="M350 76 L350 106 L190 106 L190 134" fill="none" stroke="#7F77DD" stroke-width="1.3" marker-end="url(#arr)"/>
-<text x="262" y="102" text-anchor="middle" font-size="12" fill="#7F77DD">HTTP</text>
-
-<!-- Client → ResourceServer (right branch) -->
-<path d="M470 76 L470 106 L600 106 L600 134" fill="none" stroke="#7F77DD" stroke-width="1.3" marker-end="url(#arr)"/>
-<text x="542" y="102" text-anchor="middle" font-size="12" fill="#7F77DD">TCP</text>
-
-<!-- ── Row2L: GateServerWin  x=70 w=240 cx=190 ── -->
-<rect x="70" y="134" width="240" height="52" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-<text x="190" y="155" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#085041">GateServerWin</text>
-<text x="190" y="173" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#0F6E56">HTTP 网关 ｜ 登录 / 注册</text>
-
-<!-- ── Row2R: ResourceServer  x=480 w=240 cx=600 ── -->
-<rect x="480" y="134" width="240" height="52" rx="10" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
-<text x="600" y="155" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#712B13">ResourceServer</text>
-<text x="600" y="173" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#993C1D">文件 / 图片 ｜ 断点续传</text>
-
-<!-- GateServer → StatusServer -->
-<path d="M190 186 L190 216 L330 216 L330 244" fill="none" stroke="#0F6E56" stroke-width="1.3" marker-end="url(#arr)"/>
-<text x="254" y="212" text-anchor="middle" font-size="12" fill="#0F6E56">gRPC</text>
-
-<!-- GateServer → VarifyServer: mid-right channel x=440 -->
-<path d="M310 160 L440 160 L440 530 L480 530" fill="none" stroke="#3B6D11" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#arr)"/>
-<text x="444" y="150" text-anchor="start" font-size="12" fill="#3B6D11">gRPC</text>
-
-<!-- ResourceServer → ChatServer2: far right channel x=760 -->
-<path d="M720 160 L760 160 L760 384 L720 384" fill="none" stroke="#993C1D" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
-<text x="764" y="275" text-anchor="start" font-size="12" fill="#993C1D">gRPC 通知</text>
-
-<!-- ── Row3: StatusServer  x=260 w=300 cx=410 ── -->
-<rect x="260" y="244" width="300" height="52" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
-<text x="410" y="265" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">StatusServer</text>
-<text x="410" y="283" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">负载均衡 ｜ Token 下发</text>
-
-<!-- StatusServer → ChatServer1 -->
-<path d="M330 296 L330 326 L190 326 L190 354" fill="none" stroke="#185FA5" stroke-width="1.3" marker-end="url(#arr)"/>
-<text x="254" y="322" text-anchor="middle" font-size="12" fill="#185FA5">gRPC</text>
-
-<!-- StatusServer → ChatServer2 -->
-<path d="M490 296 L490 326 L600 326 L600 354" fill="none" stroke="#185FA5" stroke-width="1.3" marker-end="url(#arr)"/>
-<text x="550" y="322" text-anchor="middle" font-size="12" fill="#185FA5">gRPC</text>
-
-<!-- ── ChatServer cluster frame  x=58 w=664 ── -->
-<rect x="58" y="336" width="664" height="88" rx="12" fill="none" stroke="#378ADD" stroke-width="1.2" stroke-dasharray="6,4"/>
-<text x="390" y="434" text-anchor="middle" font-size="12" fill="#378ADD">聊天服务集群</text>
-
-<!-- ── Row4L: ChatServer1  x=70 w=240 cx=190 ── -->
-<rect x="70" y="354" width="240" height="52" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
-<text x="190" y="375" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">ChatServer 节点 1</text>
-<text x="190" y="393" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">长连接 ｜ 消息路由</text>
-
-<!-- ── Row4R: ChatServer2  x=480 w=240 cx=600 ── -->
-<rect x="480" y="354" width="240" height="52" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
-<text x="600" y="375" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">ChatServer 节点 2</text>
-<text x="600" y="393" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">长连接 ｜ 消息路由</text>
-
-<!-- Chat1 ↔ Chat2 跨节点 -->
-<line x1="310" y1="380" x2="480" y2="380" fill="none" stroke="#888780" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
-<text x="395" y="372" text-anchor="middle" font-size="12" fill="#5F5E5A">跨节点转发</text>
-
-<!-- Chat1 → LLMServer -->
-<line x1="190" y1="424" x2="190" y2="504" fill="none" stroke="#185FA5" stroke-width="1.3" marker-end="url(#arr)"/>
-<text x="164" y="465" text-anchor="middle" font-size="12" fill="#185FA5">gRPC</text>
-
-<!-- ── Row5L: LLMServer  x=70 w=240 cx=190 ── -->
-<rect x="70" y="504" width="240" height="52" rx="10" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
-<text x="190" y="525" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">LLMServer</text>
-<text x="190" y="543" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">/chat ｜ /extract_todo</text>
-
-<!-- ── Row5R: VarifyServer  x=480 w=240 cx=600 ── -->
-<rect x="480" y="504" width="240" height="52" rx="10" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
-<text x="600" y="525" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#27500A">VarifyServer</text>
-<text x="600" y="543" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3B6D11">Node.js ｜ 验证码服务</text>
-
-<!-- LLMServer → MySQL -->
-<line x1="190" y1="556" x2="190" y2="664" fill="none" stroke="#5F5E5A" stroke-width="1.2" marker-end="url(#arr)"/>
-
-<!-- VarifyServer → Redis -->
-<line x1="600" y1="556" x2="600" y2="664" fill="none" stroke="#5F5E5A" stroke-width="1.2" marker-end="url(#arr)"/>
-
-<!-- Chat1 → MySQL: left channel x=30 -->
-<path d="M100 424 L30 424 L30 690 L70 690" fill="none" stroke="#5F5E5A" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
-
-<!-- Chat2 → Redis: inner right channel x=750 (inside frame, left of gRPC notice) -->
-<path d="M660 424 L750 424 L750 690 L720 690" fill="none" stroke="#5F5E5A" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
-
-<!-- ── Row6L: MySQL  x=70 w=240 cx=190 ── -->
-<rect x="70" y="664" width="240" height="52" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
-<text x="190" y="685" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#444441">MySQL</text>
-<text x="190" y="703" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#5F5E5A">持久化存储</text>
-
-<!-- ── Row6R: Redis  x=480 w=240 cx=600 ── -->
-<rect x="480" y="664" width="240" height="52" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
-<text x="600" y="685" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#444441">Redis</text>
-<text x="600" y="703" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#5F5E5A">缓存 ｜ 状态 ｜ 分布式锁</text>
-
+  External lines land on CLUSTER FRAME edges:
+    top-left area  (200, 382) ← StatusServer→Chat1
+    top-right area (760, 382) ← StatusServer→Chat2
+    left edge      (56,  426) ← Client TCP
+    right edge     (904, 426) ← ResourceServer gRPC notice
+    bottom-left    (200, 470) → LLMServer
+    bottom-left channel (56, 470) → MySQL via far-left
+    bottom-right channel (904,470) → Redis via far-right
+-->
+ <!-- ═══ Row1: Qt Client ═══ -->
+ <!-- Client → GateServer -->
+ <!-- Client → ResourceServer -->
+ <!-- Client → Cluster left edge (56,426): far-left channel x=28 -->
+ <!-- ═══ Row2L: GateServerWin ═══ -->
+ <!-- ═══ Row2R: ResourceServer ═══ -->
+ <!-- GateServer → StatusServer -->
+ <!-- GateServer → VarifyServer: channel x=510 -->
+ <!-- ResourceServer → Cluster right edge (904,426): far-right channel x=930 -->
+ <!-- ═══ Row3: StatusServer ═══ -->
+ <!-- StatusServer → Cluster top, left zone (200,382) -->
+ <!-- StatusServer → Cluster top, right zone (760,382) -->
+ <!-- ═══ Cluster frame (drawn before nodes so nodes render on top) ═══ -->
+ <!-- ═══ Row4L: ChatServer1 ═══ -->
+ <!-- ═══ Row4R: ChatServer2 ═══ -->
+ <!-- Chat1 ↔ Chat2 跨节点 (internal) -->
+ <!-- Chat1 → LLMServer: from Cluster bottom (200,470) straight down -->
+ <!-- Cluster → MySQL: from Cluster bottom-left edge (56,470), far-left channel x=28 -->
+ <!-- Cluster → Redis: from Cluster bottom-right edge (904,470), channel x=932 -->
+ <!-- ═══ Row5L: LLMServer ═══ -->
+ <!-- ═══ Row5R: VarifyServer ═══ -->
+ <!-- LLMServer → MySQL -->
+ <!-- VarifyServer → Redis -->
+ <!-- ═══ Row6L: MySQL ═══ -->
+ <!-- ═══ Row6R: Redis ═══ -->
+ <g>
+  <title>Layer 1</title>
+  <path stroke="null" fill="#ffffff" opacity="undefined" d="m0,-1l999.00005,0l0,860l-999.00005,0l0,-860z" id="svg_2"/>
+  <rect x="330" y="30" width="300" height="52" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5" id="svg_3"/>
+  <text x="480" y="51" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#3C3489" id="svg_4">Qt 客户端</text>
+  <text x="480" y="69" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#534AB7" id="svg_5">聊天 TCP 通道 ｜ 资源 TCP 通道</text>
+  <path d="m410,82l0,34l-210,0l0,34" fill="none" stroke="#7F77DD" stroke-width="1.3" marker-end="url(#arr)" id="svg_6"/>
+  <text x="300" y="111" text-anchor="middle" font-size="12" fill="#7F77DD" id="svg_7">HTTP</text>
+  <path d="m550,82l0,34l210,0l0,34" fill="none" stroke="#7F77DD" stroke-width="1.3" marker-end="url(#arr)" id="svg_8"/>
+  <text x="660" y="111" text-anchor="middle" font-size="12" fill="#7F77DD" id="svg_9">TCP</text>
+  <path d="m370,82l0,17.52907l-342,0l0,317.47093l28,0" fill="none" stroke-width="1.1" stroke-dasharray="5,3" marker-end="url(#arr)" id="svg_10" stroke="#7F77DD"/>
+  <text x="33" y="270" text-anchor="start" font-size="12" fill="#7F77DD" id="svg_11">TCP</text>
+  <rect x="80" y="150" width="240" height="52" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5" id="svg_12"/>
+  <text x="200" y="171" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#085041" id="svg_13">GateServerWin</text>
+  <text x="200" y="189" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#0F6E56" id="svg_14">HTTP 网关 ｜ 登录 / 注册</text>
+  <rect x="640" y="150" width="240" height="52" rx="10" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5" id="svg_15"/>
+  <text x="760" y="171" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#712B13" id="svg_16">ResourceServer</text>
+  <text x="760" y="189" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#993C1D" id="svg_17">文件 / 图片 ｜ 断点续传</text>
+  <path d="m200,202l0,34l200,0l0,34" fill="none" stroke="#0F6E56" stroke-width="1.3" marker-end="url(#arr)" id="svg_18"/>
+  <text x="294" y="231" text-anchor="middle" font-size="12" fill="#0F6E56" id="svg_19">gRPC</text>
+  <path d="m320,176l190,0l0,420l130,0" fill="none" stroke-dasharray="5,3" marker-end="url(#arr)" id="svg_20" stroke="#3B6D11"/>
+  <text x="514" y="165" text-anchor="start" font-size="12" fill="#3B6D11" id="svg_21">gRPC</text>
+  <path d="m880,176l50,0l0,239l-26,0" fill="none" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr)" id="svg_22" stroke="#993C1D"/>
+  <text x="934" y="305" text-anchor="start" font-size="12" fill="#993C1D" id="svg_23">gRPC 通知</text>
+  <rect x="330" y="270" width="300" height="52" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5" id="svg_24"/>
+  <text x="480" y="291" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C" id="svg_25">StatusServer</text>
+  <text x="480" y="309" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5" id="svg_26">负载均衡 ｜ Token 下发</text>
+  <path d="m400,322l0,38l-200,0l0,22" fill="none" stroke="#185FA5" stroke-width="1.3" marker-end="url(#arr)" id="svg_27"/>
+  <text x="294" y="356" text-anchor="middle" font-size="12" fill="#185FA5" id="svg_28">gRPC</text>
+  <path d="m560,322l0,38l200,0l0,22" fill="none" stroke="#185FA5" stroke-width="1.3" marker-end="url(#arr)" id="svg_29"/>
+  <text x="666" y="356" text-anchor="middle" font-size="12" fill="#185FA5" id="svg_30">gRPC</text>
+  <rect x="56" y="382" width="848" height="88" rx="12" fill="#EBF4FF" stroke="#378ADD" stroke-width="1.4" stroke-dasharray="6,4" id="svg_31"/>
+  <text x="461.80594" y="487.28714" text-anchor="middle" font-size="12" fill="#378ADD" id="svg_32" stroke="null" transform="matrix(1.15496 0 0 1.15496 -69.3546 -74.7565)">聊天服务集群</text>
+  <rect x="80" y="400" width="240" height="52" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5" id="svg_33"/>
+  <text x="200" y="421" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C" id="svg_34">ChatServer 节点 1</text>
+  <text x="200" y="439" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5" id="svg_35">长连接 ｜ 消息路由</text>
+  <rect x="640" y="400" width="240" height="52" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5" id="svg_36"/>
+  <text x="760" y="421" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C" id="svg_37">ChatServer 节点 2</text>
+  <text x="760" y="439" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5" id="svg_38">长连接 ｜ 消息路由</text>
+  <line x1="320" y1="426" x2="640" y2="426" fill="none" stroke="#888780" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr)" id="svg_39"/>
+  <text x="480" y="418" text-anchor="middle" font-size="12" fill="#5F5E5A" id="svg_40">跨节点转发</text>
+  <line x1="200" y1="470" x2="200" y2="570" fill="none" stroke="#185FA5" stroke-width="1.3" marker-end="url(#arr)" id="svg_41"/>
+  <text x="172" y="521" text-anchor="middle" font-size="12" fill="#185FA5" id="svg_42">gRPC</text>
+  <path d="m56,442l-28,0l0,314l52,0" fill="none" stroke-dasharray="4,3" marker-end="url(#arr)" id="svg_43" stroke="#5F5E5A"/>
+  <path d="m904,442.99997l28,0l0,313.00003l-52,0" fill="none" stroke-dasharray="4,3" marker-end="url(#arr)" id="svg_44" stroke="#5F5E5A"/>
+  <rect x="80" y="570" width="240" height="52" rx="10" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5" id="svg_45"/>
+  <text x="200" y="591" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806" id="svg_46">LLMServer</text>
+  <text style="cursor: move;" x="200" y="609" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B" id="svg_47">智能助手 ｜ 一键转待办</text>
+  <rect x="640" y="570" width="240" height="52" rx="10" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5" id="svg_48"/>
+  <text x="760" y="591" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#27500A" id="svg_49">VarifyServer</text>
+  <text x="760" y="609" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3B6D11" id="svg_50">Node.js ｜ 验证码服务</text>
+  <line x1="200" y1="622" x2="200" y2="730" fill="none" stroke="#5F5E5A" stroke-width="1.2" marker-end="url(#arr)" id="svg_51"/>
+  <line x1="760" y1="622" x2="760" y2="730" fill="none" stroke="#5F5E5A" stroke-width="1.2" marker-end="url(#arr)" id="svg_52"/>
+  <rect x="80" y="730" width="240" height="52" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5" id="svg_53"/>
+  <text x="200" y="751" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#444441" id="svg_54">MySQL</text>
+  <text x="200" y="769" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#5F5E5A" id="svg_55">持久化存储</text>
+  <rect x="640" y="730" width="240" height="52" rx="10" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5" id="svg_56"/>
+  <text x="760" y="751" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#444441" id="svg_57">Redis</text>
+  <text x="760" y="769" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#5F5E5A" id="svg_58">缓存 ｜ 状态 ｜ 分布式锁</text>
+ </g>
 </svg>
